@@ -1,0 +1,14 @@
+//api call to create event
+
+import { eventFormAction } from '@/serverAction/eventAction';
+import { NextResponse } from 'next/server';
+
+export async function POST(req) {
+    const formData = await req.json();
+    try {
+        await eventFormAction(formData);
+        return NextResponse.json(formData, { status: 200 });
+    } catch (error) {
+        return NextResponse.error(error);
+    }
+}

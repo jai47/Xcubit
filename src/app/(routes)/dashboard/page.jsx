@@ -1,0 +1,637 @@
+'use client';
+
+import Navbar from '@/components/layout/Navbar';
+import Tickets from '@/components/Tickets/Ticket';
+import useSessionData from '@/hooks/useSessionData';
+import { logout } from '@/serverAction/authAction';
+import { updateForgotPasswordToken } from '@/serverAction/userAction';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
+export default function Dashboard() {
+    // State to manage which section is visible
+    const session = useSessionData();
+    const searchParams = useSearchParams();
+    const querySection = searchParams.get('section') || 'Profile';
+    const ticketQuery = searchParams.get('ticket');
+    const [showModal, setShowModal] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [profile, setProfile] = useState(null);
+
+    useEffect(() => {
+        // Define an async function within the effect
+        const fetchUserData = async () => {
+            try {
+                if (session?.user) {
+                    const response = await fetch('/api/getUser', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email: session.user.email }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch user data');
+                    }
+
+                    const userData = await response.json();
+                    setProfile(userData.user);
+
+                    if (
+                        querySection == 'My Tickets' &&
+                        ticketQuery &&
+                        userData.user.events
+                    ) {
+                        const matchingEvent = userData.user.events.find(
+                            (event) => event.name === ticketQuery
+                        );
+                        if (matchingEvent) {
+                            setSelectedEvent(matchingEvent); // Preselect the ticket
+                        }
+                        console.log('Matching Event:', matchingEvent);
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        // Call the async function
+        fetchUserData();
+    }, [session]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setProfile((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const toggleEditing = () => {
+        setIsEditing(!isEditing);
+    };
+
+    const showTicket = (value) => {
+        setSelectedEvent(value); // Correctly toggle visibility
+    };
+
+    // Render the content based on the active section
+    const renderContent = () => {
+        switch (querySection) {
+            case 'Profile':
+                return (
+                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2">
+                            Profile
+                        </h2>
+                        <div className="flex flex-col md:flex-row gap-6">
+                            <img
+                                src="/default-avatar.png"
+                                alt="Profile"
+                                className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 shadow-md"
+                            />
+                            <div className="flex-1 space-y-4">
+                                <p className="text-gray-700 text-lg">
+                                    <strong className="font-semibold">
+                                        Name:
+                                    </strong>{' '}
+                                    {session?.user?.name}
+                                </p>
+                                <p className="text-gray-700 text-lg">
+                                    <strong className="font-semibold">
+                                        Email:
+                                    </strong>{' '}
+                                    {session?.user?.email}
+                                </p>
+                                {profile?.phone && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Phone:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="phone"
+                                                value={profile?.phone}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.phone
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.address && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Address:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={profile?.address}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.address
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.city && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            City:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="city"
+                                                value={profile?.city}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.city
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.state && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            State/Province:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="state"
+                                                value={profile?.state}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.state
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.postalCode && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Postal Code:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="postalCode"
+                                                value={profile?.postalCode}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.postalCode
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.country && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Country:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="country"
+                                                value={profile?.country}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.country
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.dateOfBirth && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Date of Birth:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="date"
+                                                name="dateOfBirth"
+                                                value={profile?.dateOfBirth}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.dateOfBirth
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.gender && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Gender:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <select
+                                                name="gender"
+                                                value={profile?.gender}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            >
+                                                <option value="Male">
+                                                    Male
+                                                </option>
+                                                <option value="Female">
+                                                    Female
+                                                </option>
+                                                <option value="Other">
+                                                    Other
+                                                </option>
+                                            </select>
+                                        ) : (
+                                            profile?.gender
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.linkedInOrGithub && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            LinkedIn/GitHub:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="linkedInOrGithub"
+                                                value={
+                                                    profile?.linkedInOrGithub
+                                                }
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            <a
+                                                href={profile?.linkedInOrGithub}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 font-medium hover:underline"
+                                            >
+                                                LinkedIn Profile
+                                            </a>
+                                        )}
+                                    </p>
+                                )}
+                                <button
+                                    className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full shadow hover:bg-blue-600"
+                                    onClick={toggleEditing}
+                                >
+                                    {isEditing
+                                        ? 'Update Profile'
+                                        : 'Edit Profile'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            case 'My Tickets':
+                return (
+                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                            My Tickets
+                        </h2>
+                        <div className="space-y-6">
+                            {profile?.events ? (
+                                profile?.events.map((event, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                                    >
+                                        <div>
+                                            <h3 className="text-xl font-semibold text-gray-800">
+                                                {event.name}
+                                            </h3>
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                Date:{' '}
+                                                <span className="font-medium">
+                                                    {event.date}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <button
+                                            onClick={() => showTicket(event)}
+                                            className="text-white bg-blue-500 px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors duration-200"
+                                        >
+                                            View Ticket
+                                        </button>
+
+                                        {selectedEvent && (
+                                            <Tickets
+                                                ticketData={{
+                                                    eventTitle:
+                                                        selectedEvent.name,
+                                                    eventDate:
+                                                        selectedEvent.date +
+                                                        ' - 12:00 PM',
+                                                    attendeeName: profile?.name,
+                                                    email: profile?.email,
+                                                    contactNumber:
+                                                        profile?.phone,
+                                                    orderId:
+                                                        selectedEvent?.[
+                                                            'Order Id'
+                                                        ],
+                                                    ticketId:
+                                                        selectedEvent?.[
+                                                            'Payment Id'
+                                                        ],
+                                                    paymentMethod: 'Razorpay',
+                                                    venue: selectedEvent.location,
+                                                    mapLink:
+                                                        selectedEvent.locationUrl,
+                                                    eventDescription:
+                                                        selectedEvent.description.substring(
+                                                            0,
+                                                            100
+                                                        ) + '...',
+                                                }}
+                                                showTicket={showTicket}
+                                            />
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-700 text-lg">
+                                    You have not registered for any events yet.
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                );
+
+            case 'My Events':
+                return (
+                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                            My Events
+                        </h2>
+                        <div className="space-y-6">
+                            {profile?.events ? (
+                                profile?.events.map((event, index) => {
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="flex items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                                        >
+                                            <div>
+                                                <h3 className="text-xl font-semibold text-gray-800">
+                                                    {event.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    Status:{' '}
+                                                    {new Date(event.date) >
+                                                    new Date() ? (
+                                                        <span className="font-medium text-green-600">
+                                                            Upcoming
+                                                        </span>
+                                                    ) : (
+                                                        <span className="font-medium text-blue-600">
+                                                            Completed
+                                                        </span>
+                                                    )}
+                                                </p>
+                                            </div>
+                                            <Link
+                                                href={`/events/${event.name}`}
+                                                className="text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-red-50 transition duration-200"
+                                            >
+                                                View Details
+                                            </Link>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-gray-700 text-lg">
+                                    No registration
+                                </p>
+                            )}
+                        </div>
+                    </div>
+                );
+
+            case 'Settings':
+                return (
+                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                            Settings
+                        </h2>
+                        <div className="space-y-6">
+                            {/* Notifications Toggle */}
+                            <div className="flex justify-between items-center p-4 bg-gray-100 border border-gray-200 rounded-lg shadow-md">
+                                <p className="text-lg font-medium text-gray-800">
+                                    Notifications
+                                </p>
+                                <label className="relative flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                    />
+                                    <div className="w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-blue-500 transition duration-200">
+                                        <div className="w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-4 transition duration-200"></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            {/* Change Password Button */}
+                            {showModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                    <div className="bg-white p-6 rounded-lg shadow-lg relative w-11/12 max-w-md">
+                                        {/* Close Button */}
+                                        <button
+                                            onClick={() =>
+                                                setShowModal(!showModal)
+                                            }
+                                            className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+                                            aria-label="Close"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                strokeWidth={2}
+                                                stroke="currentColor"
+                                                className="w-6 h-6"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M6 18L18 6M6 6l12 12"
+                                                />
+                                            </svg>
+                                        </button>
+
+                                        {/* Modal Content */}
+                                        <div className="text-center">
+                                            <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                                                Password Reset Link Sent!
+                                            </h2>
+                                            <p className="text-gray-600">
+                                                A password-changing link has
+                                                been sent to your registered
+                                                email. Please check your inbox
+                                                and follow the instructions.
+                                            </p>
+                                            <button
+                                                onClick={() =>
+                                                    setShowModal(!showModal)
+                                                }
+                                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            >
+                                                OK
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div className="text-right">
+                                <button
+                                    onClick={async () => {
+                                        await updateForgotPasswordToken(
+                                            session?.user?.email
+                                        );
+                                        setShowModal(true);
+                                    }}
+                                    className="bg-blue-500 text-white font-medium px-6 py-3 rounded-full shadow hover:bg-blue-600 transition duration-200"
+                                >
+                                    Change Password
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+            default:
+                return <div>Select a section from the sidebar</div>;
+        }
+    };
+
+    return (
+        <>
+            <Navbar user={session?.user} />
+            <div className="flex h-screen bg-gray-100">
+                {/* Sidebar */}
+                <div className="w-64 bg-white shadow-lg">
+                    <div className="p-6 text-center border-b">
+                        <img
+                            src="/default-avatar.png"
+                            alt="Profile"
+                            className="w-20 h-20 rounded-full mx-auto"
+                        />
+                        <h2 className="mt-4 text-lg font-semibold">
+                            {session?.user?.name}
+                        </h2>
+                        <p className="text-sm text-gray-500">
+                            {session?.user?.email}
+                        </p>
+                    </div>
+                    <nav className="mt-4">
+                        <ul>
+                            <Link
+                                href={{
+                                    pathname: '/dashboard',
+                                    query: {
+                                        section: 'Profile',
+                                    },
+                                }}
+                            >
+                                <li
+                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                        querySection === 'Profile'
+                                            ? 'bg-gray-100'
+                                            : ''
+                                    }`}
+                                >
+                                    Profile
+                                </li>
+                            </Link>
+                            <Link
+                                href={{
+                                    pathname: '/dashboard',
+                                    query: {
+                                        section: 'My Tickets',
+                                    },
+                                }}
+                            >
+                                <li
+                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                        querySection === 'My Tickets'
+                                            ? 'bg-gray-100'
+                                            : ''
+                                    }`}
+                                >
+                                    My Tickets
+                                </li>
+                            </Link>
+
+                            <Link
+                                href={{
+                                    pathname: '/dashboard',
+                                    query: {
+                                        section: 'My Events',
+                                    },
+                                }}
+                            >
+                                <li
+                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                        querySection === 'My Events'
+                                            ? 'bg-gray-100'
+                                            : ''
+                                    }`}
+                                >
+                                    My Events
+                                </li>
+                            </Link>
+
+                            <Link
+                                href={{
+                                    pathname: '/dashboard',
+                                    query: {
+                                        section: 'Settings',
+                                    },
+                                }}
+                            >
+                                <li
+                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                        querySection === 'Settings'
+                                            ? 'bg-gray-100'
+                                            : ''
+                                    }`}
+                                >
+                                    Settings
+                                </li>
+                            </Link>
+
+                            <li>
+                                <button
+                                    className="w-full px-6 py-3 text-left text-red-500 hover:bg-gray-100"
+                                    onClick={async () => {
+                                        await logout();
+                                        redirect('/');
+                                    }}
+                                >
+                                    Logout
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 p-6">{renderContent()}</div>
+            </div>
+        </>
+    );
+}
