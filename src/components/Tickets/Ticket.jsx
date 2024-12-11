@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Image from 'next/image';
 import React, { useEffect, useRef } from 'react';
 
 const Tickets = ({ ticketData, showTicket }) => {
@@ -18,7 +18,7 @@ const Tickets = ({ ticketData, showTicket }) => {
             // Clean up the event listener on unmount
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, []);
+    }, [handleClickOutside]);
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             {/* Floating Window */}
@@ -65,7 +65,7 @@ const Tickets = ({ ticketData, showTicket }) => {
 
                     {/* QR Code */}
                     <div className="flex justify-center my-4">
-                        <img
+                        <Image
                             src="https://via.placeholder.com/150" // Replace with actual QR code
                             alt="QR Code"
                             className="h-36 w-36"
