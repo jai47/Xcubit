@@ -1,20 +1,20 @@
 'use server';
 import { signIn, signOut } from '@/app/auth';
+import { redirect } from 'next/navigation';
 
 export async function loginCred(formData) {
     try {
-        const response = await signIn('credentials', {
+        await signIn('credentials', {
             email: formData.get('email'),
             password: formData.get('password'),
-            redirect: true,
-            callbackUrl: '/dashboard',
+            redirect: false,
+            callbackUrl: '/',
         });
-        console.log(response);
-        return response;
     } catch (error) {
         console.log(error);
         throw error;
     }
+    redirect('/dashboard');
 }
 
 export async function loginGoogle() {

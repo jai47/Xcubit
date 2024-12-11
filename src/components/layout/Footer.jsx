@@ -61,7 +61,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/routes/about"
+                                    href="/about"
                                     className="hover:text-gray-400"
                                 >
                                     About
@@ -69,7 +69,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/routes/event"
+                                    href="/event"
                                     className="hover:text-gray-400"
                                 >
                                     Events
@@ -77,7 +77,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link
-                                    href="/routes/contact"
+                                    href="/contact"
                                     className="hover:text-gray-400"
                                 >
                                     Contact Us

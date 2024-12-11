@@ -137,13 +137,13 @@ const Navbar = () => {
                         Home
                     </Link>
                     <Link
-                        href="/routes/event"
+                        href="/event"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         Events
                     </Link>
                     <Link
-                        href="/routes/about"
+                        href="/about"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         About Us
@@ -160,7 +160,7 @@ const Navbar = () => {
                         Tickets
                     </Link>
                     <Link
-                        href="/routes/contact"
+                        href="/contact"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         Contact
@@ -168,13 +168,13 @@ const Navbar = () => {
                     {!user ? (
                         <>
                             <Link
-                                href="/routes/login"
+                                href="/login"
                                 className="block text-gray-200 hover:text-gray-400 text-center py-2"
                             >
                                 Login
                             </Link>
                             <Link
-                                href="/routes/register"
+                                href="/register"
                                 className="block text-gray-200 hover:text-gray-400 text-center py-2"
                             >
                                 Sign Up

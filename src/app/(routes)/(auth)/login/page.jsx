@@ -24,13 +24,6 @@ export default async function Login() {
                         className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md"
                     >
                         <div className="text-center mb-4">
-                            <Image
-                                src={user.image}
-                                className="w-20 h-20 rounded-full mx-auto"
-                                alt="login page"
-                                width={80}
-                                height={80}
-                            />
                             <h2 className="text-xl font-semibold text-gray-800 mt-4">
                                 {user.name}
                             </h2>

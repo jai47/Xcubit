@@ -109,13 +109,13 @@ const Navbar = ({ user }) => {
                         Home
                     </Link>
                     <Link
-                        href="/routes/event"
+                        href="/event"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         Events
                     </Link>
                     <Link
-                        href="/routes/about"
+                        href="/about"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         About Us
@@ -132,7 +132,7 @@ const Navbar = ({ user }) => {
                         Tickets
                     </Link>
                     <Link
-                        href="/routes/contact"
+                        href="/contact"
                         className="block text-gray-200 hover:text-gray-400 text-center py-2"
                     >
                         Contact
@@ -140,13 +140,13 @@ const Navbar = ({ user }) => {
                     {!user ? (
                         <>
                             <Link
-                                href="/routes/login"
+                                href="/login"
                                 className="block text-gray-200 hover:text-gray-400 text-center py-2"
                             >
                                 Login
                             </Link>
                             <Link
-                                href="/routes/register"
+                                href="/register"
                                 className="block text-gray-200 hover:text-gray-400 text-center py-2"
                             >
                                 Sign Up
