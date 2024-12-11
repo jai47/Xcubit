@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { auth } from '@/app/auth';
 import Link from 'next/link';
+import Image from 'next/image';
 
 // Metadata for SEO
 export async function generateMetadata(props) {
@@ -34,29 +35,33 @@ const Event = async (props) => {
             <Navbar user={user} />
             <div className="min-h-screen bg-white sm:px-6 lg:px-12">
                 {/* Header Section */}
-                <div className="relative bg-white overflow-hidden">
+                <div className="w-full h-[50svh] relative bg-white overflow-hidden">
                     {/* Image with overlay */}
-                    <div className="absolute inset-0 bg-black opacity-40"></div>{' '}
-                    {/* Overlay */}
-                    <img
-                        src={data.image} // Replace with dynamic `data.image` when available
-                        alt={data.name}
-                        className="w-full h-60 object-cover"
-                    />
+                    <div className="w-full h-[70%] overflow-hidden flex justify-center items-center ">
+                        {/* Overlay */}
+                        <Image
+                            src={data.image} // Replace with dynamic `data.image` when available
+                            alt={data.name}
+                            width={1920} // Adjust dimensions as per your layout
+                            height={720}
+                            layout="responsive" // Make the image responsive
+                            priority // Ensure optimized loading for LCP
+                        />
+                    </div>
                     <div className="relative flex flex-col sm:flex-row justify-between sm:items-center sm:p-8 z-10">
                         <div>
-                            <h1 className="text-4xl font-extrabold text-white">
+                            <h1 className="text-4xl font-extrabold text-black">
                                 {data.name}
                             </h1>
-                            <p className="text-sm text-gray-300 mt-2">
+                            <p className="text-sm text-gray-800 mt-2">
                                 {data.category}
                             </p>
                         </div>
                         <div className="mt-4 sm:mt-0">
-                            <h1 className="text-xl font-bold text-white">
+                            <h1 className="text-xl font-bold text-black">
                                 Total Participation
                             </h1>
-                            <p className="text-sm text-gray-300 mt-2">
+                            <p className="text-sm text-gray-800 mt-2">
                                 {data.maxParticipation}
                             </p>
                         </div>

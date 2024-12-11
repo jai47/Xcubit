@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 // import { XIcon, MenuIcon } from "@heroicons/react/outline";
-export default function Dashboard() {
+function Dashboard() {
     //
     const session = useSessionData();
     const searchParams = useSearchParams();
@@ -633,5 +633,13 @@ export default function Dashboard() {
                 <div className="flex-1 p-6">{renderContent()}</div>
             </div>
         </>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <Dashboard />
+        </Suspense>
     );
 }

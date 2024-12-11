@@ -1,6 +1,7 @@
 'use client';
 import ImageKit from 'imagekit';
 import { IKUpload, ImageKitProvider } from 'imagekitio-next';
+import Image from 'next/image';
 import { useState, useRef } from 'react';
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
@@ -103,8 +104,10 @@ const ImageUpload = ({ getImageData }) => {
                 imageData && (
                     <div>
                         <p>Upload Complete!</p>
-                        <img
+                        <Image
                             src={imageData.thumbnailUrl}
+                            width={200}
+                            height={200}
                             alt="Uploaded Thumbnail"
                         />
                         <p>

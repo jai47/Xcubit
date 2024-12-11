@@ -4,7 +4,6 @@ import HeroSection from '@/components/HeroSection/HeroSection';
 import FiltersSection from '../components/FiltersSection/FiltersSection';
 import UpcomingEvents from '../components/UpcomingEvents/UpcomingEvents';
 import SupportersSection from '../components/SupportersSection/SupportersSection';
-import BlogSection from '../components/BlogSection/BlogSection';
 
 export default async function Home() {
     return (
@@ -15,7 +14,6 @@ export default async function Home() {
                 <FiltersSection />
                 <UpcomingEvents />
                 <SupportersSection />
-                {/* <BlogSection /> */}
             </main>
             <Footer />
         </div>
