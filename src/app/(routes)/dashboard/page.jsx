@@ -8,10 +8,10 @@ import { logout } from '@/serverAction/authAction';
 import { updateForgotPasswordToken } from '@/serverAction/userAction';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState, Suspense } from 'react';
-
-function Dashboard() {
-    // State to manage which section is visible
+import React, { useEffect, useState } from 'react';
+// import { XIcon, MenuIcon } from "@heroicons/react/outline";
+export default function Dashboard() {
+    //
     const session = useSessionData();
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Profile';
@@ -20,7 +20,7 @@ function Dashboard() {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState(null);
-
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     useEffect(() => {
         // Define an async function within the effect
         const fetchUserData = async () => {
@@ -61,7 +61,7 @@ function Dashboard() {
 
         // Call the async function
         fetchUserData();
-    }, [session, ticketQuery, querySection]);
+    }, [session]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -71,7 +71,9 @@ function Dashboard() {
     const toggleEditing = () => {
         setIsEditing(!isEditing);
     };
-
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+    };
     const showTicket = (value) => {
         setSelectedEvent(value); // Correctly toggle visibility
     };
@@ -92,7 +94,7 @@ function Dashboard() {
                                     `${process.env.NEXT_PUBLIC_BASE_URL}/avatar/default.png`
                                 }
                                 alt="Profile"
-                                className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 shadow-md"
+                                className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 shadow-md mx-auto md:mx-0"
                                 width={128}
                                 height={128}
                             />
@@ -310,71 +312,63 @@ function Dashboard() {
                         </h2>
                         <div className="space-y-6">
                             {profile?.events ? (
-                                profile?.events.map((event, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-                                    >
-                                        <div>
-                                            <h3 className="text-xl font-semibold text-gray-800">
-                                                {event.name}
-                                            </h3>
-                                            <p className="text-sm text-gray-600 mt-1">
-                                                Date:{' '}
-                                                <span className="font-medium">
-                                                    {event.date}
-                                                </span>
-                                            </p>
-                                        </div>
-                                        <button
-                                            onClick={() => showTicket(event)}
-                                            className="text-white bg-blue-500 px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors duration-200"
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {profile?.events.map((event, index) => (
+                                        <div
+                                            key={index}
+                                            className="flex flex-col items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                                         >
-                                            View Ticket
-                                        </button>
-                                        {console.log(
-                                            'Matching Event:',
-                                            selectedEvent
-                                        )}
-                                        {selectedEvent && (
-                                            <Tickets
-                                                ticketData={{
-                                                    eventTitle:
-                                                        selectedEvent.name,
-                                                    eventDate:
-                                                        selectedEvent.date +
-                                                        ' - 12:00 PM',
-                                                    attendeeName: profile?.name,
-                                                    email: profile?.email,
-                                                    contactNumber:
-                                                        profile?.phone,
-                                                    orderId:
-                                                        selectedEvent?.[
-                                                            'Order Id'
-                                                        ],
-                                                    ticketId:
-                                                        selectedEvent?.[
-                                                            'Payment Id'
-                                                        ],
-                                                    paymentMethod: 'Razorpay',
-                                                    venue: selectedEvent.location,
-                                                    mapLink:
-                                                        selectedEvent.locationUrl,
-                                                    eventDescription:
-                                                        selectedEvent.description.substring(
-                                                            0,
-                                                            100
-                                                        ) + '...',
-                                                }}
-                                                showTicket={showTicket}
-                                            />
-                                        )}
-                                    </div>
-                                ))
+                                            <div className="text-center">
+                                                <h3 className="text-xl font-semibold text-gray-800">
+                                                    {event.name}
+                                                </h3>
+                                                <p className="text-sm text-gray-600 mt-1">
+                                                    Date:{' '}
+                                                    <span className="font-medium">
+                                                        {event.date}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <button
+                                                onClick={() =>
+                                                    showTicket(event)
+                                                }
+                                                className="mt-4 text-white bg-blue-500 px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors duration-200"
+                                            >
+                                                View Ticket
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
                             ) : (
                                 <p className="text-gray-700 text-lg">
                                     You have not registered for any events yet.
                                 </p>
+                            )}
+
+                            {/* Render the selected ticket only if an event is selected */}
+                            {selectedEvent && (
+                                <Tickets
+                                    ticketData={{
+                                        eventTitle: selectedEvent.name,
+                                        eventDate:
+                                            selectedEvent.date + ' - 12:00 PM',
+                                        attendeeName: profile?.name,
+                                        email: profile?.email,
+                                        contactNumber: profile?.phone,
+                                        orderId: selectedEvent?.['Order Id'],
+                                        ticketId: selectedEvent?.['Payment Id'],
+                                        paymentMethod: 'Razorpay',
+                                        venue: selectedEvent.location,
+                                        mapLink: selectedEvent.locationUrl,
+                                        eventDescription:
+                                            selectedEvent.description.substring(
+                                                0,
+                                                100
+                                            ) + '...',
+                                    }}
+                                    showTicket={showTicket}
+                                />
                             )}
                         </div>
                     </div>
@@ -414,7 +408,7 @@ function Dashboard() {
                                             </div>
                                             <Link
                                                 href={`/events/${event.name}`}
-                                                className="text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-red-50 transition duration-200"
+                                                className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-red-50 transition duration-200"
                                             >
                                                 View Details
                                             </Link>
@@ -528,10 +522,54 @@ function Dashboard() {
 
     return (
         <>
-            <Navbar user={session?.user} />
-            <div className="flex h-screen bg-gray-100">
+            <Navbar />
+            <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
+                {/* Sidebar Toggle Button (Hamburger) */}
+                <div className="lg:hidden p-4">
+                    <button
+                        onClick={toggleSidebar}
+                        className="text-gray-600 focus:outline-none"
+                    >
+                        {isSidebarOpen ? (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M4 6h16M4 12h16M4 18h16"
+                                />
+                            </svg>
+                        )}
+                    </button>
+                </div>
+
                 {/* Sidebar */}
-                <div className="w-64 bg-white shadow-lg">
+                <div
+                    className={`lg:w-64 w-full bg-white shadow-lg lg:block ${
+                        isSidebarOpen ? 'block' : 'hidden'
+                    } lg:block`}
+                >
                     <div className="p-6 text-center border-b">
                         <Image
                             src={
@@ -540,8 +578,8 @@ function Dashboard() {
                             }
                             alt="Profile"
                             className="w-20 h-20 rounded-full mx-auto"
-                            width={20}
-                            height={20}
+                            width={80}
+                            height={80}
                         />
                         <h2 className="mt-4 text-lg font-semibold">
                             {session?.user?.name}
@@ -552,87 +590,36 @@ function Dashboard() {
                     </div>
                     <nav className="mt-4">
                         <ul>
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: {
-                                        section: 'Profile',
-                                    },
-                                }}
-                            >
-                                <li
-                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
-                                        querySection === 'Profile'
-                                            ? 'bg-gray-100'
-                                            : ''
-                                    }`}
+                            {[
+                                'Profile',
+                                'My Tickets',
+                                'My Events',
+                                'Settings',
+                            ].map((item) => (
+                                <Link
+                                    href={{
+                                        pathname: '/dashboard',
+                                        query: { section: item },
+                                    }}
+                                    key={item}
                                 >
-                                    Profile
-                                </li>
-                            </Link>
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: {
-                                        section: 'My Tickets',
-                                    },
-                                }}
-                            >
-                                <li
-                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
-                                        querySection === 'My Tickets'
-                                            ? 'bg-gray-100'
-                                            : ''
-                                    }`}
-                                >
-                                    My Tickets
-                                </li>
-                            </Link>
-
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: {
-                                        section: 'My Events',
-                                    },
-                                }}
-                            >
-                                <li
-                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
-                                        querySection === 'My Events'
-                                            ? 'bg-gray-100'
-                                            : ''
-                                    }`}
-                                >
-                                    My Events
-                                </li>
-                            </Link>
-
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: {
-                                        section: 'Settings',
-                                    },
-                                }}
-                            >
-                                <li
-                                    className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
-                                        querySection === 'Settings'
-                                            ? 'bg-gray-100'
-                                            : ''
-                                    }`}
-                                >
-                                    Settings
-                                </li>
-                            </Link>
-
+                                    <li
+                                        className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                            querySection === item
+                                                ? 'bg-gray-100'
+                                                : ''
+                                        }`}
+                                    >
+                                        {item}
+                                    </li>
+                                </Link>
+                            ))}
                             <li>
                                 <button
                                     className="w-full px-6 py-3 text-left text-red-500 hover:bg-gray-100"
                                     onClick={async () => {
                                         await logout();
-                                        redirect('/');
+                                        router.push('/');
                                     }}
                                 >
                                     Logout
@@ -646,13 +633,5 @@ function Dashboard() {
                 <div className="flex-1 p-6">{renderContent()}</div>
             </div>
         </>
-    );
-}
-
-export default function Page() {
-    return (
-        <Suspense fallback={<p>Loading...</p>}>
-            <Dashboard />
-        </Suspense>
     );
 }

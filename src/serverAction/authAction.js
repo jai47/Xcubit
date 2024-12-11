@@ -6,7 +6,8 @@ export async function loginCred(formData) {
         const response = await signIn('credentials', {
             email: formData.get('email'),
             password: formData.get('password'),
-            redirect: false,
+            redirect: true,
+            callbackUrl: '/dashboard',
         });
         console.log(response);
         return response;

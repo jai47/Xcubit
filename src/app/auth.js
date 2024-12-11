@@ -65,27 +65,35 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     }
                 } catch (error) {
                     console.error('Failed to save user:', error);
+                    return null;
                 }
             },
         }),
     ],
+    pages: {
+        signIn: '/login',
+    },
     callbacks: {
-        jwt({ token, user }) {
+        async jwt({ token, user }) {
             if (user) {
                 // User is available during sign-in
-                token.id = user.id;
+                token.id = user.id.toString();
                 token.role = user.role;
+                token.verified = user.verified;
             }
             return token;
         },
-        session({ session, token }) {
-            session.user.id = token.id;
-            session.user.role = token;
+        async session({ session, token }) {
+            if (token) {
+                session.id = token.id;
+                session.role = token.role;
+                session.verified = token.verified;
+            }
             return session;
         },
     },
     session: {
         strategy: 'jwt',
     },
-    screte: process.env.AUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
 });

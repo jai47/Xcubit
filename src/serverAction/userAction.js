@@ -105,17 +105,22 @@ export async function userGoogleAction(email, name) {
 }
 
 export async function getUserEmailPassword(email, password) {
-    await connectDB();
-    const user = await userModels.findOne({ email: email });
-    if (!user) {
-        return null;
-    } else {
-        const correctPass = await comparePassword(password, user.password);
-        if (correctPass) {
-            return user;
-        } else {
+    try {
+        await connectDB();
+        const user = await userModels.findOne({ email: email });
+        if (!user) {
             return null;
+        } else {
+            const correctPass = await comparePassword(password, user.password);
+            if (correctPass) {
+                return user;
+            } else {
+                return null;
+            }
         }
+    } catch (error) {
+        console.log(error);
+        throw new Error('Error getting user');
     }
 }
 

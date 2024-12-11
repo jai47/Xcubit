@@ -24,22 +24,24 @@ const Events = async () => {
             <Navbar user={user} />
 
             <div className="min-h-screen bg-gray-50 py-8 px-6 sm:px-10 lg:px-20">
+                {/* Heading Section */}
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl font-bold text-gray-800 mb-3">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
                         Events
                     </h1>
-                    <p className="text-1xl text-gray-600">
+                    <p className="text-lg sm:text-xl text-gray-600">
                         Explore our latest and past events. Discover, register,
                         and relive the moments!
                     </p>
                 </div>
 
+                {/* Upcoming Events */}
                 {upcomingEvents.length > 0 && (
                     <section className="mb-24">
-                        <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8">
                             Upcoming Events
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
                             {upcomingEvents.map((event) => (
                                 <div
                                     key={event._id}
@@ -56,18 +58,19 @@ const Events = async () => {
                                         }
                                     />
                                     <div className="p-6">
-                                        <div className="flex justify-between">
+                                        {/* Buttons Side by Side */}
+                                        <div className="flex justify-between items-center space-x-4">
                                             <Link
                                                 href={`/events/${event.name}`}
                                             >
-                                                <Button text="View Details" />
+                                                <Button text="Details" />
                                             </Link>
                                             <Link
                                                 href={{
                                                     pathname: '/register',
                                                     query: {
                                                         event: `${event.name}`,
-                                                    }, // the data
+                                                    },
                                                 }}
                                             >
                                                 <Button text="Register" />
@@ -80,12 +83,13 @@ const Events = async () => {
                     </section>
                 )}
 
+                {/* Past Events */}
                 {pastEvents.length > 0 && (
                     <section>
-                        <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8">
                             Past Events
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
                             {pastEvents.map((event) => (
                                 <div
                                     key={event._id}
@@ -107,6 +111,7 @@ const Events = async () => {
                     </section>
                 )}
 
+                {/* No Events Available */}
                 {upcomingEvents.length === 0 && pastEvents.length === 0 && (
                     <div className="text-center text-gray-600">
                         <p>

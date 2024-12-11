@@ -5,7 +5,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { auth } from '@/app/auth';
 import Link from 'next/link';
-import Image from 'next/image'; // Import Image component
 
 // Metadata for SEO
 export async function generateMetadata(props) {
@@ -33,33 +32,31 @@ const Event = async (props) => {
     return (
         <>
             <Navbar user={user} />
-            <div className="min-h-screen bg-white ">
+            <div className="min-h-screen bg-white sm:px-6 lg:px-12">
                 {/* Header Section */}
-                <div className="w-screen h-[50svh] bg-white rounded-lg overflow-hidden">
-                    <div className="w-full h-[70%] overflow-hidden flex justify-center items-center ">
-                        <Image
-                            src={data.image} // Replace with dynamic `data.image` when available
-                            alt={data.name}
-                            width={1920} // Adjust dimensions as per your layout
-                            height={720}
-                            layout="responsive" // Make the image responsive
-                            priority // Ensure optimized loading for LCP
-                        />
-                    </div>
-                    <div className="flex justify-between sm:px-6 lg:px-12">
-                        <div className="p-8">
-                            <h1 className="text-3xl font-bold text-gray-800">
+                <div className="relative bg-white overflow-hidden">
+                    {/* Image with overlay */}
+                    <div className="absolute inset-0 bg-black opacity-40"></div>{' '}
+                    {/* Overlay */}
+                    <img
+                        src={data.image} // Replace with dynamic `data.image` when available
+                        alt={data.name}
+                        className="w-full h-60 object-cover"
+                    />
+                    <div className="relative flex flex-col sm:flex-row justify-between sm:items-center sm:p-8 z-10">
+                        <div>
+                            <h1 className="text-4xl font-extrabold text-white">
                                 {data.name}
                             </h1>
-                            <p className="text-sm text-gray-500 mt-2">
+                            <p className="text-sm text-gray-300 mt-2">
                                 {data.category}
                             </p>
                         </div>
-                        <div className="p-8">
-                            <h1 className="text-1xl font-bold text-gray-800">
+                        <div className="mt-4 sm:mt-0">
+                            <h1 className="text-xl font-bold text-white">
                                 Total Participation
                             </h1>
-                            <p className="text-sm text-gray-500 mt-2">
+                            <p className="text-sm text-gray-300 mt-2">
                                 {data.maxParticipation}
                             </p>
                         </div>
@@ -67,7 +64,7 @@ const Event = async (props) => {
                 </div>
 
                 {/* Event Details */}
-                <div className="mt-8 bg-white p-8  sm:px-6 lg:px-20 relative">
+                <div className="mt-8 bg-white p-8 ">
                     {/* Header */}
                     <h1 className="text-2xl font-bold text-gray-800 mb-6">
                         <span className="text-3xl font-bold text-gray-800">
@@ -181,52 +178,52 @@ const Event = async (props) => {
                             {data.description}
                         </p>
                     </div>
-                    {/* Button Container */}
-                    <div className="absolute top-8 right-8 space-y-4">
-                        {/* Get Tickets Button */}
+
+                    {/* Get Tickets Button */}
+                    <div className="mt-8 sm:mt-12 text-center">
                         <Link
                             href={{
                                 pathname: '/register',
                                 query: {
                                     event: `${data.name}`,
-                                }, // the data// the data
+                                },
                             }}
                         >
-                            <button className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition w-full">
+                            <button className="bg-gray-800 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition w-full sm:w-auto">
                                 Get Tickets
                             </button>
                         </Link>
+                    </div>
 
-                        {/* Share Button */}
-                        <div className="bg-gray-100 p-4 rounded-lg shadow-md">
-                            <p className="text-gray-700 text-sm text-center">
-                                Share this Event with your Friends and Family
-                            </p>
-                            <Link
-                                href={
-                                    'whatsapp://send?text=' +
-                                    encodeURIComponent(
-                                        `${process.env.NEXT_PUBLIC_BASE_URL}/events/${data.name}`
-                                    )
-                                }
-                                className="mt-2 flex justify-center text-blue-600 cursor-pointer"
+                    {/* Share Button */}
+                    <div className="bg-gray-100 p-4 rounded-lg shadow-md mt-8">
+                        <p className="text-gray-700 text-sm text-center">
+                            Share this Event with your Friends and Family
+                        </p>
+                        <Link
+                            href={
+                                'whatsapp://send?text=' +
+                                encodeURIComponent(
+                                    `${process.env.NEXT_PUBLIC_BASE_URL}/events/${data.name}`
+                                )
+                            }
+                            className="mt-2 flex justify-center text-blue-600 cursor-pointer"
+                        >
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                className="h-5 w-5"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
                             >
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    stroke="currentColor"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M4 12v8m0 0h8m-8 0l12-12M8 4h8m-4 0V8"
-                                    />
-                                </svg>
-                            </Link>
-                        </div>
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 12v8m0 0h8m-8 0l12-12M8 4h8m-4 0V8"
+                                />
+                            </svg>
+                        </Link>
                     </div>
                 </div>
             </div>
