@@ -8,7 +8,7 @@ import { logout } from '@/serverAction/authAction';
 import { updateForgotPasswordToken } from '@/serverAction/userAction';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 // import { XIcon, MenuIcon } from "@heroicons/react/outline";
 function Dashboard() {
     //
@@ -61,7 +61,7 @@ function Dashboard() {
 
         // Call the async function
         fetchUserData();
-    }, [session]);
+    }, [session, querySection, ticketQuery]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
