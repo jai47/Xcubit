@@ -6,7 +6,7 @@ export async function middleware(req) {
     const session = await getToken({ req, secret });
 
     console.log('session', session, 'secrete', secret);
-
+    console.log('Cookies:', req.cookies.getAll());
     if (session && req.nextUrl.pathname.startsWith('/signin')) {
         return NextResponse.rewrite(new URL('/', req.url));
     }
