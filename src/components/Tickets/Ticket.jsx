@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useEffect, useRef } from 'react';
 
 const Tickets = ({ ticketData, showTicket }) => {
@@ -10,14 +11,14 @@ const Tickets = ({ ticketData, showTicket }) => {
         }
     };
 
-    // useEffect(() => {
-    //     // Add event listener on mount
-    //     document.addEventListener('mousedown', handleClickOutside);
-    //     return () => {
-    //         // Clean up the event listener on unmount
-    //         document.removeEventListener('mousedown', handleClickOutside);
-    //     };
-    // }, []);
+    useEffect(() => {
+        // Add event listener on mount
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            // Clean up the event listener on unmount
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             {/* Floating Window */}

@@ -5,13 +5,11 @@ import FiltersSection from '../components/FiltersSection/FiltersSection';
 import UpcomingEvents from '../components/UpcomingEvents/UpcomingEvents';
 import SupportersSection from '../components/SupportersSection/SupportersSection';
 import BlogSection from '../components/BlogSection/BlogSection';
-import { auth } from './auth';
+
 export default async function Home() {
-    const session = await auth();
-    const user = session?.user;
     return (
         <div>
-            <Navbar user={user} />
+            <Navbar />
             <main>
                 <HeroSection />
                 <FiltersSection />

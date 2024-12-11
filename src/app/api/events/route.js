@@ -1,4 +1,4 @@
-import { getEventByName } from '@/serverAction/eventAction';
+import { getEventByName, getEvents } from '@/serverAction/eventAction';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -17,6 +17,20 @@ export async function POST(req) {
         console.error('Error fetching event:', error);
         return NextResponse.status(500).json({
             error: 'Failed to fetch event',
+        });
+    }
+}
+
+export async function GET() {
+    try {
+        const events = await getEvents();
+        return NextResponse.json({
+            events: JSON.parse(JSON.stringify(events)),
+        });
+    } catch (error) {
+        console.error('Error fetching events:', error);
+        return NextResponse.status(500).json({
+            error: 'Failed to fetch events',
         });
     }
 }

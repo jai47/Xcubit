@@ -1,5 +1,6 @@
 'use client';
 
+import Image from '@/components/Image';
 import Navbar from '@/components/layout/Navbar';
 import Tickets from '@/components/Tickets/Ticket';
 import useSessionData from '@/hooks/useSessionData';
@@ -7,9 +8,9 @@ import { logout } from '@/serverAction/authAction';
 import { updateForgotPasswordToken } from '@/serverAction/userAction';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 
-export default function Dashboard() {
+function Dashboard() {
     // State to manage which section is visible
     const session = useSessionData();
     const searchParams = useSearchParams();
@@ -51,7 +52,6 @@ export default function Dashboard() {
                         if (matchingEvent) {
                             setSelectedEvent(matchingEvent); // Preselect the ticket
                         }
-                        console.log('Matching Event:', matchingEvent);
                     }
                 }
             } catch (error) {
@@ -61,7 +61,7 @@ export default function Dashboard() {
 
         // Call the async function
         fetchUserData();
-    }, [session]);
+    }, [session, ticketQuery, querySection]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -86,10 +86,15 @@ export default function Dashboard() {
                             Profile
                         </h2>
                         <div className="flex flex-col md:flex-row gap-6">
-                            <img
-                                src="/default-avatar.png"
+                            <Image
+                                src={
+                                    profile?.image ||
+                                    `${process.env.NEXT_PUBLIC_BASE_URL}/avatar/default.png`
+                                }
                                 alt="Profile"
                                 className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 shadow-md"
+                                width={128}
+                                height={128}
                             />
                             <div className="flex-1 space-y-4">
                                 <p className="text-gray-700 text-lg">
@@ -327,7 +332,10 @@ export default function Dashboard() {
                                         >
                                             View Ticket
                                         </button>
-
+                                        {console.log(
+                                            'Matching Event:',
+                                            selectedEvent
+                                        )}
                                         {selectedEvent && (
                                             <Tickets
                                                 ticketData={{
@@ -525,10 +533,15 @@ export default function Dashboard() {
                 {/* Sidebar */}
                 <div className="w-64 bg-white shadow-lg">
                     <div className="p-6 text-center border-b">
-                        <img
-                            src="/default-avatar.png"
+                        <Image
+                            src={
+                                profile?.image ||
+                                `${process.env.NEXT_PUBLIC_BASE_URL}/avatar/default.png`
+                            }
                             alt="Profile"
                             className="w-20 h-20 rounded-full mx-auto"
+                            width={20}
+                            height={20}
                         />
                         <h2 className="mt-4 text-lg font-semibold">
                             {session?.user?.name}
@@ -633,5 +646,13 @@ export default function Dashboard() {
                 <div className="flex-1 p-6">{renderContent()}</div>
             </div>
         </>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <Dashboard />
+        </Suspense>
     );
 }

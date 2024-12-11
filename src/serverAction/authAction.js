@@ -6,9 +6,9 @@ export async function loginCred(formData) {
         const response = await signIn('credentials', {
             email: formData.get('email'),
             password: formData.get('password'),
-            redirectTo: '/login',
+            redirect: false,
         });
-
+        console.log(response);
         return response;
     } catch (error) {
         console.log(error);
@@ -18,7 +18,7 @@ export async function loginCred(formData) {
 
 export async function loginGoogle() {
     try {
-        const response = await signIn('google', { redirectTo: '/' });
+        const response = await signIn('google', { redirectTo: '/dashboard' });
         return response;
     } catch (error) {
         console.log(error);

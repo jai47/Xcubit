@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import logo1 from '../../../public/logo/logo.png';
 import { FaFacebookF, FaTwitter, FaYoutube, FaLinkedin } from 'react-icons/fa';
+import Link from 'next/link';
 
 const Footer = () => {
     return (
@@ -16,34 +17,34 @@ const Footer = () => {
                             className="h-16 w-auto"
                         />
                         <div className="flex space-x-4">
-                            <a
+                            <Link
                                 href="https://facebook.com/VIEF"
                                 className="hover:text-gray-400"
                                 aria-label="Facebook"
                             >
                                 <FaFacebookF size={20} />
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 href="https://x.com/VIEF"
                                 className="hover:text-gray-400"
                                 aria-label="Twitter"
                             >
                                 <FaTwitter size={20} />
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 href="https://youtube.com/VIEF"
                                 className="hover:text-gray-400"
                                 aria-label="YouTube"
                             >
                                 <FaYoutube size={20} />
-                            </a>
-                            <a
+                            </Link>
+                            <Link
                                 href="https://linkedin.com/company/VIEF"
                                 className="hover:text-gray-400"
                                 aria-label="LinkedIn"
                             >
                                 <FaLinkedin size={20} />
-                            </a>
+                            </Link>
                         </div>
                     </div>
 
@@ -54,43 +55,43 @@ const Footer = () => {
                         </h3>
                         <ul className="space-y-2">
                             <li>
-                                <a href="/" className="hover:text-gray-400">
+                                <Link href="/" className="hover:text-gray-400">
                                     Home
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="/routes/about"
                                     className="hover:text-gray-400"
                                 >
                                     About
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="/routes/event"
                                     className="hover:text-gray-400"
                                 >
                                     Events
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="/routes/contact"
                                     className="hover:text-gray-400"
                                 >
                                     Contact Us
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-gray-400">
+                                <Link href="#" className="hover:text-gray-400">
                                     Privacy Policy
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a href="#" className="hover:text-gray-400">
+                                <Link href="#" className="hover:text-gray-400">
                                     Terms and Conditions
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -100,36 +101,36 @@ const Footer = () => {
                         <h3 className="text-lg font-semibold mb-4">Careers</h3>
                         <ul className="space-y-2">
                             <li>
-                                <a
+                                <Link
                                     href="https://vief.vercel.app/careers/vief"
                                     className="hover:text-gray-400"
                                 >
                                     Jobs at VIEF
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://vief.vercel.app/careers/volunteer"
                                     className="hover:text-gray-400"
                                 >
                                     Jobs as Volunteer
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://vief.vercel.app/careers/internship"
                                     className="hover:text-gray-400"
                                 >
                                     Apply for Internship
-                                </a>
+                                </Link>
                             </li>
                             <li>
-                                <a
+                                <Link
                                     href="https://vief.vercel.app/careers/startups"
                                     className="hover:text-gray-400"
                                 >
                                     Jobs at Startups
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </div>
@@ -143,7 +144,7 @@ const Footer = () => {
                             VIEF empowers aspiring entrepreneurs with the
                             resources and support to turn ideas into reality.
                             Join our vibrant community, connect with mentors,
-                            and be the change for India's future.
+                            and be the change for India&apos;s future.
                         </p>
                         <form className="relative">
                             <input

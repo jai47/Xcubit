@@ -1,9 +1,9 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { updatePassword } from '@/serverAction/userAction';
 import { useSearchParams } from 'next/navigation';
 
-export default function Page() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams();
     const tokens = searchParams.get('token');
     const [password, setPassword] = useState('');
@@ -105,5 +105,13 @@ export default function Page() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <ResetPasswordForm />
+        </Suspense>
     );
 }

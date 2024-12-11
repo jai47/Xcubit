@@ -137,6 +137,7 @@ export async function getUserFromDB(email) {
 export async function updateVerifyUser(token) {
     try {
         // Use `await` without a callback
+        console.log('token is', token);
         await connectDB(); // Ensure DB is connected
         const user = await userModels.findOne({ verifyToken: token });
 

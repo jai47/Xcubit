@@ -1,48 +1,14 @@
 import { auth } from '@/app/auth';
-import Navbar from '@/components/layout/Navbar';
 import { loginCred, loginGoogle, logout } from '@/serverAction/authAction';
-import { redirect } from 'next/dist/server/api-utils';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { FcGoogle } from 'react-icons/fc';
 
 export default async function Login() {
     const session = await auth();
     const user = session?.user;
     if (user) {
-        return (
-            <>
-                <Navbar user={user} />
-                <div className="flex justify-center items-center h-screen bg-gray-100">
-                    <form
-                        action={async () => {
-                            'use server';
-                            await logout();
-                            redirect('/');
-                        }}
-                        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
-                    >
-                        <div className="text-center mb-4">
-                            <img
-                                src={user.image}
-                                className="w-20 h-20 rounded-full mx-auto"
-                            />
-                            <h2 className="text-xl font-semibold text-gray-800 mt-4">
-                                {user.name}
-                            </h2>
-                            <p className="text-sm text-gray-500">
-                                {user.email}
-                            </p>
-                        </div>
-                        <button
-                            type="submit"
-                            className="w-full bg-red-500 text-white py-2 rounded-lg mt-6 hover:bg-red-600 transition"
-                        >
-                            Logout
-                        </button>
-                    </form>
-                </div>
-            </>
-        );
+        redirect('/dashboard');
     }
 
     return (

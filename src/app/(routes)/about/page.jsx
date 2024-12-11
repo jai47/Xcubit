@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const AboutUs = () => {
     const router = useRouter();
@@ -10,10 +11,13 @@ const AboutUs = () => {
             {/* Logo Section */}
             <div className="absolute top-6 left-6 z-10 space-y-4">
                 {/* Logo */}
-                <img
+                <Image
                     src="/logo/logo.png" // Replace with your logo's path
                     alt="Vastav Intellect Logo"
-                    className="h-12 w-auto mb-8"
+                    width={160} // Adjust dimensions based on your design
+                    height={160}
+                    priority // Ensures the image loads faster for improved LCP
+                    className="mb-8"
                 />
 
                 {/* About Us Title */}

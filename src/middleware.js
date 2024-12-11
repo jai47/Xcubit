@@ -8,13 +8,13 @@ export async function middleware(req) {
     if (session && req.nextUrl.pathname.startsWith('/signin')) {
         return NextResponse.rewrite(new URL('/', req.url));
     }
-    // if (
-    //     session?.role !== 'admin' &&
-    //     req.nextUrl.pathname.startsWith('/admin')
-    // ) {
-    //     // Redirect to login page if no session exists
-    //     return NextResponse.redirect(new URL('/', req.url));
-    // }
+    if (
+        session?.role !== 'admin' &&
+        req.nextUrl.pathname.startsWith('/admin')
+    ) {
+        // Redirect to login page if no session exists
+        return NextResponse.redirect(new URL('/', req.url));
+    }
 
     if (
         !session &&

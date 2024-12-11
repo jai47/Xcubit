@@ -25,11 +25,11 @@ const ContactPage = () => {
                     {/* Left Section */}
                     <div className="space-y-6">
                         <h2 className="text-3xl font-bold text-gray-800">
-                            Let's talk with us
+                            Let&apos;s talk with us
                         </h2>
                         <p className="text-gray-600">
                             Questions, comments, or suggestions? Simply fill in
-                            the form and we'll be in touch shortly.
+                            the form and we&apos;ll be in touch shortly.
                         </p>
                         <div className="space-y-4">
                             {/* Location */}

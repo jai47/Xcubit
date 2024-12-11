@@ -5,7 +5,7 @@
 // components/RegistrationForm.jsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { userEventRegistration } from '@/serverAction/userAction';
 import useEvent from '@/hooks/useEvent';
 import useSessionData from '@/hooks/useSessionData';
@@ -13,7 +13,7 @@ import Script from 'next/script';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 
-export default function RegistrationForm() {
+function RegistrationForm() {
     const router = useRouter();
     const ref = React.useRef();
     const event = useEvent();
@@ -57,7 +57,7 @@ export default function RegistrationForm() {
         };
 
         fetchUserData();
-    }, [session, event]);
+    }, [session, event, router]);
 
     const addTeamMember = () => {
         setTeamMembers([...teamMembers, '']);
@@ -91,7 +91,7 @@ export default function RegistrationForm() {
                         teamMembers,
                         ...(razorpayResponse && {
                             'Order Id': razorpayResponse['Order Id'],
-                            ' Id': razorpayResponse['Payment Id'],
+                            'Payment Id': razorpayResponse['Payment Id'],
                         }),
                     },
                 },
@@ -460,5 +460,13 @@ export default function RegistrationForm() {
                 </div>
             </>
         )
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense fallback={<p>Loading...</p>}>
+            <RegistrationForm />
+        </Suspense>
     );
 }

@@ -1,34 +1,39 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import debounce from 'lodash.debounce';
 import Link from 'next/link';
 import Image from 'next/image';
 import logo from '../../../public/logo/logo.png';
+import useSessionData from '@/hooks/useSessionData';
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
+    const session = useSessionData();
+    const user = session?.user;
     const [isOpen, setIsOpen] = useState(false);
-    const changeBackground = debounce(() => {
-        if (window.scrollY >= 730) {
-            document
-                .getElementsByTagName('nav')[0]
-                .classList.add('bg-neutral-600');
-        } else {
-            document
-                .getElementsByTagName('nav')[0]
-                .classList.remove('bg-neutral-600');
-        }
-    }, 10);
+    // Create a debounced version of changeBackground with useCallback
+    const changeBackground = useCallback(
+        debounce(() => {
+            const navElement = document.getElementsByTagName('nav')[0];
+            if (window.scrollY >= 730) {
+                navElement.classList.add('bg-neutral-600');
+            } else {
+                navElement.classList.remove('bg-neutral-600');
+            }
+        }, 10),
+        []
+    );
 
+    // Attach and detach the event listener with useEffect
     useEffect(() => {
         window.addEventListener('scroll', changeBackground);
         return () => {
             window.removeEventListener('scroll', changeBackground);
         };
-    }, []);
+    }, [changeBackground]);
 
     return (
         <nav
-            className=" text-white px-6 py-3 fixed w-full z-20 top-0 start-0"
+            className="w-svw text-white px-6 py-3 fixed z-20 top-0 start-0"
             style={{ transition: 'all 0.5s' }}
         >
             <div className="container mx-auto flex items-center justify-between">

@@ -7,7 +7,7 @@ export async function POST(req) {
     const formData = await req.json();
     try {
         await eventFormAction(formData);
-        return NextResponse.json(formData, { status: 200 });
+        return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
         return NextResponse.error(error);
     }

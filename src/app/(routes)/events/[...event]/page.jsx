@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { auth } from '@/app/auth';
 import Link from 'next/link';
+import Image from 'next/image'; // Import Image component
 
 // Metadata for SEO
 export async function generateMetadata(props) {
@@ -20,25 +21,6 @@ const Event = async (props) => {
     const user = session?.user;
     const params = await props.params;
     const data = await getEventByName(decodeURI(params.event[0]));
-    // Mock Similar Events (replace with API data if available)
-    const similarEvents = [
-        {
-            id: 1,
-            name: 'Saturday Live by Sunitha Upadrasta',
-            image: '/images/event1.jpg',
-        },
-        {
-            id: 2,
-            name: 'Alan Walker India Tour - Hyderabad',
-            image: '/images/event2.jpg',
-        },
-        {
-            id: 3,
-            name: 'The One Artist - Jasleen Royal',
-            image: '/images/event3.jpg',
-        },
-        { id: 4, name: 'Papon Live in Hyderabad', image: '/images/event4.jpg' },
-    ];
 
     function convertTo12HourFormat(time) {
         const [hours, minutes] = time.split(':');
@@ -47,47 +29,45 @@ const Event = async (props) => {
         const hours12 = hoursInt % 12 || 12; // Converts 0 to 12 for 12-hour format
         return `${hours12}:${minutes} ${period}`;
     }
-    function calculateRunTime(start, end) {
-        // Convert start and end times to Date objects
-        const startTime = new Date(start); // Example: "2024-11-29T14:00:00"
-        const endTime = new Date(end); // Example: "2024-11-29T17:30:00"
-
-        // Calculate the difference in milliseconds
-        const duration = endTime - startTime;
-
-        // Convert duration to hours and minutes
-        const hours = Math.floor(duration / (1000 * 60 * 60)); // Total hours
-        const minutes = Math.floor((duration % (1000 * 60 * 60)) / (1000 * 60)); // Remaining minutes
-
-        // Format output
-        return `${hours} Hour${hours !== 1 ? 's' : ''} ${minutes} Minute${
-            minutes !== 1 ? 's' : ''
-        }`;
-    }
 
     return (
         <>
             <Navbar user={user} />
-            <div className="min-h-screen bg-gray-100 sm:px-6 lg:px-12">
+            <div className="min-h-screen bg-white ">
                 {/* Header Section */}
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                    <img
-                        src={data.image} // Replace with dynamic `data.image` when available
-                        alt={data.name}
-                        className="w-full h-60 object-cover"
-                    />
-                    <div className="p-8">
-                        <h1 className="text-3xl font-bold text-gray-800">
-                            {data.name}
-                        </h1>
-                        <p className="text-sm text-gray-500 mt-2">
-                            {data.category}
-                        </p>
+                <div className="w-screen h-[50svh] bg-white rounded-lg overflow-hidden">
+                    <div className="w-full h-[70%] overflow-hidden flex justify-center items-center ">
+                        <Image
+                            src={data.image} // Replace with dynamic `data.image` when available
+                            alt={data.name}
+                            width={1920} // Adjust dimensions as per your layout
+                            height={720}
+                            layout="responsive" // Make the image responsive
+                            priority // Ensure optimized loading for LCP
+                        />
+                    </div>
+                    <div className="flex justify-between sm:px-6 lg:px-12">
+                        <div className="p-8">
+                            <h1 className="text-3xl font-bold text-gray-800">
+                                {data.name}
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-2">
+                                {data.category}
+                            </p>
+                        </div>
+                        <div className="p-8">
+                            <h1 className="text-1xl font-bold text-gray-800">
+                                Total Participation
+                            </h1>
+                            <p className="text-sm text-gray-500 mt-2">
+                                {data.maxParticipation}
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 {/* Event Details */}
-                <div className="mt-8 bg-white p-8 rounded-lg shadow-lg relative">
+                <div className="mt-8 bg-white p-8  sm:px-6 lg:px-20 relative">
                     {/* Header */}
                     <h1 className="text-2xl font-bold text-gray-800 mb-6">
                         <span className="text-3xl font-bold text-gray-800">
@@ -169,8 +149,7 @@ const Event = async (props) => {
                                     </svg>
                                 </div>
                                 <p className="text-gray-700 text-lg">
-                                    <strong>Run Time:</strong>{' '}
-                                    {calculateRunTime(data.start, data.end)}
+                                    <strong>Duration: </strong> {data.duration}
                                 </p>
                             </div>
                             {/* Venue */}
@@ -223,7 +202,15 @@ const Event = async (props) => {
                             <p className="text-gray-700 text-sm text-center">
                                 Share this Event with your Friends and Family
                             </p>
-                            <div className="mt-2 flex justify-center text-blue-600 cursor-pointer">
+                            <Link
+                                href={
+                                    'whatsapp://send?text=' +
+                                    encodeURIComponent(
+                                        `${process.env.NEXT_PUBLIC_BASE_URL}/events/${data.name}`
+                                    )
+                                }
+                                className="mt-2 flex justify-center text-blue-600 cursor-pointer"
+                            >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     className="h-5 w-5"
@@ -238,47 +225,8 @@ const Event = async (props) => {
                                         d="M4 12v8m0 0h8m-8 0l12-12M8 4h8m-4 0V8"
                                     />
                                 </svg>
-                            </div>
+                            </Link>
                         </div>
-                    </div>
-                </div>
-
-                {/* Get Tickets Button */}
-                <div className="mt-8 flex justify-center">
-                    <button className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-lg hover:bg-blue-700 transition duration-300">
-                        Get Tickets
-                    </button>
-                </div>
-
-                {/* Similar Events */}
-                <div className="mt-16 bg-gray-50 p-8 rounded-lg shadow-md">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-8 text-center">
-                        Similar Events
-                    </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {similarEvents.map((event) => (
-                            <div
-                                key={event.id}
-                                className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col"
-                            >
-                                {/* Event Image */}
-                                <img
-                                    src="/logo/ideathon.jpeg" // Replace with dynamic `event.image` when available
-                                    alt={event.name}
-                                    className="w-full h-48 object-cover"
-                                />
-
-                                {/* Event Details */}
-                                <div className="p-4 flex flex-col items-center text-center flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">
-                                        {event.name}
-                                    </h3>
-                                    <button className="mt-auto px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                                        View Details
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
