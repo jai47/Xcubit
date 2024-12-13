@@ -10,7 +10,7 @@ const Navbar = ({ user }) => {
     return (
         <nav
             className=" text-white px-6 py-3 sticky w-full z-20 top-0 start-0"
-            style={{ background: '#525252' }}
+            style={{ background: 'linear-gradient(135deg, #525252, #1a1a1a)' }}
         >
             <div className="container mx-auto flex items-center justify-between">
                 {/* Left: Logo */}

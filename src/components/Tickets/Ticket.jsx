@@ -1,5 +1,6 @@
-import Image from 'next/image';
+import Link from 'next/link';
 import React, { useEffect, useRef } from 'react';
+import QRCodeGenerator from './QRCodeGenerator';
 
 const Tickets = ({ ticketData, showTicket }) => {
     const modalRef = useRef(null);
@@ -18,7 +19,14 @@ const Tickets = ({ ticketData, showTicket }) => {
             // Clean up the event listener on unmount
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [handleClickOutside]);
+    }, []);
+
+    const qrData = {
+        attendeeName: ticketData.attendeeName,
+        eventName: ticketData.eventTitle,
+        email: ticketData.email,
+    };
+
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             {/* Floating Window */}
@@ -63,14 +71,16 @@ const Tickets = ({ ticketData, showTicket }) => {
                         </p>
                     </div>
 
-                    {/* QR Code */}
+                    {/* QR Code
                     <div className="flex justify-center my-4">
-                        <Image
+                        <img
                             src="https://via.placeholder.com/150" // Replace with actual QR code
                             alt="QR Code"
                             className="h-36 w-36"
                         />
-                    </div>
+                    </div> */}
+                    {/* QR Code */}
+                    <QRCodeGenerator data={qrData} />
 
                     {/* Ticket Details */}
                     <div className="text-center my-4">

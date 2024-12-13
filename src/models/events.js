@@ -16,6 +16,7 @@ const eventSchema = new mongoose.Schema({
     eventType: { type: String, required: true },
     price: { type: String, required: true },
     maxParticipation: { type: String, required: true },
+    entered: { type: String },
     timestamp: { type: Date, default: Date.now },
 });
 

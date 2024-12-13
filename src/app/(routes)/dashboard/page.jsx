@@ -233,7 +233,9 @@ function Dashboard() {
                                                 className="border rounded px-2 py-1 w-full"
                                             />
                                         ) : (
-                                            profile?.dateOfBirth
+                                            new Date(
+                                                profile?.dateOfBirth
+                                            ).toDateString('hi-IN')
                                         )}
                                     </p>
                                 )}
@@ -333,7 +335,7 @@ function Dashboard() {
                                                 onClick={() =>
                                                     showTicket(event)
                                                 }
-                                                className="mt-4 text-white bg-blue-500 px-4 py-2 rounded-full shadow hover:bg-blue-600 transition-colors duration-200"
+                                                className="mt-4 text-white bg-slate-600 px-4 py-2 rounded-full shadow hover:bg-neutral-600 transition-colors duration-200"
                                             >
                                                 View Ticket
                                             </button>
@@ -408,7 +410,7 @@ function Dashboard() {
                                             </div>
                                             <Link
                                                 href={`/events/${event.name}`}
-                                                className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-red-50 transition duration-200"
+                                                className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-neutral-300 transition duration-200"
                                             >
                                                 View Details
                                             </Link>
@@ -434,14 +436,14 @@ function Dashboard() {
                             {/* Notifications Toggle */}
                             <div className="flex justify-between items-center p-4 bg-gray-100 border border-gray-200 rounded-lg shadow-md">
                                 <p className="text-lg font-medium text-gray-800">
-                                    Notifications
+                                    Email Notifications
                                 </p>
                                 <label className="relative flex items-center cursor-pointer">
                                     <input
                                         type="checkbox"
                                         className="sr-only peer"
                                     />
-                                    <div className="w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-blue-500 transition duration-200">
+                                    <div className="flex justify-start items-center  px-1 w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-green-500 peer-checked:justify-end transition duration-200">
                                         <div className="w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-4 transition duration-200"></div>
                                     </div>
                                 </label>
@@ -506,7 +508,7 @@ function Dashboard() {
                                         );
                                         setShowModal(true);
                                     }}
-                                    className="bg-blue-500 text-white font-medium px-6 py-3 rounded-full shadow hover:bg-blue-600 transition duration-200"
+                                    className="bg-red-500 text-white font-medium px-6 py-3 rounded-full shadow hover:bg-red-600 transition duration-200"
                                 >
                                     Change Password
                                 </button>
@@ -522,7 +524,13 @@ function Dashboard() {
 
     return (
         <>
-            <Navbar />
+            <Navbar user={session?.user} />
+            {!profile?.verified && (
+                <div className="w-full bg-red-500 text-xs text-white text-center p-1">
+                    <p>Account not verified</p>
+                    <p>Check your email for verification link</p>
+                </div>
+            )}
             <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
                 {/* Sidebar Toggle Button (Hamburger) */}
                 <div className="lg:hidden p-4">
@@ -566,8 +574,8 @@ function Dashboard() {
 
                 {/* Sidebar */}
                 <div
-                    className={`lg:w-64 w-full bg-white shadow-lg lg:block ${
-                        isSidebarOpen ? 'block' : 'hidden'
+                    className={`lg:w-64 bg-white shadow-lg lg:block ${
+                        isSidebarOpen ? 'fixed h-full w-4/5 right-0' : 'hidden'
                     } lg:block`}
                 >
                     <div className="p-6 text-center border-b">
@@ -614,7 +622,7 @@ function Dashboard() {
                                     </li>
                                 </Link>
                             ))}
-                            <li>
+                            <li className="w-full flex items-center pr-5">
                                 <button
                                     className="w-full px-6 py-3 text-left text-red-500 hover:bg-gray-100"
                                     onClick={async () => {
@@ -624,6 +632,21 @@ function Dashboard() {
                                 >
                                     Logout
                                 </button>
+                                <svg
+                                    fill="none"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M17 16L21 12M21 12L17 8M21 12L7 12M13 16V17C13 18.6569 11.6569 20 10 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H10C11.6569 4 13 5.34315 13 7V8"
+                                        stroke="red"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                    />
+                                </svg>
                             </li>
                         </ul>
                     </nav>

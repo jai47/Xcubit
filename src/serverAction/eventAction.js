@@ -33,9 +33,9 @@ export async function eventFormAction(formData) {
 
 // Function to get all events
 export async function getEvents() {
-    await connectDB();
     try {
         // Retrieve all events using the Event model
+        await connectDB();
         const events = await eventModels.find();
         // Return the list of events
         return events;
@@ -66,7 +66,7 @@ export async function getEventByName(name) {
     try {
         const event = await eventModels.findOne({ name: name });
         if (!event) {
-            throw new Error(`Event with name "${name}" not found.`);
+            return false;
         }
         return event;
     } catch (error) {
