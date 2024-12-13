@@ -1,11 +1,26 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '../../../../public/avatar/admin.jpg';
 import Image from 'next/image';
 import { logout } from '@/serverAction/authAction';
 import Link from 'next/link';
+
 const AdminDashboard = () => {
     const [sidePanel, setSidePanel] = useState(false);
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            let rawData = await fetch('/api/events/', {
+                cache: 'no-store',
+                method: 'GET',
+            });
+            rawData = await rawData.json();
+            setEvents(rawData.events);
+        };
+
+        fetchEvents();
+    }, []);
 
     return (
         <div className="flex">
@@ -117,80 +132,9 @@ const AdminDashboard = () => {
                                 />
                             </svg>
                         </button>
-
-                        {/* <a href="#" className="text-lg font-bold">
-              <Image src={logo} alt="Logo" className="h-8" />
-            </a> */}
                     </div>
 
                     <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-4">
-                            {/* Search Button */}
-                            <button className="text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 h-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M11.25 4.5a6.75 6.75 0 016.75 6.75 6.75 6.75 0 11-6.75-6.75z"
-                                    />
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M16.5 16.5l4.5 4.5"
-                                    />
-                                </svg>
-                            </button>
-
-                            {/* Notification Button */}
-                            <button className="relative text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 h-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M15.75 9V6.75a6.75 6.75 0 10-13.5 0V9A6.75 6.75 0 003 19.5h18a6.75 6.75 0 00-5.25-10.5zm-6.75 15a3 3 0 006 0"
-                                    />
-                                </svg>
-                                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
-                                    3
-                                </span>
-                            </button>
-
-                            {/* Messages Button */}
-                            <button className="relative text-gray-600 hover:text-gray-800 transition-colors duration-200">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth={1.5}
-                                    stroke="currentColor"
-                                    className="w-6 h-6"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        d="M21 12.75V6a3 3 0 00-3-3H6a3 3 0 00-3 3v6.75M3 15.75V18a3 3 0 003 3h12a3 3 0 003-3v-2.25M3 15.75h18M3 15.75l3-3m12 0l3 3"
-                                    />
-                                </svg>
-                                <span className="absolute top-0 right-0 bg-blue-500 text-white text-xs rounded-full px-1">
-                                    4
-                                </span>
-                            </button>
-                        </div>
-
                         <div className="relative">
                             <Image
                                 src={Avatar}
@@ -201,108 +145,68 @@ const AdminDashboard = () => {
                     </div>
                 </header>
 
-                {/* Content */}
-                <main className="p-4">
-                    {/* Widgets */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div className="bg-white shadow-md rounded p-4">
-                            <div className="flex items-center">
-                                <div className="text-blue-500 text-2xl">
-                                    <i className="pe-7s-cash"></i>
+                <main className="p-4 relative">
+                    {/* Event Cards */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        {events.map((event) => (
+                            <div
+                                key={event._id}
+                                className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300 relative"
+                            >
+                                {/* SVG Icon in top-left corner */}
+                                <div className="absolute right-4 bottom-8">
+                                    <Link href="/admin/editevent">
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                            className="w-5 h-5 text-gray-500"
+                                        >
+                                            <path d="M21.432 2.586a3 3 0 00-4.243 0l-1.68 1.68 4.242 4.243 1.681-1.681a3 3 0 000-4.242zM13.671 7.327l-9.899 9.9a1 1 0 00-.263.486L2.41 21.243a.75.75 0 00.917.917l3.529-1.1a1 1 0 00.486-.263l9.9-9.899-4.243-4.243z" />
+                                        </svg>
+                                    </Link>
                                 </div>
-                                <div className="ml-4">
-                                    <div className="text-xl font-bold">
-                                        1000
-                                    </div>
-                                    <div className="text-gray-600">
-                                        Total Number Of Tickets
-                                    </div>
+
+                                <img
+                                    src={event.image}
+                                    alt={event.name}
+                                    className="w-full h-40 object-cover rounded-md"
+                                />
+                                <div className="mt-4">
+                                    <h3 className="text-xl font-semibold text-gray-800">
+                                        {event.name}
+                                    </h3>
+
+                                    {/* Button to redirect to event details page */}
+                                    <Link href="/admin/details">
+                                        <button className="mt-4 bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
+                                            View Analytics
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="bg-white shadow-md rounded p-4">
-                            <div className="flex items-center">
-                                <div className="text-green-500 text-2xl">
-                                    <i className="pe-7s-cart"></i>
-                                </div>
-                                <div className="ml-4">
-                                    <div className="text-xl font-bold">
-                                        1000
-                                    </div>
-                                    <div className="text-gray-600">
-                                        Tickets Used
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white shadow-md rounded p-4">
-                            <div className="flex items-center">
-                                <div className="text-yellow-500 text-2xl">
-                                    <i className="pe-7s-browser"></i>
-                                </div>
-                                <div className="ml-4">
-                                    <div className="text-xl font-bold">
-                                        1000
-                                    </div>
-                                    <div className="text-gray-600">
-                                        Tickets Left
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Registered Users Table */}
-                    <div className="bg-white shadow-md rounded p-4">
-                        <h4 className="text-lg font-bold mb-4">
-                            Registered Users
-                        </h4>
-                        <table className="table-auto w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="p-2">#</th>
-                                    <th className="p-2">Unique Code</th>
-                                    <th className="p-2">Name</th>
-                                    <th className="p-2">Email</th>
-                                    <th className="p-2">Contact Num</th>
-                                    <th className="p-2">Num Of Ticket</th>
-                                    <th className="p-2">Ticket Type</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td className="p-2">1</td>
-                                    <td className="p-2">1234</td>
-                                    <td className="p-2">Bwave Ict</td>
-                                    <td className="p-2">bwaveict@gmail.com</td>
-                                    <td className="p-2">
-                                        Please Subscribe to our channel
-                                    </td>
-                                    <td className="p-2">This is a template</td>
-                                    <td className="p-2">
-                                        <span className="bg-green-500 text-white px-2 py-1 rounded text-sm">
-                                            Subscribe
-                                        </span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        ))}
                     </div>
                 </main>
 
                 {/* Footer */}
                 <footer className="bg-white text-gray-600 p-4 mt-6">
                     <div className="flex justify-between">
-                        <div>&copy; 2018 Ela Admin</div>
+                        <div>&copy; 2024</div>
                         <div>
-                            Designed by{' '}
+                            Designed and Developed by{' '}
                             <a
-                                href="https://colorlib.com"
+                                href="https://linkedin.com/in/himanshupal24"
                                 className="text-blue-500"
                             >
-                                Colorlib
+                                Himanshu{' '}
+                            </a>
+                            &{' '}
+                            <a
+                                href="https://linkedin.com/in/jai47"
+                                className="text-blue-500"
+                            >
+                                Jai
                             </a>
                         </div>
                     </div>

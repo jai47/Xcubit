@@ -14,109 +14,6 @@ const transporter = nodemailer.createTransport({
 
 function template({ type, message }) {
     switch (type) {
-        case 'welcome':
-            return `
-            <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Welcome to Our Platform!</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
-        color: #333;
-        margin: 0;
-        padding: 0;
-      }
-      .container {
-        max-width: 600px;
-        margin: 20px auto;
-        background: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-      }
-      .header {
-        background-color: #001f49a5;
-        color: #ffffff;
-        text-align: center;
-        padding: 20px;
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 24px;
-      }
-      .header p {
-        margin: 5px 0 0;
-        font-size: 16px;
-      }
-      .content {
-        padding: 20px;
-      }
-      .content h2 {
-        color: #001f49a5;
-        font-size: 20px;
-        margin-bottom: 10px;
-      }
-      .content p {
-        margin: 10px 0;
-        line-height: 1.6;
-      }
-      .button {
-        display: inline-block;
-        padding: 10px 20px;
-        margin: 10px 0;
-        background-color: #001f49a5;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 5px;
-        text-align: center;
-      }
-      .footer {
-        text-align: center;
-        padding: 10px;
-        background-color: #f5f5f5;
-        font-size: 12px;
-        color: #666;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>Welcome to Our Event Platform!</h1>
-        <p>We're thrilled to have you on board!</p>
-      </div>
-      <div class="content">
-        <h2>Dear ${message.name || 'Attendee'},</h2>
-        <p>
-          Thank you for signing up with us! We're excited to have you as part of our
-          community. Whether you're looking to attend upcoming events or organize your
-          own, you're in the right place.
-        </p>
-        <p>
-          To get started, please feel free to explore our platform and check out the
-          latest events and opportunities.
-        </p>
-        <a href="${
-            message.dashboardLink || '#'
-        }" class="button">Visit Website</a>
-        <p>
-          If you have any questions or need assistance, don't hesitate to reach out to
-          us at <a href="mailto:${
-              message.contactEmail || 'support@example.com'
-          }">${message.contactEmail || 'support@example.com'}</a>.
-        </p>
-        <p>We look forward to seeing you at our events!</p>
-      </div>
-      <div class="footer">
-        <p>©️ ${new Date().getFullYear()} Event Registration Platform. All rights reserved.</p>
-      </div>
-    </div>
-  </body>
-</html>`;
         case 'reset':
             return `
     <!DOCTYPE html>
@@ -395,6 +292,7 @@ function template({ type, message }) {
           <p><strong>Date:</strong> ${message.date || 'N/A'}</p>
           <p><strong>Location:</strong> ${message.location || 'N/A'}</p>
         </div>
+      
         <p>
           Please make sure to bring a valid ID along with this ticket when attending the event.
         </p>
@@ -531,7 +429,15 @@ export async function POST(req, res) {
         to: reqBody.email,
         subject: reqBody.subject,
         html: template(reqBody),
+        attachments: [],
     };
+
+    if (reqBody.message.image) {
+        mailOptions.attachments.push({
+            filename: 'QR Ticket.png',
+            path: reqBody.message.image, // Path to image provided in the request
+        });
+    }
 
     await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {

@@ -18,7 +18,7 @@ const HeroSection = async () => {
 
     return (
         <section
-            className="h-[85vh] md:h-[90vh] lg:h-screen text-white flex justify-center items-center"
+            className="w-screen h-[85vh] md:h-[90vh] lg:h-screen text-white flex justify-center items-center"
             style={{
                 background: 'linear-gradient(135deg, #525252, #1a1a1a)',
             }}

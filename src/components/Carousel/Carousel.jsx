@@ -24,7 +24,7 @@ const Carousel = ({ events }) => {
                         key={index}
                         className="flex-none w-full h-full px-4 md:px-6 flex flex-col justify-between"
                     >
-                        <h2 className="text-3xl md:text-2xl font-bold mb-4">
+                        <h2 className="text-4xl md:text-6xl font-bold md:mb-10">
                             {event.name}
                         </h2>
                         <p className="text-sm md:text-base mb-4">

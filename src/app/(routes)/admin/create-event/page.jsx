@@ -84,8 +84,6 @@ const Page = () => {
     const validateField = (field, value) => {
         let error = '';
 
-        console.log('field:', field, 'value:', value);
-
         if (field === 'name' && allEvents.includes(value)) {
             error = 'Event with this name already exists';
         }

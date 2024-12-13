@@ -35,7 +35,7 @@ yarn-error.log*
 # vercel
 .vercel
 
-middleware.js
+middleware123.js
 
 # typescript
 *.tsbuildinfo

@@ -21,7 +21,6 @@ const userSchema = new Schema({
     country: { type: String },
     postalCode: { type: String },
     linkedInOrGithub: { type: String },
-    agreeToTerms: { type: Boolean },
 });
 
 export const userModels =

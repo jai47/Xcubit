@@ -368,6 +368,8 @@ function Dashboard() {
                                                 0,
                                                 100
                                             ) + '...',
+                                        teamMates: selectedEvent.teamMembers,
+                                        email: profile?.email,
                                     }}
                                     showTicket={showTicket}
                                 />

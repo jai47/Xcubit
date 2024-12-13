@@ -6,7 +6,6 @@ import {
     saltAndHashPassword,
 } from '@/utils/saltAndHashPassword';
 import { redirect } from 'next/navigation';
-import { get } from 'mongoose';
 
 export async function userFormAction(formData) {
     await connectDB();
@@ -49,10 +48,10 @@ export async function userFormAction(formData) {
                 subject: `Welcome to the community, ${user.name}`,
                 message: {
                     name: user.name,
-                    dashboardLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
+                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${user.verifyToken}`,
                     contactEmail: 'official.jaimishra@gmail.com',
                 },
-                type: 'welcome',
+                type: 'verify',
             }),
         });
         return redirect('/login');
@@ -91,10 +90,10 @@ export async function userGoogleAction(email, name) {
                 subject: `Welcome to the community, ${user.name}`,
                 message: {
                     name: user.name,
-                    dashboardLink: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
+                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${user.verifyToken}`,
                     contactEmail: 'official.jaimishra@gmail.com',
                 },
-                type: 'welcome',
+                type: 'verify',
             }),
         });
         return user;
@@ -243,17 +242,15 @@ export async function userEventRegistration(
         let user = await userModels.findOne({ email: email });
         if (user) {
             user.events.push(registrationDetails.events);
-            user.phoneNumber = userDetails.phone;
+            user.phoneNumber = userDetails.phoneNumber;
             user.address = userDetails.address;
             user.city = userDetails.city;
-            user.dateOfBirth = userDetails.dob;
+            user.dateOfBirth = userDetails.dateOfBirth;
             user.gender = userDetails.gender;
             user.postalCode = userDetails.postalCode;
-            user.stateOrProvince = userDetails.state;
+            user.stateOrProvince = userDetails.stateOrProvince;
             user.country = userDetails.country;
-            user.linkedInOrGithub = userDetails.profile;
-            user.agreeToTerms = userDetails.terms === 'on' ? true : false;
-
+            user.linkedInOrGithub = userDetails.linkedInOrGithub;
             await user.save();
         }
 

@@ -22,8 +22,9 @@ const Tickets = ({ ticketData, showTicket }) => {
     }, []);
 
     const qrData = {
-        attendeeName: ticketData.attendeeName,
-        eventName: ticketData.eventTitle,
+        name: ticketData.attendeeName,
+        event: ticketData.eventTitle,
+        teamMembers: ticketData.teamMates,
         email: ticketData.email,
     };
 
