@@ -95,7 +95,7 @@ const ImageUpload = ({ getImageData }) => {
                         </div>
                     </div>
                 </>
-            ) : uploadProgress > 0 ? (
+            ) : uploadProgress && !imageData > 0 ? (
                 <div>
                     <p>Uploading... {uploadProgress}%</p>
                     <progress value={uploadProgress} max="100"></progress>

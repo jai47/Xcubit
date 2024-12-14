@@ -5,7 +5,7 @@ import Navbar from '@/src/components/layout/Navbar';
 import Preview from '@/src/components/Preview/Preview';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
-import React, { use, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 const Page = () => {
     const { data: session } = useSession();
