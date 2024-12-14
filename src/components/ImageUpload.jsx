@@ -16,7 +16,9 @@ var imagekit = new ImageKit({
 
 const authenticator = async () => {
     try {
-        const response = await fetch(`${process.env.AUTH_URL}api/imageAuth`);
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BASE_URL}/api/imageAuth`
+        );
 
         if (!response.ok) {
             const errorText = await response.text();
