@@ -40,6 +40,7 @@ const ImageUpload = ({ getImageData }) => {
 
     // Progress handler
     const onProgress = (progress) => {
+        console.log('Upload progress:', progress); // Debug log
         setUploadProgress(Math.floor((progress.loaded / progress.total) * 100));
     };
 
