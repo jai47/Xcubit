@@ -196,10 +196,12 @@ const Page = () => {
                 },
                 body: JSON.stringify(formData),
             });
-
+            response = await response.json();
             if (response.success) {
                 alert('Event created successfully');
                 setFormData({});
+                setShowPreview(false);
+                ref.current.reset();
             }
         } catch (error) {
             console.error(error);
