@@ -20,9 +20,6 @@ function RegistrationForm() {
     const router = useRouter();
     const event = useEvent();
     const { data: session } = useSession();
-    if (!session) {
-        redirect('/login');
-    }
     const [error, setError] = useState({});
     const [profile, setProfile] = useState('');
     const [loading, setLoading] = useState(true);
@@ -94,6 +91,10 @@ function RegistrationForm() {
 
         fetchUserData();
     }, [session, event, router]);
+
+    if (!session) {
+        redirect('/login');
+    }
 
     const validateFields = (name, value) => {
         let newError = '';

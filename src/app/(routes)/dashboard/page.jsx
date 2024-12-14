@@ -11,9 +11,6 @@ import React, { useEffect, useState } from 'react';
 
 export default function Dashboard() {
     const { data: session } = useSession();
-    if (!session) {
-        redirect('/api/auth/signin');
-    }
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Profile';
     const ticketQuery = searchParams.get('ticket');
@@ -63,6 +60,10 @@ export default function Dashboard() {
         // Call the async function
         fetchUserData();
     }, [session, querySection, ticketQuery]);
+
+    if (!session) {
+        redirect('/api/auth/signin');
+    }
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

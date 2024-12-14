@@ -9,13 +9,8 @@ import { redirect } from 'next/navigation';
 
 const AdminDashboard = () => {
     const { data: session } = useSession();
-    if (session?.role !== 'admin') {
-        return redirect('/api/auth/signin');
-    }
-
     const [sidePanel, setSidePanel] = useState(false);
     const [events, setEvents] = useState([]);
-
     useEffect(() => {
         const fetchEvents = async () => {
             let rawData = await fetch('/api/events/', {
@@ -28,6 +23,10 @@ const AdminDashboard = () => {
 
         fetchEvents();
     }, []);
+
+    if (session?.role !== 'admin') {
+        return redirect('/api/auth/signin');
+    }
 
     return (
         <div className="flex">

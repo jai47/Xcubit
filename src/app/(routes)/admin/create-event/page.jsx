@@ -9,9 +9,6 @@ import React, { use, useEffect, useRef, useState } from 'react';
 
 const Page = () => {
     const { data: session } = useSession();
-    if (session?.role !== 'admin') {
-        return redirect('/api/auth/signin');
-    }
     const [showPreview, setShowPreview] = useState(false);
     const [allEvents, setAllEvents] = useState([]);
     const ref = useRef(null);
@@ -75,6 +72,10 @@ const Page = () => {
 
         fetchEvents();
     }, []);
+
+    if (session?.role !== 'admin') {
+        return redirect('/api/auth/signin');
+    }
 
     const getImageData = (data) => {
         setFormData((prev) => ({
