@@ -28,6 +28,7 @@ const authenticator = async () => {
         }
 
         const data = await response.json();
+        console.log(data);
         const { signature, expire, token } = data;
         return { signature, expire, token };
     } catch (error) {
