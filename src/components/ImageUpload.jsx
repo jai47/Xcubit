@@ -45,11 +45,11 @@ const ImageUpload = ({ getImageData }) => {
 
     // Success handler
     const onSuccess = (response) => {
-        setUploadProgress(0);
+        console.log('Upload success response:', response); // Debug log
         const { url, thumbnailUrl, fileId } = response;
         const newImageData = { url, thumbnailUrl, fileId };
-        setImageData(newImageData); // Update state
-        getImageData(newImageData); // Pass the data directly
+        setImageData(newImageData);
+        getImageData(newImageData);
     };
 
     return (
