@@ -1,8 +1,8 @@
 'use client';
 import ImageKit from 'imagekit';
 import { IKUpload, ImageKitProvider } from 'imagekitio-next';
-import Image from 'next/image';
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
@@ -40,17 +40,16 @@ const ImageUpload = ({ getImageData }) => {
 
     // Progress handler
     const onProgress = (progress) => {
-        console.log('Upload progress:', progress); // Debug log
         setUploadProgress(Math.floor((progress.loaded / progress.total) * 100));
     };
 
     // Success handler
     const onSuccess = (response) => {
-        console.log('Upload success response:', response); // Debug log
+        setUploadProgress(0);
         const { url, thumbnailUrl, fileId } = response;
         const newImageData = { url, thumbnailUrl, fileId };
-        setImageData(newImageData);
-        getImageData(newImageData);
+        setImageData(newImageData); // Update state
+        getImageData(newImageData); // Pass the data directly
     };
 
     return (
@@ -96,7 +95,7 @@ const ImageUpload = ({ getImageData }) => {
                         </div>
                     </div>
                 </>
-            ) : uploadProgress && !imageData > 0 ? (
+            ) : uploadProgress > 0 ? (
                 <div>
                     <p>Uploading... {uploadProgress}%</p>
                     <progress value={uploadProgress} max="100"></progress>
