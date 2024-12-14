@@ -1,10 +1,10 @@
 'use server';
-import { connectDB } from '@/lib/mongodb';
+import { connectDB } from '@/src/lib/mongodb';
 import { userModels } from '../models/users';
 import {
     comparePassword,
     saltAndHashPassword,
-} from '@/utils/saltAndHashPassword';
+} from '@/src/utils/saltAndHashPassword';
 import { redirect } from 'next/navigation';
 
 export async function userFormAction(formData) {

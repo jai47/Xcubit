@@ -1,6 +1,6 @@
-import { auth } from '@/app/auth';
-import Button from '@/components/Button';
-import { getUserFromDB } from '@/serverAction/userAction';
+import { auth } from '@/auth';
+import Button from '@/src/components/Button';
+import { getUserFromDB } from '@/src/serverAction/userAction';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 

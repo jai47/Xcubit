@@ -1,10 +1,10 @@
-import Button from '@/components/Button';
-import { getEvents } from '@/serverAction/eventAction';
+import Button from '@/src/components/Button';
+import { getEvents } from '@/src/serverAction/eventAction';
 import React from 'react';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import EventCard from '@/components/EventCard/EventCard'; // Import the EventCard component
-import { auth } from '@/app/auth';
+import Navbar from '@/src/components/layout/Navbar';
+import Footer from '@/src/components/layout/Footer';
+import EventCard from '@/src/components/EventCard/EventCard'; // Import the EventCard component
+import { auth } from '@/auth';
 import Link from 'next/link';
 
 const Events = async () => {

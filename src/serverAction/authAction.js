@@ -1,5 +1,5 @@
 'use server';
-import { signIn, signOut } from '@/app/auth';
+import { signIn, signOut } from '@/auth';
 import { redirect } from 'next/navigation';
 
 export async function loginCred(formData) {

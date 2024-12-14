@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import EventCard from '../EventCard/EventCard';
-import { getEvents } from '@/serverAction/eventAction';
+import { getEvents } from '@/src/serverAction/eventAction';
 
 const UpcomingEvents = async () => {
     const data = await getEvents();

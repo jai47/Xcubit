@@ -1,6 +1,6 @@
 //api call to create event
 
-import { eventFormAction } from '@/serverAction/eventAction';
+import { eventFormAction } from '@/src/serverAction/eventAction';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {

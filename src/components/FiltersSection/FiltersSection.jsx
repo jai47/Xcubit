@@ -75,14 +75,14 @@ const FiltersSection = () => {
                 {filteredEvents.length > 0 && (
                     <ul className="absolute bg-neutral-700 text-white mt-2 w-full max-h-40 overflow-y-auto shadow-lg rounded-sm z-10">
                         {filteredEvents.map((event) => (
-                            <li
+                            <Link
                                 key={event._id}
-                                className="px-4 py-4 hover:bg-neutral-600 cursor-pointer border-b border-neutral-600"
+                                href={`/events/${event.name}`}
                             >
-                                <Link href={`/events/${event.name}`}>
+                                <li className="px-4 py-4 hover:bg-neutral-600 cursor-pointer border-b border-neutral-600">
                                     {event.name}
-                                </Link>
-                            </li>
+                                </li>
+                            </Link>
                         ))}
                     </ul>
                 )}

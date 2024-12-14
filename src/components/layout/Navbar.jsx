@@ -3,8 +3,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import logo from '../../../public/logo/logo.png';
+import { useSession } from 'next-auth/react';
 
-const Navbar = ({ user }) => {
+const Navbar = () => {
+    const { data: session } = useSession();
+    const user = session?.user;
+
     const [isOpen, setIsOpen] = useState(false);
 
     return (

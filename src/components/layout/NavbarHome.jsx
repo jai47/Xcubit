@@ -4,10 +4,10 @@ import debounce from 'lodash.debounce';
 import Link from 'next/link';
 import Image from 'next/image';
 import logo from '../../../public/logo/logo.png';
-import useSessionData from '@/hooks/useSessionData';
+import { useSession } from 'next-auth/react';
 
 const Navbar = () => {
-    const session = useSessionData();
+    const { data: session } = useSession();
     const user = session?.user;
     const [isOpen, setIsOpen] = useState(false);
     const navRef = useRef(null);

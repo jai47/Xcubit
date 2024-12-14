@@ -2,10 +2,17 @@
 import React, { useState, useEffect } from 'react';
 import Avatar from '../../../../public/avatar/admin.jpg';
 import Image from 'next/image';
-import { logout } from '@/serverAction/authAction';
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import Loading from './loading';
+import { redirect } from 'next/navigation';
 
 const AdminDashboard = () => {
+    const { data: session } = useSession();
+    if (session?.role !== 'admin') {
+        return redirect('/api/auth/signin');
+    }
+
     const [sidePanel, setSidePanel] = useState(false);
     const [events, setEvents] = useState([]);
 
@@ -86,9 +93,7 @@ const AdminDashboard = () => {
                                 <button
                                     href="#"
                                     className="flex items-center space-x-2"
-                                    onClick={async () => {
-                                        await logout();
-                                    }}
+                                    onClick={() => signOut({ redirectTo: '/' })}
                                 >
                                     <svg
                                         xmlns="http://www.w3.org/2000/svg"

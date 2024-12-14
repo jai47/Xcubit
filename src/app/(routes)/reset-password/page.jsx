@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, Suspense } from 'react';
-import { updatePassword } from '@/serverAction/userAction';
+import { updatePassword } from '@/src/serverAction/userAction';
 import { useSearchParams } from 'next/navigation';
 
 function ResetPasswordForm() {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-const { updateVerifyUser } = require('@/serverAction/userAction');
+const { updateVerifyUser } = require('@/src/serverAction/userAction');
 
 export default async function page({ params }) {
     const { tokens } = await params;

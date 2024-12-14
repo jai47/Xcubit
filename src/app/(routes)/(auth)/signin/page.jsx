@@ -1,9 +1,9 @@
-import { auth } from '@/app/auth';
-import { userFormAction } from '@/serverAction/userAction';
+import { auth } from '@/auth';
+import { userFormAction } from '@/src/serverAction/userAction';
 import { FcGoogle } from 'react-icons/fc';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { signinWithGoogle } from '@/serverAction/authAction';
+import { signinWithGoogle } from '@/src/serverAction/authAction';
 
 export default async function SignIn() {
     const session = await auth(); // Check if the user is logged in

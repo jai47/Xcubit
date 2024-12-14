@@ -1,18 +1,19 @@
 'use client';
 
-import Image from '@/components/Image';
-import Navbar from '@/components/layout/Navbar';
-import Tickets from '@/components/Tickets/Ticket';
-import useSessionData from '@/hooks/useSessionData';
-import { logout } from '@/serverAction/authAction';
-import { updateForgotPasswordToken } from '@/serverAction/userAction';
+import Image from '@/src/components/Image';
+import Navbar from '@/src/components/layout/Navbar';
+import Tickets from '@/src/components/Tickets/Ticket';
+import { updateForgotPasswordToken } from '@/src/serverAction/userAction';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
-import React, { Suspense, useEffect, useState } from 'react';
-// import { XIcon, MenuIcon } from "@heroicons/react/outline";
-function Dashboard() {
-    //
-    const session = useSessionData();
+import { redirect, useSearchParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+
+export default function Dashboard() {
+    const { data: session } = useSession();
+    if (!session) {
+        redirect('/api/auth/signin');
+    }
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Profile';
     const ticketQuery = searchParams.get('ticket');
@@ -446,11 +447,214 @@ function Dashboard() {
                                         className="sr-only peer"
                                     />
                                     <div className="flex justify-start items-center  px-1 w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-green-500 peer-checked:justify-end transition duration-200">
-                                        <div className="w-4 h-4 bg-white rounded-full shadow transform peer-checked:translate-x-4 transition duration-200"></div>
+                                        <div className="w-4 h-4 bg-white rounded-full shadow-sm shadow-slate-400 transform peer-checked:translate-x-4 transition duration-200"></div>
                                     </div>
                                 </label>
                             </div>
-
+                            <div className="flex-1 space-y-4">
+                                <p className="text-gray-700 text-lg">
+                                    <strong className="font-semibold">
+                                        Name:
+                                    </strong>{' '}
+                                    {session?.user?.name}
+                                </p>
+                                <p className="text-gray-700 text-lg">
+                                    <strong className="font-semibold">
+                                        Email:
+                                    </strong>{' '}
+                                    {session?.user?.email}
+                                </p>
+                                {profile?.phone && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Phone:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="phone"
+                                                value={profile?.phone}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.phone
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.address && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Address:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={profile?.address}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.address
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.city && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            City:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="city"
+                                                value={profile?.city}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.city
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.state && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            State/Province:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="state"
+                                                value={profile?.state}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.state
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.postalCode && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Postal Code:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="postalCode"
+                                                value={profile?.postalCode}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.postalCode
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.country && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Country:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="country"
+                                                value={profile?.country}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            profile?.country
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.dateOfBirth && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Date of Birth:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="date"
+                                                name="dateOfBirth"
+                                                value={profile?.dateOfBirth}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            new Date(
+                                                profile?.dateOfBirth
+                                            ).toDateString('hi-IN')
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.gender && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            Gender:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <select
+                                                name="gender"
+                                                value={profile?.gender}
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            >
+                                                <option value="Male">
+                                                    Male
+                                                </option>
+                                                <option value="Female">
+                                                    Female
+                                                </option>
+                                                <option value="Other">
+                                                    Other
+                                                </option>
+                                            </select>
+                                        ) : (
+                                            profile?.gender
+                                        )}
+                                    </p>
+                                )}
+                                {profile?.linkedInOrGithub && (
+                                    <p className="text-gray-700 text-lg">
+                                        <strong className="font-semibold">
+                                            LinkedIn/GitHub:
+                                        </strong>{' '}
+                                        {isEditing ? (
+                                            <input
+                                                type="text"
+                                                name="linkedInOrGithub"
+                                                value={
+                                                    profile?.linkedInOrGithub
+                                                }
+                                                onChange={handleInputChange}
+                                                className="border rounded px-2 py-1 w-full"
+                                            />
+                                        ) : (
+                                            <a
+                                                href={profile?.linkedInOrGithub}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 font-medium hover:underline"
+                                            >
+                                                LinkedIn Profile
+                                            </a>
+                                        )}
+                                    </p>
+                                )}
+                                <button
+                                    className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full shadow hover:bg-blue-600"
+                                    onClick={toggleEditing}
+                                >
+                                    {isEditing
+                                        ? 'Update Profile'
+                                        : 'Edit Profile'}
+                                </button>
+                            </div>
                             {/* Change Password Button */}
                             {showModal && (
                                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -494,7 +698,7 @@ function Dashboard() {
                                                 onClick={() =>
                                                     setShowModal(!showModal)
                                                 }
-                                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
                                             >
                                                 OK
                                             </button>
@@ -627,10 +831,7 @@ function Dashboard() {
                             <li className="w-full flex items-center pr-5">
                                 <button
                                     className="w-full px-6 py-3 text-left text-red-500 hover:bg-gray-100"
-                                    onClick={async () => {
-                                        await logout();
-                                        router.push('/');
-                                    }}
+                                    onClick={() => signOut({ redirectTo: '/' })}
                                 >
                                     Logout
                                 </button>
@@ -658,13 +859,5 @@ function Dashboard() {
                 <div className="flex-1 p-6">{renderContent()}</div>
             </div>
         </>
-    );
-}
-
-export default function Page() {
-    return (
-        <Suspense fallback={<p>Loading...</p>}>
-            <Dashboard />
-        </Suspense>
     );
 }

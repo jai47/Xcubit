@@ -1,4 +1,4 @@
-import { getEventByName, getEvents } from '@/serverAction/eventAction';
+import { getEventByName, getEvents } from '@/src/serverAction/eventAction';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {

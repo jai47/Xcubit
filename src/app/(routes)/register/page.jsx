@@ -6,21 +6,23 @@
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
-import { userEventRegistration } from '@/serverAction/userAction';
-import useEvent from '@/hooks/useEvent';
-import useSessionData from '@/hooks/useSessionData';
+import { userEventRegistration } from '@/src/serverAction/userAction';
+import useEvent from '@/src/hooks/useEvent';
 import Script from 'next/script';
-import { useRouter } from 'next/navigation';
-import Navbar from '@/components/layout/Navbar';
-import Loading from '@/app/loading';
+import { redirect, useRouter } from 'next/navigation';
+import Navbar from '@/src/components/layout/Navbar';
+import Loading from '@/src/app/loading';
 import Image from 'next/image';
 import QRCode from 'qrcode';
+import { useSession } from 'next-auth/react';
 
 function RegistrationForm() {
     const router = useRouter();
-    const ref = React.useRef();
     const event = useEvent();
-    const session = useSessionData();
+    const { data: session } = useSession();
+    if (!session) {
+        redirect('/login');
+    }
     const [error, setError] = useState({});
     const [profile, setProfile] = useState('');
     const [loading, setLoading] = useState(true);
@@ -324,7 +326,7 @@ function RegistrationForm() {
         event &&
         !loading && (
             <>
-                <Navbar user={session?.user} />
+                <Navbar />
                 {!profile?.verified ? (
                     <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
                         email not verified

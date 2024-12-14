@@ -5,7 +5,7 @@ import {
     getUserFromDB,
     getUserEmailPassword,
     userGoogleAction,
-} from '@/serverAction/userAction';
+} from '@/src/serverAction/userAction';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
@@ -91,6 +91,12 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
             return session;
         },
+        // signIn: async (user, account) => {
+        //     if (account.provider === 'google' && user) {
+        //         user.role = 'user';
+        //     }
+        //     return true;
+        // },
     },
     session: {
         strategy: 'jwt',

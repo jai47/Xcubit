@@ -1,6 +1,6 @@
 // components/HeroSection.jsx
 import Carousel from '../Carousel/Carousel';
-import { getEvents } from '@/serverAction/eventAction';
+import { getEvents } from '@/src/serverAction/eventAction';
 
 const HeroSection = async () => {
     const data = await getEvents();

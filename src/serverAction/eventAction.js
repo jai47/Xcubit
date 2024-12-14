@@ -1,6 +1,6 @@
 'use server';
 
-import { connectDB } from '@/lib/mongodb';
+import { connectDB } from '@/src/lib/mongodb';
 // Importing the Event model from the models folder
 import { eventModels } from '../models/events';
 

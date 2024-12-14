@@ -1,6 +1,5 @@
 'use server';
-
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 export async function saltAndHashPassword(password) {
     const salt = await bcrypt.genSalt(10);

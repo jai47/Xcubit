@@ -1,13 +1,17 @@
 'use client';
-import ImageUpload from '@/components/ImageUpload';
-import Footer from '@/components/layout/Footer';
-import Navbar from '@/components/layout/Navbar';
-import Preview from '@/components/Preview/Preview';
-import useSessionData from '@/hooks/useSessionData';
+import ImageUpload from '@/src/components/ImageUpload';
+import Footer from '@/src/components/layout/Footer';
+import Navbar from '@/src/components/layout/Navbar';
+import Preview from '@/src/components/Preview/Preview';
+import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
 import React, { use, useEffect, useRef, useState } from 'react';
 
 const Page = () => {
-    const session = useSessionData();
+    const { data: session } = useSession();
+    if (session?.role !== 'admin') {
+        return redirect('/api/auth/signin');
+    }
     const [showPreview, setShowPreview] = useState(false);
     const [allEvents, setAllEvents] = useState([]);
     const ref = useRef(null);
@@ -202,354 +206,342 @@ const Page = () => {
     };
 
     return (
-        session && (
-            <>
-                <Navbar user={session?.user} />
-                <div className="min-h-screen bg-white flex flex-col items-center py-10">
-                    {/* Page Title */}
-                    <div className="w-4/5 ">
-                        <h1 className="text-4xl font-bold mb-6 text-gray-800 ">
-                            Create Event
-                        </h1>
-                    </div>
+        <>
+            <Navbar />
+            <div className="min-h-screen bg-white flex flex-col items-center py-10">
+                {/* Page Title */}
+                <div className="w-4/5 ">
+                    <h1 className="text-4xl font-bold mb-6 text-gray-800 ">
+                        Create Event
+                    </h1>
+                </div>
 
-                    <form
-                        ref={ref}
-                        onSubmit={handleSubmit}
-                        className="w-4/5 bg-white rounded-lg p-6 space-y-9"
-                    >
-                        {/* Form */}
+                <form
+                    ref={ref}
+                    onSubmit={handleSubmit}
+                    className="w-4/5 bg-white rounded-lg p-6 space-y-9"
+                >
+                    {/* Form */}
+                    {/* Event Title */}
+                    <div className="w-3/4 flex flex-col gap-8">
                         {/* Event Title */}
-                        <div className="w-3/4 flex flex-col gap-8">
-                            {/* Event Title */}
-                            <div className="w-full flex flex-col">
-                                <div className="w-full flex gap-10 items-center">
-                                    <label
-                                        className="w-[20%] text-lg font-medium text-gray-700"
-                                        htmlFor="name"
-                                    >
-                                        Event Title
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="Title"
-                                        className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    />
-                                </div>
-                                <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                    {errors.name}
-                                </p>
-                            </div>
-
-                            {/* Category */}
-                            <div className="w-full flex flex-col">
-                                <div className="w-full flex gap-10 items-center">
-                                    <label
-                                        className="w-[20%] text-lg font-medium text-gray-700"
-                                        htmlFor="category"
-                                    >
-                                        Event Category
-                                    </label>
-                                    <select
-                                        name="category"
-                                        id="category"
-                                        value={formData.category}
-                                        onChange={handleChange}
-                                        className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    >
-                                        <option value="">Select</option>
-                                        <option value="Hackthon">
-                                            Hackthon
-                                        </option>
-                                        <option value="Ideathon">
-                                            Ideathon
-                                        </option>
-                                        <option value="Tech talk">
-                                            Tech talk
-                                        </option>
-                                    </select>
-                                </div>
-                                <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                    {errors.category}
-                                </p>
-                            </div>
-
-                            {/* Description */}
-                            <div className="w-full flex flex-col">
-                                <div className="w-full flex gap-10 items-start">
-                                    <label
-                                        className="w-[20%] text-lg font-medium text-gray-700"
-                                        htmlFor="description"
-                                    >
-                                        About The Event
-                                    </label>
-                                    <textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
-                                        onChange={handleChange}
-                                        placeholder="Enter a description"
-                                        className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                        rows="7"
-                                    ></textarea>
-                                </div>
-                                <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                    {errors.description}
-                                </p>
-                            </div>
-                        </div>
-                        {/* Dates and Time */}
-                        <div className="w-full flex gap-4 pt-10">
-                            <div className="w-[20%] flex flex-col space-y-2">
+                        <div className="w-full flex flex-col">
+                            <div className="w-full flex gap-10 items-center">
                                 <label
-                                    className="text-lg font-medium text-gray-700"
-                                    htmlFor="start"
+                                    className="w-[20%] text-lg font-medium text-gray-700"
+                                    htmlFor="name"
                                 >
-                                    Start Date
-                                </label>
-                                <input
-                                    type="date"
-                                    id="start"
-                                    name="start"
-                                    value={formData.start}
-                                    onChange={handleChange}
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                                <p className="text-red-500 text-sm">
-                                    {errors.start}
-                                </p>
-                            </div>
-                            <div className="w-[20%] flex flex-col space-y-2">
-                                <label
-                                    className="text-lg font-medium text-gray-700"
-                                    htmlFor="end"
-                                >
-                                    End Date
-                                </label>
-                                <input
-                                    type="date"
-                                    id="end"
-                                    name="end"
-                                    value={formData.end}
-                                    onChange={handleChange}
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                                <p className="text-red-500 text-sm">
-                                    {errors.end}
-                                </p>
-                            </div>
-                            <div className="w-[20%] flex flex-col space-y-2">
-                                <label
-                                    className="text-lg font-medium text-gray-700"
-                                    htmlFor="time"
-                                >
-                                    Time
-                                </label>
-                                <input
-                                    type="time"
-                                    id="time"
-                                    name="time"
-                                    value={formData.time}
-                                    onChange={handleChange}
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                                <p className="text-red-500 text-sm">
-                                    {errors.time}
-                                </p>
-                            </div>
-                            <div className="w-[20%] flex flex-col space-y-2">
-                                <label
-                                    className="text-lg font-medium text-gray-700"
-                                    htmlFor="duration"
-                                >
-                                    Run Time
+                                    Event Title
                                 </label>
                                 <input
                                     type="text"
-                                    id="duration"
-                                    name="duration"
-                                    placeholder="Eg. 12 Hours"
-                                    value={formData.duration}
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
                                     onChange={handleChange}
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                    placeholder="Title"
+                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
                                 />
-                                <p className="text-red-500 text-sm">
-                                    {errors.duration}
-                                </p>
                             </div>
+                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                                {errors.name}
+                            </p>
                         </div>
-                        {/* Other Details */}
-                        <div className="w-3/4 flex flex-col gap-8">
-                            <div className="w-full flex flex-col">
-                                <div className="w-full flex gap-10 items-start">
-                                    <label
-                                        className="w-[20%] text-lg font-medium text-gray-700"
-                                        htmlFor="location"
-                                    >
-                                        Location
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="location"
-                                        name="location"
-                                        value={formData.location}
-                                        onChange={handleChange}
-                                        placeholder="Enter location"
-                                        className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    />
-                                </div>
-                                <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                    {errors.location}
-                                </p>
-                            </div>
-                            <div className="w-full flex flex-col">
-                                <div className=" w-full flex gap-10 items-start">
-                                    <label
-                                        className="w-[20%] text-lg font-medium text-gray-700"
-                                        htmlFor="locationURL"
-                                    >
-                                        Location URL
-                                    </label>
-                                    <input
-                                        type="url"
-                                        id="locationURL"
-                                        name="locationURL"
-                                        value={formData.locationURL}
-                                        onChange={handleChange}
-                                        placeholder="Enter location URL"
-                                        className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    />
-                                </div>
-                                <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                    {errors.locationURL}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-3 gap-6 items-center">
-                            <div className="flex flex-col space-y-2">
+
+                        {/* Category */}
+                        <div className="w-full flex flex-col">
+                            <div className="w-full flex gap-10 items-center">
                                 <label
-                                    className="text-lg font-medium text-gray-700"
-                                    htmlFor="eventType"
+                                    className="w-[20%] text-lg font-medium text-gray-700"
+                                    htmlFor="category"
                                 >
-                                    Event Type
+                                    Event Category
                                 </label>
                                 <select
-                                    name="eventType"
-                                    id="eventType"
-                                    value={formData.eventType}
+                                    name="category"
+                                    id="category"
+                                    value={formData.category}
                                     onChange={handleChange}
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
                                 >
                                     <option value="">Select</option>
-                                    <option value="paid">Ticketed Event</option>
-                                    <option value="free">Free Event</option>
+                                    <option value="Hackthon">Hackthon</option>
+                                    <option value="Ideathon">Ideathon</option>
+                                    <option value="Tech talk">Tech talk</option>
                                 </select>
-                                <p className="text-red-500 text-sm">
-                                    {errors.eventType}
-                                </p>
                             </div>
-                            {formData.eventType === 'paid' && (
-                                <div className="flex flex-col space-y-2">
-                                    <label
-                                        className="text-lg font-medium text-gray-700"
-                                        htmlFor="price"
-                                    >
-                                        Ticket Price
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="price"
-                                        name="price"
-                                        value={formData.price}
-                                        onChange={handleChange}
-                                        placeholder="Enter price"
-                                        className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    />
-                                    <p className="text-red-500 text-sm">
-                                        {errors.price}
-                                    </p>
-                                </div>
-                            )}
+                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                                {errors.category}
+                            </p>
+                        </div>
+
+                        {/* Description */}
+                        <div className="w-full flex flex-col">
+                            <div className="w-full flex gap-10 items-start">
+                                <label
+                                    className="w-[20%] text-lg font-medium text-gray-700"
+                                    htmlFor="description"
+                                >
+                                    About The Event
+                                </label>
+                                <textarea
+                                    id="description"
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    placeholder="Enter a description"
+                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                    rows="7"
+                                ></textarea>
+                            </div>
+                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                                {errors.description}
+                            </p>
+                        </div>
+                    </div>
+                    {/* Dates and Time */}
+                    <div className="w-full flex gap-4 pt-10">
+                        <div className="w-[20%] flex flex-col space-y-2">
+                            <label
+                                className="text-lg font-medium text-gray-700"
+                                htmlFor="start"
+                            >
+                                Start Date
+                            </label>
+                            <input
+                                type="date"
+                                id="start"
+                                name="start"
+                                value={formData.start}
+                                onChange={handleChange}
+                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                            />
+                            <p className="text-red-500 text-sm">
+                                {errors.start}
+                            </p>
                         </div>
                         <div className="w-[20%] flex flex-col space-y-2">
                             <label
                                 className="text-lg font-medium text-gray-700"
-                                htmlFor="maxParticipation"
+                                htmlFor="end"
                             >
-                                Maximum Participation
+                                End Date
                             </label>
                             <input
-                                type="text"
-                                id="maxParticipation"
-                                name="maxParticipation"
-                                value={formData.maxParticipation}
+                                type="date"
+                                id="end"
+                                name="end"
+                                value={formData.end}
                                 onChange={handleChange}
-                                placeholder="Enter max participants"
+                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                            />
+                            <p className="text-red-500 text-sm">{errors.end}</p>
+                        </div>
+                        <div className="w-[20%] flex flex-col space-y-2">
+                            <label
+                                className="text-lg font-medium text-gray-700"
+                                htmlFor="time"
+                            >
+                                Time
+                            </label>
+                            <input
+                                type="time"
+                                id="time"
+                                name="time"
+                                value={formData.time}
+                                onChange={handleChange}
                                 className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
                             />
                             <p className="text-red-500 text-sm">
-                                {errors.maxParticipation}
+                                {errors.time}
                             </p>
                         </div>
-                        {/* Image */}
+                        <div className="w-[20%] flex flex-col space-y-2">
+                            <label
+                                className="text-lg font-medium text-gray-700"
+                                htmlFor="duration"
+                            >
+                                Run Time
+                            </label>
+                            <input
+                                type="text"
+                                id="duration"
+                                name="duration"
+                                placeholder="Eg. 12 Hours"
+                                value={formData.duration}
+                                onChange={handleChange}
+                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                            />
+                            <p className="text-red-500 text-sm">
+                                {errors.duration}
+                            </p>
+                        </div>
+                    </div>
+                    {/* Other Details */}
+                    <div className="w-3/4 flex flex-col gap-8">
+                        <div className="w-full flex flex-col">
+                            <div className="w-full flex gap-10 items-start">
+                                <label
+                                    className="w-[20%] text-lg font-medium text-gray-700"
+                                    htmlFor="location"
+                                >
+                                    Location
+                                </label>
+                                <input
+                                    type="text"
+                                    id="location"
+                                    name="location"
+                                    value={formData.location}
+                                    onChange={handleChange}
+                                    placeholder="Enter location"
+                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                />
+                            </div>
+                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                                {errors.location}
+                            </p>
+                        </div>
+                        <div className="w-full flex flex-col">
+                            <div className=" w-full flex gap-10 items-start">
+                                <label
+                                    className="w-[20%] text-lg font-medium text-gray-700"
+                                    htmlFor="locationURL"
+                                >
+                                    Location URL
+                                </label>
+                                <input
+                                    type="url"
+                                    id="locationURL"
+                                    name="locationURL"
+                                    value={formData.locationURL}
+                                    onChange={handleChange}
+                                    placeholder="Enter location URL"
+                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                />
+                            </div>
+                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                                {errors.locationURL}
+                            </p>
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-3 gap-6 items-center">
                         <div className="flex flex-col space-y-2">
                             <label
                                 className="text-lg font-medium text-gray-700"
-                                htmlFor="image"
+                                htmlFor="eventType"
                             >
-                                Upload Banner
+                                Event Type
                             </label>
-                            <ImageUpload getImageData={getImageData} />
+                            <select
+                                name="eventType"
+                                id="eventType"
+                                value={formData.eventType}
+                                onChange={handleChange}
+                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                            >
+                                <option value="">Select</option>
+                                <option value="paid">Ticketed Event</option>
+                                <option value="free">Free Event</option>
+                            </select>
                             <p className="text-red-500 text-sm">
-                                {errors.image}
+                                {errors.eventType}
                             </p>
                         </div>
-                        {/* Submit Button */}
-                        <div className="flex justify-end">
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    if (!validateForm()) return;
-                                    setShowPreview(true);
-                                }}
-                                className="bg-neutral-500 text-white px-9 py-3 rounded-full hover:bg-neutral-900 transition duration-100"
-                            >
-                                Preview
-                            </button>
-                        </div>
-                        {showPreview && (
-                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ">
-                                <div className="flex flex-col justify-center items-center bg-white  rounded-lg shadow-lg h-[90%] w-[90%] overflow-auto">
-                                    <Preview data={formData} />
-                                    <div className="w-full flex justify-end gap-6 mr-8  p-8">
-                                        <button
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setShowPreview(false);
-                                            }}
-                                            className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300"
-                                        >
-                                            Make Changes
-                                        </button>
-                                        <button
-                                            type="submit"
-                                            className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300"
-                                        >
-                                            Publish Event
-                                        </button>
-                                    </div>
-                                </div>
+                        {formData.eventType === 'paid' && (
+                            <div className="flex flex-col space-y-2">
+                                <label
+                                    className="text-lg font-medium text-gray-700"
+                                    htmlFor="price"
+                                >
+                                    Ticket Price
+                                </label>
+                                <input
+                                    type="text"
+                                    id="price"
+                                    name="price"
+                                    value={formData.price}
+                                    onChange={handleChange}
+                                    placeholder="Enter price"
+                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                />
+                                <p className="text-red-500 text-sm">
+                                    {errors.price}
+                                </p>
                             </div>
                         )}
-                    </form>
-                </div>
-                <Footer />
-            </>
-        )
+                    </div>
+                    <div className="w-[20%] flex flex-col space-y-2">
+                        <label
+                            className="text-lg font-medium text-gray-700"
+                            htmlFor="maxParticipation"
+                        >
+                            Maximum Participation
+                        </label>
+                        <input
+                            type="text"
+                            id="maxParticipation"
+                            name="maxParticipation"
+                            value={formData.maxParticipation}
+                            onChange={handleChange}
+                            placeholder="Enter max participants"
+                            className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                        />
+                        <p className="text-red-500 text-sm">
+                            {errors.maxParticipation}
+                        </p>
+                    </div>
+                    {/* Image */}
+                    <div className="flex flex-col space-y-2">
+                        <label
+                            className="text-lg font-medium text-gray-700"
+                            htmlFor="image"
+                        >
+                            Upload Banner
+                        </label>
+                        <ImageUpload getImageData={getImageData} />
+                        <p className="text-red-500 text-sm">{errors.image}</p>
+                    </div>
+                    {/* Submit Button */}
+                    <div className="flex justify-end">
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                if (!validateForm()) return;
+                                setShowPreview(true);
+                            }}
+                            className="bg-neutral-500 text-white px-9 py-3 rounded-full hover:bg-neutral-900 transition duration-100"
+                        >
+                            Preview
+                        </button>
+                    </div>
+                    {showPreview && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ">
+                            <div className="flex flex-col justify-center items-center bg-white  rounded-lg shadow-lg h-[90%] w-[90%] overflow-auto">
+                                <Preview data={formData} />
+                                <div className="w-full flex justify-end gap-6 mr-8  p-8">
+                                    <button
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setShowPreview(false);
+                                        }}
+                                        className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300"
+                                    >
+                                        Make Changes
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300"
+                                    >
+                                        Publish Event
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </form>
+            </div>
+            <Footer />
+        </>
     );
 };
 

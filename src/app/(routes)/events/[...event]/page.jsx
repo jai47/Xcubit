@@ -1,9 +1,9 @@
-import { getEventByName } from '@/serverAction/eventAction';
+import { getEventByName } from '@/src/serverAction/eventAction';
 import React from 'react';
 
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import { auth } from '@/app/auth';
+import Navbar from '@/src/components/layout/Navbar';
+import Footer from '@/src/components/layout/Footer';
+import { auth } from '@/auth';
 import Link from 'next/link';
 import Image from 'next/image';
 
