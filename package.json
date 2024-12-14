@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@auth/mongodb-adapter": "^3.7.4",
+        "@vercel/speed-insights": "^1.1.0",
         "bcryptjs": "^2.4.3",
         "dotenv": "^16.4.5",
         "imagekit": "^6.0.0",

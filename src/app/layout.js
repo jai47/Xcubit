@@ -1,6 +1,7 @@
 import localFont from 'next/font/local';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { auth } from '@/auth';
 
 const geistSans = localFont({
@@ -26,6 +27,7 @@ export default async function RootLayout({ children }) {
             <body
                 className={`${geistSans.variable} ${geistSans.variable} antialiased`}
             >
+                <SpeedInsights />
                 <SessionProvider session={session}>{children}</SessionProvider>
             </body>
         </html>
