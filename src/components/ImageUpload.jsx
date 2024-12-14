@@ -1,8 +1,8 @@
 'use client';
 import ImageKit from 'imagekit';
 import { IKUpload, ImageKitProvider } from 'imagekitio-next';
-import { useState, useRef } from 'react';
 import Image from 'next/image';
+import { useState, useRef } from 'react';
 
 const urlEndpoint = process.env.NEXT_PUBLIC_URL_ENDPOINT;
 const publicKey = process.env.NEXT_PUBLIC_PUBLIC_KEY;
@@ -16,7 +16,7 @@ var imagekit = new ImageKit({
 
 const authenticator = async () => {
     try {
-        const response = await fetch('/api/imageAuth');
+        const response = await fetch(`${process.env.AUTH_URL}api/imageAuth`);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -40,7 +40,6 @@ const ImageUpload = ({ getImageData }) => {
 
     // Progress handler
     const onProgress = (progress) => {
-        console.log(progress);
         setUploadProgress(Math.floor((progress.loaded / progress.total) * 100));
     };
 
@@ -67,6 +66,7 @@ const ImageUpload = ({ getImageData }) => {
                         onUploadProgress={onProgress}
                         style={{ display: 'none' }}
                         ref={Upload}
+                        accept="image/*"
                     />
                     <div
                         className="h-48 w-72 flex flex-col items-center justify-center gap-5 cursor-pointer border-2 border-dashed border-gray-300 bg-white p-6 rounded-lg shadow-md hover:bg-gray-50"
