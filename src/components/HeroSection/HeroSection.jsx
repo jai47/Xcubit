@@ -20,7 +20,8 @@ const HeroSection = async () => {
         <section
             className="w-screen h-[85vh] md:h-[90vh] lg:h-screen text-white flex justify-center items-center"
             style={{
-                background: 'linear-gradient(135deg, #525252, #1a1a1a)',
+                background:
+                    'url(/background.gif) no-repeat center center/cover',
             }}
         >
             <div className="w-full max-w-6xl px-4 md:px-8 pt-16 lg:pt-24">
