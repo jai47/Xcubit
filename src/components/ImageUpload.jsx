@@ -67,7 +67,6 @@ const ImageUpload = ({ getImageData }) => {
                         onUploadProgress={onProgress}
                         style={{ display: 'none' }}
                         ref={Upload}
-                        accept="image/*"
                     />
                     <div
                         className="h-48 w-72 flex flex-col items-center justify-center gap-5 cursor-pointer border-2 border-dashed border-gray-300 bg-white p-6 rounded-lg shadow-md hover:bg-gray-50"
