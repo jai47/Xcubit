@@ -1,10 +1,5 @@
 const { NextResponse, NextRequest } = require('next/server');
-import Razorpay from 'razorpay';
-
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
+import { getRazorpayInstance } from '@/src/lib/razorpay';
 
 export async function POST(req) {
     try {
@@ -17,7 +12,7 @@ export async function POST(req) {
                 .toString()
                 .substring(7)}-receipt`,
         };
-
+        const razorpay = await getRazorpayInstance();
         const response = await razorpay.orders.create(options);
         return NextResponse.json({ order: response }, { status: 200 });
     } catch (error) {

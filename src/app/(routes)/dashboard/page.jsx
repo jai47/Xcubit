@@ -1,7 +1,7 @@
 'use client';
 
+import Button from '@/src/components/Button';
 import Image from '@/src/components/Image';
-import Navbar from '@/src/components/layout/Navbar';
 import Tickets from '@/src/components/Tickets/Ticket';
 import { updateForgotPasswordToken } from '@/src/serverAction/userAction';
 import { signOut, useSession } from 'next-auth/react';
@@ -14,11 +14,16 @@ export default function Dashboard() {
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Profile';
     const ticketQuery = searchParams.get('ticket');
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState({
+        visible: false,
+        message: '',
+    });
     const [selectedEvent, setSelectedEvent] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
     const [profile, setProfile] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
+    const [timer, setTimer] = useState(0);
+
     useEffect(() => {
         // Define an async function within the effect
         const fetchUserData = async () => {
@@ -42,7 +47,7 @@ export default function Dashboard() {
                     if (
                         querySection == 'My Tickets' &&
                         ticketQuery &&
-                        userData.user.events
+                        userData.user?.events
                     ) {
                         const matchingEvent = userData.user.events.find(
                             (event) => event.name === ticketQuery
@@ -54,6 +59,15 @@ export default function Dashboard() {
                 }
             } catch (error) {
                 console.error('Error fetching user data:', error);
+            } finally {
+                // Access cookies only on the client side
+                const cookie = document.cookie
+                    .split('; ')
+                    .find((row) => row.startsWith('bookmarks'));
+                const events = cookie
+                    ? JSON.parse(decodeURIComponent(cookie.split('=')[1]))
+                    : [];
+                setBookmarkedEvents(events);
             }
         };
 
@@ -70,9 +84,6 @@ export default function Dashboard() {
         setProfile((prev) => ({ ...prev, [name]: value }));
     };
 
-    const toggleEditing = () => {
-        setIsEditing(!isEditing);
-    };
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
@@ -80,41 +91,44 @@ export default function Dashboard() {
         setSelectedEvent(value); // Correctly toggle visibility
     };
 
+    const startTimer = () => {
+        setTimer(60);
+        const interval = setInterval(() => {
+            setTimer((prev) => {
+                if (prev <= 1) {
+                    clearInterval(interval);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+    };
+
     // Render the content based on the active section
     const renderContent = () => {
         switch (querySection) {
             case 'Profile':
                 return (
-                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
+                    <div className="p-6 shadow-lg rounded-lg mx-auto">
                         <h2 className="text-2xl font-bold mb-6 border-b pb-2">
                             Profile
                         </h2>
                         <div className="flex flex-col md:flex-row gap-6">
-                            <Image
-                                src={
-                                    profile?.image ||
-                                    `${process.env.NEXT_PUBLIC_BASE_URL}/avatar/default.png`
-                                }
-                                alt="Profile"
-                                className="w-32 h-32 rounded-full object-cover border-2 border-gray-200 shadow-md mx-auto md:mx-0"
-                                width={128}
-                                height={128}
-                            />
                             <div className="flex-1 space-y-4">
-                                <p className="text-gray-700 text-lg">
+                                <p className="  text-md">
                                     <strong className="font-semibold">
                                         Name:
                                     </strong>{' '}
                                     {session?.user?.name}
                                 </p>
-                                <p className="text-gray-700 text-lg">
+                                <p className="  text-md">
                                     <strong className="font-semibold">
                                         Email:
                                     </strong>{' '}
                                     {session?.user?.email}
                                 </p>
                                 {profile?.phone && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="text-md">
                                         <strong className="font-semibold">
                                             Phone:
                                         </strong>{' '}
@@ -132,177 +146,78 @@ export default function Dashboard() {
                                     </p>
                                 )}
                                 {profile?.address && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="text-md">
                                         <strong className="font-semibold">
                                             Address:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="address"
-                                                value={profile?.address}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.address
-                                        )}
+                                        {profile?.address}
                                     </p>
                                 )}
                                 {profile?.city && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="text-md">
                                         <strong className="font-semibold">
                                             City:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="city"
-                                                value={profile?.city}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.city
-                                        )}
+                                        {profile?.city}
                                     </p>
                                 )}
                                 {profile?.state && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="text-md">
                                         <strong className="font-semibold">
                                             State/Province:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="state"
-                                                value={profile?.state}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.state
-                                        )}
+                                        {profile?.state}
                                     </p>
                                 )}
                                 {profile?.postalCode && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="  text-md">
                                         <strong className="font-semibold">
                                             Postal Code:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="postalCode"
-                                                value={profile?.postalCode}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.postalCode
-                                        )}
+                                        {profile?.postalCode}
                                     </p>
                                 )}
                                 {profile?.country && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="  text-md">
                                         <strong className="font-semibold">
                                             Country:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="country"
-                                                value={profile?.country}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.country
-                                        )}
+                                        {profile?.country}
                                     </p>
                                 )}
                                 {profile?.dateOfBirth && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="  text-md">
                                         <strong className="font-semibold">
                                             Date of Birth:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="date"
-                                                name="dateOfBirth"
-                                                value={profile?.dateOfBirth}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            new Date(
-                                                profile?.dateOfBirth
-                                            ).toDateString('hi-IN')
-                                        )}
+                                        {new Date(
+                                            profile?.dateOfBirth
+                                        ).toDateString('hi-IN')}
                                     </p>
                                 )}
                                 {profile?.gender && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="  text-md">
                                         <strong className="font-semibold">
                                             Gender:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <select
-                                                name="gender"
-                                                value={profile?.gender}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            >
-                                                <option value="Male">
-                                                    Male
-                                                </option>
-                                                <option value="Female">
-                                                    Female
-                                                </option>
-                                                <option value="Other">
-                                                    Other
-                                                </option>
-                                            </select>
-                                        ) : (
-                                            profile?.gender
-                                        )}
+                                        {profile?.gender}
                                     </p>
                                 )}
                                 {profile?.linkedInOrGithub && (
-                                    <p className="text-gray-700 text-lg">
+                                    <p className="  text-md">
                                         <strong className="font-semibold">
                                             LinkedIn/GitHub:
                                         </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="linkedInOrGithub"
-                                                value={
-                                                    profile?.linkedInOrGithub
-                                                }
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            <a
-                                                href={profile?.linkedInOrGithub}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 font-medium hover:underline"
-                                            >
-                                                LinkedIn Profile
-                                            </a>
-                                        )}
+                                        <a
+                                            href={profile?.linkedInOrGithub}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-600 font-medium hover:underline"
+                                        >
+                                            LinkedIn Profile
+                                        </a>
                                     </p>
                                 )}
-                                <button
-                                    className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full shadow hover:bg-blue-600"
-                                    onClick={toggleEditing}
-                                >
-                                    {isEditing
-                                        ? 'Update Profile'
-                                        : 'Edit Profile'}
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -310,42 +225,41 @@ export default function Dashboard() {
 
             case 'My Tickets':
                 return (
-                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
-                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                    <div className="p-6   shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
                             My Tickets
                         </h2>
                         <div className="space-y-6">
-                            {profile?.events ? (
+                            {profile?.events.length !== 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                     {profile?.events.map((event, index) => (
                                         <div
                                             key={index}
-                                            className="flex flex-col items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                                            className="flex flex-col items-center justify-between p-6   border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                                         >
                                             <div className="text-center">
-                                                <h3 className="text-xl font-semibold text-gray-800">
+                                                <h3 className="text-xl font-semibold  ">
                                                     {event.name}
                                                 </h3>
-                                                <p className="text-sm text-gray-600 mt-1">
+                                                <p className="text-sm   mt-1">
                                                     Date:{' '}
                                                     <span className="font-medium">
                                                         {event.date}
                                                     </span>
                                                 </p>
                                             </div>
-                                            <button
+                                            <Button
+                                                className="bg-primary text-background border uppercase text-sm border-black py-2 px-8 mt-3 rounded-full hover:bg-main hover:border-primary hover:text-primary transition-all"
                                                 onClick={() =>
                                                     showTicket(event)
                                                 }
-                                                className="mt-4 text-white bg-slate-600 px-4 py-2 rounded-full shadow hover:bg-neutral-600 transition-colors duration-200"
-                                            >
-                                                View Ticket
-                                            </button>
+                                                text="View Ticket"
+                                            />
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-gray-700 text-lg">
+                                <p className="  text-lg">
                                     You have not registered for any events yet.
                                 </p>
                             )}
@@ -365,11 +279,6 @@ export default function Dashboard() {
                                         paymentMethod: 'Razorpay',
                                         venue: selectedEvent.location,
                                         mapLink: selectedEvent.locationUrl,
-                                        eventDescription:
-                                            selectedEvent.description.substring(
-                                                0,
-                                                100
-                                            ) + '...',
                                         teamMates: selectedEvent.teamMembers,
                                         email: profile?.email,
                                     }}
@@ -382,23 +291,23 @@ export default function Dashboard() {
 
             case 'My Events':
                 return (
-                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
-                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                    <div className="p-6   shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
                             My Events
                         </h2>
                         <div className="space-y-6">
-                            {profile?.events ? (
+                            {profile?.events.length !== 0 ? (
                                 profile?.events.map((event, index) => {
                                     return (
                                         <div
                                             key={index}
-                                            className="flex items-center justify-between p-6 bg-gray-100 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                                            className="flex items-center justify-between p-6   border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                                         >
                                             <div>
-                                                <h3 className="text-xl font-semibold text-gray-800">
+                                                <h3 className="text-xl font-semibold  ">
                                                     {event.name}
                                                 </h3>
-                                                <p className="text-sm text-gray-600 mt-1">
+                                                <p className="text-sm   mt-1">
                                                     Status:{' '}
                                                     {new Date(event.date) >
                                                     new Date() ? (
@@ -414,7 +323,7 @@ export default function Dashboard() {
                                             </div>
                                             <Link
                                                 href={`/events/${event.name}`}
-                                                className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full hover:underline hover:bg-neutral-300 transition duration-200"
+                                                className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full  hover:bg-neutral-300 transition duration-200"
                                             >
                                                 View Details
                                             </Link>
@@ -422,8 +331,41 @@ export default function Dashboard() {
                                     );
                                 })
                             ) : (
-                                <p className="text-gray-700 text-lg">
-                                    No registration
+                                <p className="  text-lg">No registration</p>
+                            )}
+                        </div>
+                    </div>
+                );
+
+            case 'Bookmarks':
+                return (
+                    <div className="p-6   shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
+                            Bookmarks
+                        </h2>
+                        <div className="space-y-6">
+                            {bookmarkedEvents.length > 0 ? (
+                                bookmarkedEvents.map((event, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between p-6   border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                                    >
+                                        <div>
+                                            <h3 className="text-xl font-semibold  ">
+                                                {event}
+                                            </h3>
+                                        </div>
+                                        <Link
+                                            href={`/events/${event}`}
+                                            className="mt-4 sm:mt-0 text-blue-500 font-medium px-4 py-2 rounded-full hover:bg-neutral-300 transition duration-200"
+                                        >
+                                            View Details
+                                        </Link>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="  text-lg">
+                                    You have not bookmarked any events yet.
                                 </p>
                             )}
                         </div>
@@ -432,14 +374,14 @@ export default function Dashboard() {
 
             case 'Settings':
                 return (
-                    <div className="p-6 bg-white shadow-lg rounded-lg mx-auto">
-                        <h2 className="text-2xl font-bold mb-6 border-b pb-2 text-gray-800">
+                    <div className="p-6   shadow-lg rounded-lg mx-auto">
+                        <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
                             Settings
                         </h2>
                         <div className="space-y-6">
                             {/* Notifications Toggle */}
-                            <div className="flex justify-between items-center p-4 bg-gray-100 border border-gray-200 rounded-lg shadow-md">
-                                <p className="text-lg font-medium text-gray-800">
+                            <div className="flex justify-between items-center p-4   border border-gray-200 rounded-lg shadow-md">
+                                <p className="text-lg font-medium  ">
                                     Email Notifications
                                 </p>
                                 <label className="relative flex items-center cursor-pointer">
@@ -447,223 +389,46 @@ export default function Dashboard() {
                                         type="checkbox"
                                         className="sr-only peer"
                                     />
-                                    <div className="flex justify-start items-center  px-1 w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-green-500 peer-checked:justify-end transition duration-200">
+                                    <div className="flex justify-start items-center  px-1 w-10 h-6 bg-gray-300 rounded-full shadow-inner peer-checked:bg-slate-800 peer-checked:justify-end transition duration-200">
                                         <div className="w-4 h-4 bg-white rounded-full shadow-sm shadow-slate-400 transform peer-checked:translate-x-4 transition duration-200"></div>
                                     </div>
                                 </label>
                             </div>
-                            <div className="flex-1 space-y-4">
-                                <p className="text-gray-700 text-lg">
-                                    <strong className="font-semibold">
-                                        Name:
-                                    </strong>{' '}
-                                    {session?.user?.name}
+                            <div className="flex justify-between items-center p-4   border border-gray-200 rounded-lg shadow-md">
+                                <p className="text-lg font-medium  ">
+                                    Clear Bookmarks
                                 </p>
-                                <p className="text-gray-700 text-lg">
-                                    <strong className="font-semibold">
-                                        Email:
-                                    </strong>{' '}
-                                    {session?.user?.email}
-                                </p>
-                                {profile?.phone && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Phone:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="phone"
-                                                value={profile?.phone}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.phone
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.address && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Address:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="address"
-                                                value={profile?.address}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.address
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.city && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            City:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="city"
-                                                value={profile?.city}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.city
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.state && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            State/Province:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="state"
-                                                value={profile?.state}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.state
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.postalCode && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Postal Code:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="postalCode"
-                                                value={profile?.postalCode}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.postalCode
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.country && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Country:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="country"
-                                                value={profile?.country}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            profile?.country
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.dateOfBirth && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Date of Birth:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="date"
-                                                name="dateOfBirth"
-                                                value={profile?.dateOfBirth}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            new Date(
-                                                profile?.dateOfBirth
-                                            ).toDateString('hi-IN')
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.gender && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            Gender:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <select
-                                                name="gender"
-                                                value={profile?.gender}
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            >
-                                                <option value="Male">
-                                                    Male
-                                                </option>
-                                                <option value="Female">
-                                                    Female
-                                                </option>
-                                                <option value="Other">
-                                                    Other
-                                                </option>
-                                            </select>
-                                        ) : (
-                                            profile?.gender
-                                        )}
-                                    </p>
-                                )}
-                                {profile?.linkedInOrGithub && (
-                                    <p className="text-gray-700 text-lg">
-                                        <strong className="font-semibold">
-                                            LinkedIn/GitHub:
-                                        </strong>{' '}
-                                        {isEditing ? (
-                                            <input
-                                                type="text"
-                                                name="linkedInOrGithub"
-                                                value={
-                                                    profile?.linkedInOrGithub
-                                                }
-                                                onChange={handleInputChange}
-                                                className="border rounded px-2 py-1 w-full"
-                                            />
-                                        ) : (
-                                            <a
-                                                href={profile?.linkedInOrGithub}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 font-medium hover:underline"
-                                            >
-                                                LinkedIn Profile
-                                            </a>
-                                        )}
-                                    </p>
-                                )}
-                                <button
-                                    className="mt-4 bg-blue-500 text-white px-6 py-2 rounded-full shadow hover:bg-blue-600"
-                                    onClick={toggleEditing}
-                                >
-                                    {isEditing
-                                        ? 'Update Profile'
-                                        : 'Edit Profile'}
-                                </button>
+                                <label className="relative flex items-center cursor-pointer">
+                                    <button
+                                        className="w-full h-[50px] bg-main text-white px-10 rounded-full transition-all duration-300 dark:bg-background dark:hover:bg-main dark:border dark:border-primary"
+                                        onClick={() => {
+                                            try {
+                                                document.cookie =
+                                                    'bookmarks=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                                                alert('Bookmarks cleared');
+                                            } catch (error) {
+                                                alert(
+                                                    'Error clearing bookmarks:',
+                                                    error
+                                                );
+                                            }
+                                        }}
+                                    >
+                                        Clear
+                                    </button>
+                                </label>
                             </div>
                             {/* Change Password Button */}
-                            {showModal && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            {showModal?.visible && (
+                                <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-10">
                                     <div className="bg-white p-6 rounded-lg shadow-lg relative w-11/12 max-w-md">
                                         {/* Close Button */}
                                         <button
                                             onClick={() =>
-                                                setShowModal(!showModal)
+                                                setShowModal({
+                                                    visible: false,
+                                                    message: '',
+                                                })
                                             }
                                             className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
                                             aria-label="Close"
@@ -690,16 +455,16 @@ export default function Dashboard() {
                                                 Password Reset Link Sent!
                                             </h2>
                                             <p className="text-gray-600">
-                                                A password-changing link has
-                                                been sent to your registered
-                                                email. Please check your inbox
-                                                and follow the instructions.
+                                                {showModal?.message}
                                             </p>
                                             <button
                                                 onClick={() =>
-                                                    setShowModal(!showModal)
+                                                    setShowModal({
+                                                        visible: false,
+                                                        message: '',
+                                                    })
                                                 }
-                                                className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
+                                                className="mt-6 px-4 py-2 bg-blue-600   rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-inner"
                                             >
                                                 OK
                                             </button>
@@ -707,15 +472,86 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             )}
-                            <div className="text-right">
+                            <div className="flex w-full justify-end gap-3">
+                                {/* Resend Verification Email */}
+                                {profile && !profile?.verified && (
+                                    <button
+                                        onClick={async () => {
+                                            if (timer > 0) return; // Prevent clicking while timer is active
+                                            try {
+                                                await fetch(
+                                                    `${process.env.NEXT_PUBLIC_BASE_URL}/api/mail`,
+                                                    {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type':
+                                                                'application/json',
+                                                        },
+                                                        body: JSON.stringify({
+                                                            email: profile.email,
+                                                            subject: `Welcome to the community, ${profile.name}`,
+                                                            message: {
+                                                                name: profile.name,
+                                                                verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${profile.verifyToken}`,
+                                                                contactEmail:
+                                                                    'helpdesk@xcubit.in',
+                                                            },
+                                                            type: 'verify',
+                                                        }),
+                                                    }
+                                                );
+                                                setShowModal({
+                                                    visible: true,
+                                                    message:
+                                                        'A verification link has been sent to your registered email. Please check your inbox and follow the instructions.',
+                                                });
+                                                startTimer(); // Start the timer
+                                            } catch (error) {
+                                                setShowModal({
+                                                    visible: true,
+                                                    message: error.message,
+                                                });
+                                            }
+                                        }}
+                                        className={`text-green-600 border border-green-600 font-medium px-6 py-3 rounded-full ${
+                                            timer === 0
+                                                ? 'hover:bg-green-300 transition duration-200'
+                                                : 'opacity-50 cursor-not-allowed'
+                                        }`}
+                                        disabled={timer > 0} // Disable button if timer is active
+                                    >
+                                        {timer > 0
+                                            ? `Resend in ${timer}s`
+                                            : 'Send Verify Link Again'}
+                                    </button>
+                                )}
                                 <button
                                     onClick={async () => {
-                                        await updateForgotPasswordToken(
-                                            session?.user?.email
-                                        );
-                                        setShowModal(true);
+                                        try {
+                                            const { msg, sucess } =
+                                                await updateForgotPasswordToken(
+                                                    session?.user?.email
+                                                );
+
+                                            if (!sucess) {
+                                                setShowModal({
+                                                    visible: true,
+                                                    message: msg,
+                                                });
+                                                return;
+                                            }
+                                            setShowModal({
+                                                visible: true,
+                                                message: msg,
+                                            });
+                                        } catch (error) {
+                                            setShowModal({
+                                                visible: true,
+                                                message: error.message,
+                                            });
+                                        }
                                     }}
-                                    className="bg-red-500 text-white font-medium px-6 py-3 rounded-full shadow hover:bg-red-600 transition duration-200"
+                                    className="text-red-600 border border-red-600 font-medium px-6 py-3 rounded-full hover:bg-red-100 transition duration-200"
                                 >
                                     Change Password
                                 </button>
@@ -731,24 +567,24 @@ export default function Dashboard() {
 
     return (
         <>
-            <Navbar user={session?.user} />
-            {!profile?.verified && (
-                <div className="w-full bg-red-500 text-xs text-white text-center p-1">
+            {profile && !profile?.verified && (
+                <div className="w-full bg-red-500 text-xs text-center p-1">
                     <p>Account not verified</p>
                     <p>Check your email for verification link</p>
                 </div>
             )}
-            <div className="flex flex-col lg:flex-row h-screen bg-gray-100">
+
+            <div className="flex flex-col lg:flex-row h-screen dark:bg-background dark:text-primary">
                 {/* Sidebar Toggle Button (Hamburger) */}
-                <div className="lg:hidden p-4">
+                <div className="lg:hidden p-4 z-20 flex justify-between items-center">
                     <button
                         onClick={toggleSidebar}
-                        className="text-gray-600 focus:outline-none"
+                        className="text-white focus:outline-none"
                     >
                         {isSidebarOpen ? (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
+                                className="h-6 w-6 text-black dark:text-white"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -763,7 +599,7 @@ export default function Dashboard() {
                         ) : (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
+                                className="h-6 w-6 text-black dark:text-white"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -777,15 +613,28 @@ export default function Dashboard() {
                             </svg>
                         )}
                     </button>
+                    <Link href="/">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 text-black dark:text-white"
+                            fill="currentColor"
+                            viewBox="0 0 24 24"
+                            stroke="none"
+                        >
+                            <path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"></path>
+                        </svg>
+                    </Link>
                 </div>
 
                 {/* Sidebar */}
                 <div
-                    className={`lg:w-64 bg-white shadow-lg lg:block ${
-                        isSidebarOpen ? 'fixed h-full w-4/5 right-0' : 'hidden'
-                    } lg:block`}
+                    className={`z-10 lg:w-64 shadow-lg shadow-white bg-primary dark:bg-background dark:text-primary lg:block ${
+                        isSidebarOpen
+                            ? 'fixed h-full w-4/5 left-0 top-0'
+                            : 'hidden'
+                    } lg:block lg:static lg:w-64`}
                 >
-                    <div className="p-6 text-center border-b">
+                    <div className="p-6 text-center border-b mt-32">
                         <Image
                             src={
                                 profile?.image ||
@@ -799,9 +648,7 @@ export default function Dashboard() {
                         <h2 className="mt-4 text-lg font-semibold">
                             {session?.user?.name}
                         </h2>
-                        <p className="text-sm text-gray-500">
-                            {session?.user?.email}
-                        </p>
+                        <p className="text-sm">{session?.user?.email}</p>
                     </div>
                     <nav className="mt-4">
                         <ul>
@@ -809,6 +656,7 @@ export default function Dashboard() {
                                 'Profile',
                                 'My Tickets',
                                 'My Events',
+                                'Bookmarks',
                                 'Settings',
                             ].map((item) => (
                                 <Link
@@ -817,11 +665,12 @@ export default function Dashboard() {
                                         query: { section: item },
                                     }}
                                     key={item}
+                                    onClick={toggleSidebar}
                                 >
                                     <li
-                                        className={`w-full px-6 py-3 text-left hover:bg-gray-100 ${
+                                        className={`w-full px-6 py-3 text-left ${
                                             querySection === item
-                                                ? 'bg-gray-100'
+                                                ? 'bg-gray-100 dark:text-background'
                                                 : ''
                                         }`}
                                     >
@@ -831,7 +680,7 @@ export default function Dashboard() {
                             ))}
                             <li className="w-full flex items-center pr-5">
                                 <button
-                                    className="w-full px-6 py-3 text-left text-red-500 hover:bg-gray-100"
+                                    className="w-full px-6 py-3 text-left text-red-500"
                                     onClick={() => signOut({ redirectTo: '/' })}
                                 >
                                     Logout
@@ -857,7 +706,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Main Content */}
-                <div className="flex-1 p-6">{renderContent()}</div>
+                <div className="flex-1 pt-10 p-6">{renderContent()}</div>
             </div>
         </>
     );

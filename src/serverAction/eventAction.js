@@ -31,6 +31,21 @@ export async function eventFormAction(formData) {
     }
 }
 
+export async function updateRegistered(name) {
+    await connectDB();
+    try {
+        // Use $inc to increment the registered field
+        const event = await eventModels.findOneAndUpdate(
+            { name }, // Find the event by name
+            { $inc: { registered: 1 } }, // Increment the registered field by 1
+            { new: true } // Return the updated document
+        );
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 // Function to get all events
 export async function getEvents() {
     try {
@@ -64,6 +79,9 @@ export async function getEventById(id) {
 export async function getEventByName(name) {
     await connectDB();
     try {
+        if (typeof name !== 'string') {
+            return false;
+        }
         const event = await eventModels.findOne({ name: name });
         if (!event) {
             return false;

@@ -5,7 +5,7 @@ const userSchema = new Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String },
     role: { type: String },
-    verified: { type: Boolean },
+    verified: { type: Boolean, default: false },
     events: { type: Array },
     forgotPasswordToken: { type: String },
     forgotPasswordTokenExpiry: { type: Date },

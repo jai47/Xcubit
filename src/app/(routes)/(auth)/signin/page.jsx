@@ -12,8 +12,8 @@ export default async function SignIn() {
         redirect('/');
     }
     return (
-        <div className="flex flex-col lg:flex-row w-full min-h-screen">
-            <div className="bg-white w-full lg:w-1/2 p-6 lg:p-12 flex flex-col ">
+        <div className="flex flex-col lg:flex-row w-full min-h-screen dark:bg-background dark:text-primary">
+            <div className=" w-full lg:w-1/2 p-6 lg:p-12 flex flex-col ">
                 <div className="flex justify-end gap-1">
                     <span>Already have an account?</span>
                     <Link href="/login" className="underline">
@@ -34,14 +34,14 @@ export default async function SignIn() {
                     >
                         <button
                             type="submit"
-                            className="w-full sm:w-3/5 text-black hover:bg-gray-50 border border-black py-3 rounded-full flex items-center justify-center space-x-3 transition-all duration-300"
+                            className="w-full sm:w-3/5 hover:bg-gray-50 border border-background py-3 rounded-full flex items-center justify-center space-x-3 transition-all duration-300 dark:border-primary dark:hover:bg-muted"
                         >
                             <FcGoogle size={25} />
                             <span>Continue with Google</span>
                         </button>
                     </form>
 
-                    <div className="flex items-center justify-center my-4 text-sm text-gray-500">
+                    <div className="flex items-center justify-center my-4 text-sm dark:text-muted">
                         <div className="w-2/5 border-t border-gray-300"></div>
                         <span className="mx-4">OR</span>
                         <div className="w-2/5 border-t border-gray-300"></div>
@@ -60,7 +60,7 @@ export default async function SignIn() {
                         <div className="flex w-full sm:w-3/5 flex-col relative">
                             <label
                                 htmlFor="name"
-                                className="absolute top-[-10px] left-3 bg-white px-1 text-sm"
+                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
                             >
                                 What should we call you?
                             </label>
@@ -70,14 +70,14 @@ export default async function SignIn() {
                                 name="name"
                                 placeholder="E.g. John Doe"
                                 required
-                                className="w-full px-4 py-3 outline-none border border-gray-300 rounded-lg"
+                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
                             />
                         </div>
 
                         <div className="flex w-full sm:w-3/5 flex-col relative">
                             <label
                                 htmlFor="email"
-                                className="absolute top-[-10px] left-3 bg-white px-1 text-sm"
+                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
                             >
                                 Email
                             </label>
@@ -87,14 +87,14 @@ export default async function SignIn() {
                                 name="email"
                                 placeholder="Email"
                                 required
-                                className="w-full px-4 py-3 outline-none border border-gray-300 rounded-lg"
+                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
                             />
                         </div>
 
                         <div className="flex w-full sm:w-3/5 flex-col relative">
                             <label
                                 htmlFor="password"
-                                className="absolute top-[-10px] left-3 bg-white px-1 text-sm"
+                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
                             >
                                 Password
                             </label>
@@ -104,14 +104,14 @@ export default async function SignIn() {
                                 name="password"
                                 placeholder="Password"
                                 required
-                                className="w-full px-4 py-3 outline-none border border-gray-300 rounded-lg"
+                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
                             />
                         </div>
 
                         <div className="w-full md:w-3/5">
                             <button
                                 type="submit"
-                                className="w-full md:w-2/5 h-[45px] md:h-[50px] bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-full transition-all duration-300"
+                                className="w-full h-[50px] bg-main text-white py-2 rounded-full transition-all duration-300 dark:bg-background dark:hover:bg-main dark:border dark:border-primary"
                             >
                                 CONTINUE
                             </button>

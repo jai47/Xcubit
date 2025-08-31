@@ -92,14 +92,12 @@ function template({ type, message }) {
         <a href="${message.resetLink || '#'}" class="button">Reset Password</a>
         <p>
           If you didn't request a password reset, please ignore this email or contact support at 
-          <a href="mailto:${message.contactEmail || 'support@example.com'}">${
-                message.contactEmail || 'support@example.com'
-            }</a>.
+          <a href="mailto:'helpdesk@xcubit.in'}">helpdesk@xcubit.in</a>.
         </p>
         <p>This link will expire in 24 hours for your security.</p>
       </div>
       <div class="footer">
-        <p>©️ ${new Date().getFullYear()} Event Registration Platform. All rights reserved.</p>
+        <p>Need help? Contact us at <a href="mailto:'helpdesk@xcubit.in'}">helpdesk@xcubit.in</a>.</p>
       </div>
     </div>
   </body>
@@ -187,9 +185,8 @@ function template({ type, message }) {
         </p>
       </div>
       <div class="footer">
-        <p>Need help? Contact us at <a href="mailto:${
-            message.contactEmail || 'support@example.com'
-        }">${message.contactEmail || 'support@example.com'}</a>.</p>
+                <p>Need help? Contact us at <a href="mailto:'helpdesk@xcubit.in'}">helpdesk@xcubit.in</a>.</p>
+
         <p>©️ ${new Date().getFullYear()} Event Registration. All rights reserved.</p>
       </div>
     </div>
@@ -283,7 +280,7 @@ function template({ type, message }) {
         <p>
           Thank you for registering for the <strong>${
               message.event || 'Event'
-          }</strong>. Below are your ticket details:
+          }</strong>. We are thrilled to have you join us. Here are your ticket details:
         </p>
         <div class="ticket-details">
           <p><strong>Event:</strong> ${message.event || 'N/A'}</p>
@@ -292,18 +289,14 @@ function template({ type, message }) {
           <p><strong>Date:</strong> ${message.date || 'N/A'}</p>
           <p><strong>Location:</strong> ${message.location || 'N/A'}</p>
         </div>
-      
+      <img src="cid:ticket" alt="Ticket QR Code" style="display: block; margin: 0 auto; border-radius: 5px;" />
         <p>
           Please make sure to bring a valid ID along with this ticket when attending the event.
         </p>
         <a href="${message.mapLink || '#'}" class="button">View Location</a>
       </div>
       <div class="footer">
-        <p>
-          Need help? Contact us at <a href="mailto:${
-              message.contactEmail || 'support@example.com'
-          }">${message.contactEmail || 'support@example.com'}</a>.
-        </p>
+        <p>Need help? Contact us at <a href="mailto:'helpdesk@xcubit.in'}">helpdesk@xcubit.in</a>.</p>
         <p>©️ ${new Date().getFullYear()} Event Registration. All rights reserved.</p>
       </div>
     </div>
@@ -436,6 +429,7 @@ export async function POST(req, res) {
         mailOptions.attachments.push({
             filename: 'QR Ticket.png',
             path: reqBody.message.image, // Path to image provided in the request
+            cid: 'ticket', // same cid value as in the html img src
         });
     }
 

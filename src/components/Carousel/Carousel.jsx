@@ -1,8 +1,9 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
+import Image from '../Image';
 
 const Carousel = ({ events }) => {
+    console.log(events);
     const [currentIndex, setCurrentIndex] = useState(0);
 
     useEffect(() => {
@@ -13,7 +14,7 @@ const Carousel = ({ events }) => {
     }, [events.length]);
 
     return (
-        <div className="relative w-full h-full overflow-hidden">
+        <div className="w-full h-full flex flex-col justify-center relative overflow-hidden">
             {/* Carousel Content */}
             <div
                 className="flex transition-transform duration-500 ease-in-out"
@@ -22,37 +23,14 @@ const Carousel = ({ events }) => {
                 {events.map((event, index) => (
                     <div
                         key={index}
-                        className="flex-none w-full h-full px-4 md:px-6 flex flex-col justify-between"
+                        className="flex-none w-full h-full px-4 md:px-6 flex flex-col justify-center items-center bg-black"
                     >
-                        <h2 className="text-4xl md:text-6xl font-bold md:mb-10">
-                            {event.name}
-                        </h2>
-                        <p className="text-sm md:text-base mb-4">
-                            {event.description.length > 50
-                                ? `${event.description.substring(0, 50)}...`
-                                : event.description}
-                        </p>
-                        <p className="text-sm md:text-base mb-2">
-                            Location: {event.location || 'N/A'}
-                        </p>
-                        {/* Date and Time */}
-                        <p className="text-sm md:text-base  mb-2">
-                            {new Date(event.start).toLocaleDateString('en-US', {
-                                month: 'short',
-                                day: '2-digit',
-                            })}{' '}
-                            |{' '}
-                            {new Date(event.start).toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true,
-                            })}
-                        </p>
-                        <Link href={`/events/${event.name}`}>
-                            <button className="mt-4 border  text-white py-2 px-4 rounded-3xl hover:bg-gray-700 transition">
-                                View Details
-                            </button>
-                        </Link>
+                        <Image
+                            src={event.image}
+                            alt="upcoming event"
+                            width={500}
+                            height={500}
+                        />
                     </div>
                 ))}
             </div>

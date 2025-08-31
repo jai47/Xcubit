@@ -6,6 +6,7 @@ import {
     saltAndHashPassword,
 } from '@/src/utils/saltAndHashPassword';
 import { redirect } from 'next/navigation';
+import { updateRegistered } from './eventAction';
 
 export async function userFormAction(formData) {
     await connectDB();
@@ -49,7 +50,7 @@ export async function userFormAction(formData) {
                 message: {
                     name: user.name,
                     verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${user.verifyToken}`,
-                    contactEmail: 'official.jaimishra@gmail.com',
+                    contactEmail: 'helpdesk@xcubit.in',
                 },
                 type: 'verify',
             }),
@@ -69,7 +70,7 @@ export async function userGoogleAction(email, name) {
             name: name,
             email: email,
             role: 'user',
-            verified: false,
+            verified: true,
             forgotPasswordToken: 'first',
             forgotPasswordTokenExpiry: Date.now(),
             verifyToken: encodeURIComponent(
@@ -80,22 +81,6 @@ export async function userGoogleAction(email, name) {
 
         const user = await userModels.create(data);
         await user.save();
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/mail`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: user.email,
-                subject: `Welcome to the community, ${user.name}`,
-                message: {
-                    name: user.name,
-                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${user.verifyToken}`,
-                    contactEmail: 'official.jaimishra@gmail.com',
-                },
-                type: 'verify',
-            }),
-        });
         return user;
     } catch (error) {
         console.log(error);
@@ -141,7 +126,6 @@ export async function getUserFromDB(email) {
 export async function updateVerifyUser(token) {
     try {
         // Use `await` without a callback
-        console.log('token is', token);
         await connectDB(); // Ensure DB is connected
         const user = await userModels.findOne({ verifyToken: token });
 
@@ -151,9 +135,7 @@ export async function updateVerifyUser(token) {
                 : (user.verified = false);
 
             await user.save();
-        }
-
-        if (!user) {
+        } else {
             throw new Error('User not found');
         }
 
@@ -169,6 +151,14 @@ export async function updateForgotPasswordToken(email) {
         await connectDB();
         const user = await getUserFromDB(email);
         if (user) {
+            if (user.forgotPasswordTokenExpiry >= Date.now()) {
+                return {
+                    msg: `Forgot password token is still active. Please try again after ${new Date(
+                        user.forgotPasswordTokenExpiry
+                    ).toDateString('hi-IN')} when it expires.`,
+                    sucess: false,
+                };
+            }
             user.forgotPasswordToken = encodeURIComponent(
                 await saltAndHashPassword(
                     process.env.VERIFY_STRING + Math.random().toString()
@@ -193,7 +183,10 @@ export async function updateForgotPasswordToken(email) {
                 type: 'reset',
             }),
         });
-        return user.forgotPasswordToken;
+        return {
+            msg: 'A password-changing link has been sent to your registered email. Please check your inbox and follow the instructions.',
+            sucess: true,
+        };
     } catch (error) {
         console.log(error);
         throw error;
@@ -202,7 +195,6 @@ export async function updateForgotPasswordToken(email) {
 
 export async function updatePassword(token, password) {
     if (!token || !password) return;
-    console.log(token + ' ' + password);
     try {
         await connectDB();
         const user = await userModels.findOne({
@@ -214,19 +206,7 @@ export async function updatePassword(token, password) {
             return true;
         }
     } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
-
-export async function getUserById(id) {
-    try {
-        await connectDB();
-        const user = await userModels.findById(id);
-        return user;
-    } catch (error) {
-        console.log(error);
-        throw error;
+        throw new Error(`Unable to update password: ${error.message}`);
     }
 }
 
@@ -254,10 +234,52 @@ export async function userEventRegistration(
             await user.save();
         }
 
+        // if(registrationDetails.events.name)
+
+        await updateRegistered(registrationDetails.events.name);
+
         // Return the updated user
-        return JSON.stringify(user);
+        return true;
     } catch (error) {
-        console.log(error);
-        throw error;
+        return false;
+    }
+}
+
+// Function to get all users
+export async function getAllUsers() {
+    try {
+        await connectDB();
+        const users = await userModels.find({}).lean(); // Use .lean() to return plain objects
+        return JSON.parse(JSON.stringify(users)); // Serialize for safe client-side usage
+    } catch (error) {
+        throw new Error(`Error getting users: ${error.message}`);
+    }
+}
+
+// Function to change role
+export async function changeRole(id, role) {
+    try {
+        await connectDB();
+        console.log(id, role);
+        const user = await userModels.findById(id);
+        if (user) {
+            user.role = role;
+            await user.save();
+            return { message: 'Role updated', sucess: true };
+        }
+        return { message: 'Error updating role', sucess: false };
+    } catch (error) {
+        throw new Error(`Error changing role: ${error.message}`);
+    }
+}
+
+// Function to delete user
+export async function deleteUser(id) {
+    try {
+        await connectDB();
+        const user = await userModels.findByIdAndDelete(id);
+        return user;
+    } catch (error) {
+        throw new Error(`Error deleting user: ${error.message}`);
     }
 }

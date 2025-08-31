@@ -26,8 +26,8 @@ const QRCodeGenerator = ({ data }) => {
                 <Image
                     src={qrCodeImage}
                     alt="QR Code"
-                    width={144}
-                    height={144}
+                    width={244}
+                    height={244}
                     className="rounded"
                 />
             ) : (

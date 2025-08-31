@@ -19,7 +19,7 @@ export async function loginCred(formData) {
 
 export async function loginGoogle() {
     try {
-        const response = await signIn('google', { redirectTo: '/dashboard' });
+        const response = await signIn('google', { redirectTo: '/' });
         return response;
     } catch (error) {
         console.log(error);
@@ -29,7 +29,7 @@ export async function loginGoogle() {
 
 export async function signinWithGoogle() {
     try {
-        const response = await signIn('google');
+        const response = await signIn('google', { redirectTo: '/' });
         return response;
     } catch (error) {
         console.log(error);

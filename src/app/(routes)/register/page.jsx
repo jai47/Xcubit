@@ -1,8 +1,3 @@
-//
-//
-//  USE SWR for data fetching
-//
-// components/RegistrationForm.jsx
 'use client';
 
 import React, { useEffect, useState, Suspense } from 'react';
@@ -10,11 +5,12 @@ import { userEventRegistration } from '@/src/serverAction/userAction';
 import useEvent from '@/src/hooks/useEvent';
 import Script from 'next/script';
 import { redirect, useRouter } from 'next/navigation';
-import Navbar from '@/src/components/layout/Navbar';
 import Loading from '@/src/app/loading';
-import Image from 'next/image';
 import QRCode from 'qrcode';
 import { useSession } from 'next-auth/react';
+import Navbar from '@/src/components/layout/NavbarHome';
+import Button from '@/src/components/Button';
+import Image from '@/src/components/Image';
 
 function RegistrationForm() {
     const router = useRouter();
@@ -37,6 +33,12 @@ function RegistrationForm() {
         teamMembers: [],
         linkedInOrGithub: '',
     });
+
+    useEffect(() => {
+        if (!session) {
+            router.push('/login');
+        }
+    }, [session, router]);
 
     useEffect(() => {
         if (!session?.user || !event) return;
@@ -92,9 +94,7 @@ function RegistrationForm() {
         fetchUserData();
     }, [session, event, router]);
 
-    if (!session) {
-        redirect('/login');
-    }
+    if (!session) return null;
 
     const validateFields = (name, value) => {
         let newError = '';
@@ -175,14 +175,13 @@ function RegistrationForm() {
 
     const registerToDB = async (formData, razorpayResponse) => {
         try {
-            await userEventRegistration(
+            const res = await userEventRegistration(
                 formData.email,
                 {
                     events: {
                         id: event?._id.toString(),
                         name: event.name,
                         date: event.start,
-                        description: event.description,
                         location: event.location,
                         price: event.price,
                         locationUrl: event.locationUrl,
@@ -260,7 +259,7 @@ function RegistrationForm() {
 
             const data = await response.json();
             const options = {
-                key: process.env.RAZORPAY_KEY_ID,
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET,
                 amount: data.order.amount,
                 currency: data.order.currency,
                 name: 'Vief',
@@ -329,25 +328,25 @@ function RegistrationForm() {
             <>
                 <Navbar />
                 {!profile?.verified ? (
-                    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
+                    <div className="min-h-screen flex items-center justify-center py-10 px-4">
                         email not verified
                     </div>
                 ) : (
-                    <div className="min-h-screen flex items-center justify-center bg-gray-100 py-10 px-4">
+                    <div className="min-h-screen flex items-center justify-center py-10 mt-10 px-4 dark:bg-background">
                         <Script
                             src="https://checkout.razorpay.com/v1/checkout.js"
                             strategy="afterInteractive"
                         />
-                        <div className="w-full max-w-lg bg-white shadow-md rounded-lg p-6">
-                            <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
+                        <div className="w-full max-w-lg shadow-lg rounded-lg p-6 dark:bg-background dark:text-primary dark:shadow-slate-600 mt-10">
+                            <h2 className="text-2xl font-bold text-center mb-6">
                                 Event Registration for {event?.name}
                             </h2>
+                            <Image src={event?.image} alt="Event" />
                             <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>Rupees {event?.price}</div>
                                 <div>
                                     <label
                                         htmlFor="name"
-                                        className="block text-gray-700 font-medium mb-2"
+                                        className="block font-medium mb-2"
                                     >
                                         Name
                                     </label>
@@ -356,15 +355,15 @@ function RegistrationForm() {
                                         id="name"
                                         name="name"
                                         placeholder="Enter your name"
-                                        value={profile?.name}
+                                        value={profile?.name || ''}
                                         readOnly
-                                        className="w-full text-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                                        className="w-full text-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-background dark:text-muted"
                                     />
                                 </div>
                                 <div>
                                     <label
                                         htmlFor="email"
-                                        className="block text-gray-700 font-medium mb-2"
+                                        className="block font-medium mb-2"
                                     >
                                         Email
                                     </label>
@@ -375,7 +374,7 @@ function RegistrationForm() {
                                         placeholder="Enter your email"
                                         value={profile?.email}
                                         readOnly
-                                        className="w-full text-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                                        className="w-full text-gray-400 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-background dark:text-muted"
                                     />
                                 </div>
 
@@ -403,7 +402,7 @@ function RegistrationForm() {
                                 <div>
                                     <label
                                         htmlFor="gender"
-                                        className="block text-gray-700 font-medium mb-2"
+                                        className="block font-medium mb-2"
                                     >
                                         Gender
                                     </label>
@@ -413,14 +412,49 @@ function RegistrationForm() {
                                         value={formData.gender}
                                         onChange={handleChange}
                                         required
-                                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                                        className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-background dark:text-primary"
                                     >
                                         <option value="">
                                             Select your gender
                                         </option>
                                         <option value="Male">Male</option>
                                         <option value="Female">Female</option>
+                                        <option value="Non-Binary">
+                                            Non-Binary
+                                        </option>
+                                        <option value="Genderqueer">
+                                            Genderqueer
+                                        </option>
+                                        <option value="Genderfluid">
+                                            Genderfluid
+                                        </option>
+                                        <option value="Agender">Agender</option>
+                                        <option value="Bigender">
+                                            Bigender
+                                        </option>
+                                        <option value="Two-Spirit">
+                                            Two-Spirit
+                                        </option>
+                                        <option value="Transgender">
+                                            Transgender
+                                        </option>
+                                        <option value="Demiboy">Demiboy</option>
+                                        <option value="Demigirl">
+                                            Demigirl
+                                        </option>
+                                        <option value="Intersex">
+                                            Intersex
+                                        </option>
+                                        <option value="Pangender">
+                                            Pangender
+                                        </option>
+                                        <option value="Androgynous">
+                                            Androgynous
+                                        </option>
                                         <option value="Other">Other</option>
+                                        <option value="Prefer Not to Say">
+                                            Prefer Not to Say
+                                        </option>
                                     </select>
                                 </div>
                                 {/* Address */}
@@ -476,7 +510,7 @@ function RegistrationForm() {
                                 />
                                 {/* Team Members */}
                                 <div>
-                                    <label className="block text-gray-700 font-medium mb-2">
+                                    <label className="block font-medium mb-2">
                                         Team Members (if applicable)
                                     </label>
                                     {formData.teamMembers.map(
@@ -499,7 +533,7 @@ function RegistrationForm() {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 mr-2"
+                                                    className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 mr-2 dark:bg-background dark:text-primary"
                                                 />
                                                 <input
                                                     type="email"
@@ -515,7 +549,7 @@ function RegistrationForm() {
                                                             e.target.value
                                                         )
                                                     }
-                                                    className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 mr-2"
+                                                    className="flex-grow border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 mr-2 dark:bg-background dark:text-primary"
                                                 />
                                                 <button
                                                     type="button"
@@ -559,22 +593,19 @@ function RegistrationForm() {
                                         I agree to the terms and conditions.
                                     </label>
                                 </div>
-                                <div className="text-center">
-                                    <button
+                                <div className="w-full flex justify-center">
+                                    <Button
+                                        className="w-full"
                                         type="submit"
-                                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300"
-                                    >
-                                        Submit & Proceed
-                                    </button>
+                                        text={
+                                            event?.price === 0
+                                                ? 'Proceed'
+                                                : `Pay ₹${event?.price} and Proceed`
+                                        }
+                                    />
                                 </div>
                             </form>
                         </div>
-                        <Image
-                            src={event?.image}
-                            alt={event?.name}
-                            width={200}
-                            height={200}
-                        />
                     </div>
                 )}
             </>
@@ -593,10 +624,7 @@ const InputFeilds = ({
 }) => {
     return (
         <div>
-            <label
-                htmlFor={id}
-                className="block text-gray-700 font-medium mb-2"
-            >
+            <label htmlFor={id} className="block font-medium mb-2">
                 {lable}
             </label>
             <input
@@ -607,7 +635,7 @@ const InputFeilds = ({
                 onChange={change}
                 placeholder={placeholder}
                 required
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring focus:ring-blue-300 dark:bg-background dark:text-primary"
             />
             <p className="text-red-500">{error}</p>
         </div>

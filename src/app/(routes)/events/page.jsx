@@ -1,7 +1,7 @@
 import Button from '@/src/components/Button';
 import { getEvents } from '@/src/serverAction/eventAction';
 import React from 'react';
-import Navbar from '@/src/components/layout/Navbar';
+import Navbar from '@/src/components/layout/NavbarHome';
 import Footer from '@/src/components/layout/Footer';
 import EventCard from '@/src/components/EventCard/EventCard'; // Import the EventCard component
 import { auth } from '@/auth';
@@ -23,13 +23,10 @@ const Events = async () => {
         <>
             <Navbar user={user} />
 
-            <div className="min-h-screen bg-gray-50 py-8 px-6 sm:px-10 lg:px-20">
+            <div className="min-h-screen py-16 px-6 sm:px-10 lg:px-20 mt-10 dark:bg-background dark:text-primary">
                 {/* Heading Section */}
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-3">
-                        Events
-                    </h1>
-                    <p className="text-lg sm:text-xl text-gray-600">
+                    <p className="text-lg sm:text-xl">
                         Explore our latest and past events. Discover, register,
                         and relive the moments!
                     </p>
@@ -38,28 +35,27 @@ const Events = async () => {
                 {/* Upcoming Events */}
                 {upcomingEvents.length > 0 && (
                     <section className="mb-24">
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary mb-8">
                             Upcoming Events
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
-                            {upcomingEvents.map((event) => (
+                        <div className="grid grid-cols-1 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
+                            {upcomingEvents.map((event, index) => (
                                 <div
                                     key={event._id}
-                                    className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                                    className="flex flex-wrap justify-center items-center rounded-lg hover:shadow-xl transition-shadow duration-300"
                                 >
                                     <EventCard
+                                        key={index}
                                         image={event.thumbnail}
                                         title={event.name}
-                                        description={
-                                            event.description.substring(
-                                                0,
-                                                100
-                                            ) + '...'
-                                        }
+                                        date={event.start}
+                                        description={event.shortDescription}
+                                        price={event.price}
+                                        category={event.category}
                                     />
-                                    <div className="p-6">
+                                    <div className="p-4">
                                         {/* Buttons Side by Side */}
-                                        <div className="flex justify-between items-center space-x-4">
+                                        <div className="flex justify-between items-center  space-x-4">
                                             <Link
                                                 href={`/events/${event.name}`}
                                             >
@@ -82,29 +78,25 @@ const Events = async () => {
                         </div>
                     </section>
                 )}
-
                 {/* Past Events */}
                 {pastEvents.length > 0 && (
                     <section>
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary mb-8">
                             Past Events
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
                             {pastEvents.map((event) => (
                                 <div
                                     key={event._id}
-                                    className="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+                                    className="rounded-lg hover:shadow-xl transition-shadow duration-300"
                                 >
                                     <EventCard
-                                        image={event.thumbnail}
+                                        image={event.image}
+                                        date={event.start}
                                         title={event.name}
-                                        description={event.description}
+                                        description={event.description[0]}
+                                        category={event.category}
                                     />
-                                    <div className="p-6 text-center">
-                                        <Link href={`/events/${event.name}`}>
-                                            <Button text="View Details" />
-                                        </Link>
-                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -113,7 +105,7 @@ const Events = async () => {
 
                 {/* No Events Available */}
                 {upcomingEvents.length === 0 && pastEvents.length === 0 && (
-                    <div className="text-center text-gray-600">
+                    <div className="text-center text-primary">
                         <p>
                             No events available at the moment. Please check back
                             later!

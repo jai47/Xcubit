@@ -1,207 +1,182 @@
 'use client';
-import { useCallback, useEffect, useState, useRef } from 'react';
-import debounce from 'lodash.debounce';
+
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import logo from '../../../public/logo/logo.png';
+import logoImage from '../../../public/logo/logo.png';
+import { useGSAP } from '@gsap/react';
+import gsap from 'gsap';
 import { useSession } from 'next-auth/react';
 
 const Navbar = () => {
     const { data: session } = useSession();
     const user = session?.user;
     const [isOpen, setIsOpen] = useState(false);
-    const navRef = useRef(null);
+    const tl = useRef(null);
 
-    // Create a debounced version of changeBackground with useCallback
-    const changeBackground = useCallback(
-        debounce(() => {
-            if (navRef.current) {
-                if (window.scrollY >= 730) {
-                    navRef.current.classList.add('bg-neutral-600');
-                } else {
-                    navRef.current.classList.remove('bg-neutral-600');
-                }
-            }
-        }, 10),
-        []
-    );
+    useGSAP(() => {
+        gsap.set('.links', { opacity: 0, x: 50 });
 
-    // Attach and detach the event listener with useEffect
+        tl.current = gsap
+            .timeline({ paused: true })
+            .to('#menu', {
+                duration: 0.8,
+                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)',
+                ease: 'power4.out',
+            })
+            .from('.close', {
+                opacity: 0,
+                x: -50,
+                duration: 0.3,
+                ease: 'power4.out',
+            })
+            .to(
+                '.links',
+                {
+                    opacity: 1,
+                    x: 0,
+                    stagger: 0.1,
+                    duration: 0.3,
+                    ease: 'power4.out',
+                },
+                '-=0.5'
+            );
+    });
+
     useEffect(() => {
-        if (navRef.current) {
-            if (window.innerWidth < 768) {
-                navRef.current.classList.add('bg-neutral-600');
-                return;
-            }
+        if (isOpen) {
+            tl.current.play();
+        } else {
+            tl.current.reverse();
         }
-        window.addEventListener('scroll', changeBackground);
-        return () => {
-            window.removeEventListener('scroll', changeBackground);
-        };
-    }, [changeBackground]);
+    }, [isOpen]);
 
     return (
-        <nav
-            ref={navRef}
-            className="w-svw text-white px-6 py-3 fixed z-20 top-0 start-0 "
-            style={{ transition: 'all 0.5s' }}
-        >
-            <div className="container mx-auto flex items-center justify-between">
-                {/* Left: Logo */}
-                <div className="flex items-center space-x-2">
-                    <Image src={logo} alt="Logo" height={45} priority />
+        <nav className="fixed top-10 w-screen h-fit flex justify-center items-center z-[5]">
+            {/* Glassmorphic Navbar */}
+            <div
+                className="py-4 px-8 w-11/12 rounded-full shadow-lg flex items-center justify-between relative backdrop-blur-md"
+                style={{
+                    background:
+                        'linear-gradient(138deg, rgba(93,79,241,0.3), rgba(96,83,231,0.1))',
+                }}
+            >
+                {/* Left logo */}
+                <div className="flex-shrink-0">
+                    <Image src={logoImage} alt="Logo" height={40} priority />
                 </div>
 
-                {/* Center: Navbar Links (Hidden on Small Screens) */}
-                <div className="text-sm hidden md:flex items-center justify-end space-x-8">
-                    <Link href="/" className="hover:text-gray-400">
-                        Home
-                    </Link>
-                    <Link href="/events" className="hover:text-gray-400">
-                        Events
-                    </Link>
-                    <Link href="/about" className="hover:text-gray-400">
-                        About Us
-                    </Link>
-                    <Link
-                        href={{
-                            pathname: '/dashboard',
-                            query: {
-                                section: 'My Tickets',
-                            },
-                        }}
-                        className="hover:text-gray-400"
-                    >
-                        Tickets
-                    </Link>
-                    <Link href="/contact" className="hover:text-gray-400">
-                        Contact
-                    </Link>
-
-                    {/* Right: Login & Signup */}
-                    <div className="flex items-center space-x-4">
-                        {!user ? (
-                            <>
-                                <Link
-                                    href="/login"
-                                    className="px-6 py-2 border border-gray-400 rounded-full hover:bg-gray-700 transition duration-300"
-                                >
-                                    Login
-                                </Link>
-                                <Link
-                                    href="/signin"
-                                    className="px-6 py-2 border border-gray-400 rounded-full text-white hover:bg-gray-700 transition duration-300"
-                                >
-                                    Sign Up
-                                </Link>
-                            </>
-                        ) : (
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: {
-                                        section: 'Profile',
-                                    },
-                                }}
-                                className="px-6 py-2 border border-gray-400 rounded-full text-white hover:bg-gray-700 transition duration-300"
-                            >
-                                <span>{user.name}</span>
-                            </Link>
-                        )}
-                    </div>
+                {/* Center nav links (hidden on mobile) */}
+                <div className="absolute left-1/2 -translate-x-1/2 hidden md:block">
+                    <ul className="flex text-xs uppercase text-white gap-28 lg:gap-20 font-sans">
+                        <Link href="/">Home</Link>
+                        <Link href="/events">Events</Link>
+                        <Link href="/#timeline" scroll={true}>
+                            Timeline
+                        </Link>
+                        <Link href="/about">About Us</Link>
+                        <Link href="/contact">Contact Us</Link>
+                    </ul>
                 </div>
 
-                {/* Hamburger Menu (Visible on Small Screens) */}
-                <button
-                    className="md:hidden text-white"
-                    onClick={() => setIsOpen(!isOpen)}
-                    aria-label="Toggle navigation menu"
-                >
-                    <svg
-                        className="w-6 h-6"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        viewBox="0 0 24 24"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d={
-                                isOpen
-                                    ? 'M6 18L18 6M6 6l12 12'
-                                    : 'M4 6h16M4 12h16m-7 6h7'
-                            }
-                        />
-                    </svg>
-                </button>
+                {/* Right hamburger button */}
+                <div className="flex-shrink-0">
+                    <button onClick={() => setIsOpen(!isOpen)}>
+                        <svg
+                            viewBox="0 0 24 24"
+                            className="w-6 h-6 fill-white stroke-white"
+                            strokeWidth="2"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d={
+                                    isOpen
+                                        ? 'M6 18L18 6M6 6l12 12'
+                                        : 'M4 6h16M4 12h16m-7 6h7'
+                                }
+                            />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
-            {/* Dropdown Menu (Visible on Mobile) */}
-            {isOpen && (
-                <div className="md:hidden transform transition-all duration-300 ease-in-out space-y-2 opacity-100 translate-y-0">
+            {/* Side Menu */}
+            <div
+                id="menu"
+                className="h-screen w-screen fixed top-0 right-0 flex flex-col pl-20 justify-center space-y-16 z-30"
+                style={{
+                    clipPath: 'polygon(0 0, 0 0, 0 100%, 0 100%)',
+                    background:
+                        'linear-gradient(135deg, rgba(93,79,241,0.25), rgba(96,83,231,0.1))',
+                    backdropFilter: 'blur(30px)',
+                    WebkitBackdropFilter: 'blur(30px)',
+                }}
+            >
+                {/* Close button */}
+                <button
+                    className="close absolute top-6 left-6"
+                    onClick={() => setIsOpen(false)}
+                >
+                    <p className="text-2xl text-white">&#x2715;</p>
+                </button>
+
+                {/* Menu Links */}
+                <Link
+                    href="/"
+                    className="text-4xl text-white links md:text-6xl"
+                    style={{ fontFamily: 'Times New Roman' }}
+                >
+                    Home
+                </Link>
+                <Link
+                    href="/events"
+                    className="text-4xl text-white links md:text-6xl"
+                    style={{ fontFamily: 'Times New Roman' }}
+                >
+                    Events
+                </Link>
+                {!user ? (
                     <Link
-                        href="/"
-                        className="block text-gray-200 hover:text-gray-400 text-center py-2"
+                        href="/login"
+                        className="text-4xl text-white links md:text-6xl"
+                        style={{ fontFamily: 'Times New Roman' }}
                     >
-                        Home
+                        <span>Signup</span>
                     </Link>
-                    <Link
-                        href="/event"
-                        className="block text-gray-200 hover:text-gray-400 text-center py-2"
-                    >
-                        Events
-                    </Link>
-                    <Link
-                        href="/about"
-                        className="block text-gray-200 hover:text-gray-400 text-center py-2"
-                    >
-                        About Us
-                    </Link>
+                ) : (
                     <Link
                         href={{
                             pathname: '/dashboard',
-                            query: {
-                                section: 'My Tickets',
-                            },
+                            query: { section: 'My Tickets' },
                         }}
-                        className="block text-gray-200 hover:text-gray-400 text-center py-2"
+                        className="text-4xl text-white links md:text-6xl"
+                        style={{ fontFamily: 'Times New Roman' }}
                     >
-                        Tickets
+                        <span>Tickets</span>
                     </Link>
-                    <Link
-                        href="/contact"
-                        className="block text-gray-200 hover:text-gray-400 text-center py-2"
-                    >
-                        Contact
-                    </Link>
-                    {!user ? (
-                        <>
-                            <Link
-                                href="/login"
-                                className="block text-gray-200 hover:text-gray-400 text-center py-2"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/register"
-                                className="block text-gray-200 hover:text-gray-400 text-center py-2"
-                            >
-                                Sign Up
-                            </Link>
-                        </>
-                    ) : (
-                        <Link
-                            href="/dashboard"
-                            className="flex justify-center items-center"
-                        >
-                            <span className="px-6 py-2 border border-gray-400 rounded-full text-white hover:bg-gray-700 transition duration-300">
-                                {user.name}
-                            </span>
-                        </Link>
-                    )}
+                )}
+                <Link
+                    href="/about"
+                    className="text-4xl text-white links md:text-6xl"
+                    style={{ fontFamily: 'Times New Roman' }}
+                >
+                    About Us
+                </Link>
+                <Link
+                    href="/contact"
+                    className="text-4xl text-white links md:text-6xl"
+                    style={{ fontFamily: 'Times New Roman' }}
+                >
+                    Support
+                </Link>
+
+                <div>
+                    <p className="mt-4 md:mt-0 text-xs md:text-sm text-white">
+                        © 2024 Xcubit. All rights reserved.
+                    </p>
                 </div>
-            )}
+            </div>
         </nav>
     );
 };

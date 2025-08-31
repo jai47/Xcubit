@@ -9,6 +9,9 @@ export async function POST(req) {
         await eventFormAction(formData);
         return NextResponse.json({ success: true }, { status: 200 });
     } catch (error) {
-        return NextResponse.error(error);
+        return NextResponse.json(
+            { success: false, error: error.message },
+            { status: 500 }
+        );
     }
 }

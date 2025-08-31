@@ -1,33 +1,30 @@
-// components/FiltersSection.jsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { CiSearch } from 'react-icons/ci';
+import { GoArrowUpRight } from 'react-icons/go';
 import Link from 'next/link';
+import gsap from 'gsap';
 
 const FiltersSection = () => {
     const [events, setEvents] = useState([]);
     const [filteredEvents, setFilteredEvents] = useState([]);
-    const [searchParameters, setSearchParameters] = useState({
-        search: '',
-        place: '',
-        time: '',
-    });
+    const [searchParameters, setSearchParameters] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+
+    const inputRef = useRef(null);
 
     useEffect(() => {
         const fetchEvents = async () => {
             try {
                 const response = await fetch('/api/events', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                 });
 
-                if (!response.ok) {
-                    throw new Error(`Error: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`Error: ${response.status}`);
 
-                let data = await response.json();
+                const data = await response.json();
                 setEvents(data.events);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
@@ -37,13 +34,31 @@ const FiltersSection = () => {
         fetchEvents();
     }, []);
 
+    const handleSearchClick = () => {
+        setIsSearching((prev) => !prev);
+
+        if (!isSearching) {
+            gsap.to(inputRef.current, {
+                width: '90%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power4.out',
+            });
+        } else {
+            setFilteredEvents([]);
+            setSearchParameters('');
+            gsap.to(inputRef.current, {
+                width: '0',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power4.out',
+            });
+        }
+    };
+
     const handleSearchChange = (event) => {
         const searchValue = event.target.value;
-        const searchName = event.target.name;
-        setSearchParameters((prev) => ({
-            ...prev,
-            [searchName]: searchValue,
-        }));
+        setSearchParameters(searchValue);
 
         if (searchValue) {
             const matchingEvents = events.filter((e) =>
@@ -56,73 +71,40 @@ const FiltersSection = () => {
     };
 
     return (
-        <div className="bg-neutral-800 text-white shadow-lg rounded-lg p-6 flex flex-wrap justify-between items-center max-w-6xl mx-auto -mt-12">
-            {/* Search Event Input */}
-            <div className="flex-1 sm:flex-auto sm:mr-4 mb-4 sm:mb-0 relative">
-                <label className="text-sm text-white mb-2 block">
-                    Search Event
-                </label>
-                <input
-                    type="text"
-                    name="search"
-                    placeholder="Ideathon"
-                    value={searchParameters.search}
-                    onChange={handleSearchChange}
-                    className="bg-neutral-800 border-b border-gray-500 text-white px-4 py-2 focus:outline-none focus:border-white w-full"
-                    autoComplete="off"
-                />
-                {/* Dropdown Menu */}
-                {filteredEvents.length > 0 && (
-                    <ul className="absolute bg-neutral-700 text-white mt-2 w-full max-h-40 overflow-y-auto shadow-lg rounded-sm z-10">
-                        {filteredEvents.map((event) => (
-                            <Link
-                                key={event._id}
-                                href={`/events/${event.name}`}
-                            >
-                                <li className="px-4 py-4 hover:bg-neutral-600 cursor-pointer border-b border-neutral-600">
-                                    {event.name}
-                                </li>
-                            </Link>
-                        ))}
-                    </ul>
-                )}
-            </div>
-
-            {/* Place Select */}
-            <div className="flex-1 sm:flex-auto sm:mr-4 mb-4 sm:mb-0 hidden sm:block">
-                <label className="text-sm text-white mb-2 block">Place</label>
-                <select
-                    onChange={(e) =>
-                        setSearchParameters((prev) => ({
-                            ...prev,
-                            place: e.target.value,
-                        }))
-                    }
-                    className="bg-neutral-800 border-b border-gray-500 text-white px-4 py-2 focus:outline-none focus:border-white w-full"
+        <div className="relative flex flex-col items-center justify-center w-full max-w-screen-sm h-16 pr-2 z-10 dark:bg-background dark:text-primary">
+            <div className="flex w-full items-center justify-end gap-2">
+                <div
+                    ref={inputRef}
+                    className="w-0 opacity-0 overflow-hidden transition-all duration-300"
                 >
-                    <option value="">Select Place</option>
-                    <option value="Faridabad">Faridabad</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="Online">Online</option>
-                </select>
-            </div>
-
-            {/* Time Select */}
-            <div className="flex-1 sm:flex-auto mb-4 sm:mb-0 hidden sm:block">
-                <label className="text-sm text-white mb-2 block">Time</label>
-                <select
-                    onChange={(e) =>
-                        setSearchParameters((prev) => ({
-                            ...prev,
-                            time: e.target.value,
-                        }))
-                    }
-                    className="bg-neutral-800 border-b border-gray-500 text-white px-4 py-2 focus:outline-none focus:border-white w-full"
-                >
-                    <option value="">Select Time</option>
-                    <option value="Today">Today</option>
-                    <option value="This Week">This Week</option>
-                </select>
+                    <input
+                        type="text"
+                        name="search"
+                        placeholder="Search"
+                        value={searchParameters}
+                        onChange={handleSearchChange}
+                        className="w-full px-4 py-2 text-background border border-black focus:outline-none focus:border-black"
+                        autoComplete="off"
+                    />
+                    {filteredEvents.length > 0 && (
+                        <ul className="absolute border mt-2 max-h-40 w-full overflow-y-auto">
+                            {filteredEvents.map((event) => (
+                                <Link
+                                    key={event._id}
+                                    href={`/events/${event.name}`}
+                                >
+                                    <li className="flex items-center justify-between px-4 py-4 bg-primary hover:bg-slate-50 cursor-pointer border-b dark:bg-background dark:hover:bg-slate-800">
+                                        {event.name}
+                                        <GoArrowUpRight />
+                                    </li>
+                                </Link>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+                <div className="cursor-pointer" onClick={handleSearchClick}>
+                    <CiSearch size={35} />
+                </div>
             </div>
         </div>
     );

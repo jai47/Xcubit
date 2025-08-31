@@ -9,9 +9,9 @@ const Image = (props) => {
     return (
         <IKImage
             urlEndpoint={urlEndpoint}
-            loading="lazy"
             lqip={{ active: true, quality: 5, blur: 10 }}
             {...props}
+            alt={props.alt || 'XCUBIT'}
         />
     );
 };

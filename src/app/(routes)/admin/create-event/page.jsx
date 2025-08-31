@@ -1,11 +1,13 @@
 'use client';
 import ImageUpload from '@/src/components/ImageUpload';
 import Footer from '@/src/components/layout/Footer';
-import Navbar from '@/src/components/layout/Navbar';
+import Navbar from '@/src/components/layout/NavbarHome';
 import Preview from '@/src/components/Preview/Preview';
 import { useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 import React, { useEffect, useRef, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const Page = () => {
     const { data: session } = useSession();
@@ -15,19 +17,22 @@ const Page = () => {
     const [formData, setFormData] = useState({
         name: '',
         category: '',
+        shortDescription: '',
         description: '',
         start: '',
         end: '',
-        duration: '',
         time: '',
+        image: '',
+        fileId: '',
+        thumbnail: '',
         location: '',
         locationURL: '',
         eventType: '',
         price: '',
         maxParticipation: '',
-        image: '',
-        fileId: '',
-        thumbnail: '',
+        prizePool: '',
+        sponsors: [],
+        featureGuests: [],
     });
 
     const [errors, setErrors] = useState({
@@ -36,7 +41,6 @@ const Page = () => {
         description: '',
         start: '',
         end: '',
-        duration: '',
         time: '',
         location: '',
         locationURL: '',
@@ -62,7 +66,7 @@ const Page = () => {
                 }
 
                 let data = await response.json();
-                data = data.events.map((event) => event.name);
+                data = data.events?.map((event) => event.name);
                 setAllEvents(data);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
@@ -86,11 +90,34 @@ const Page = () => {
         }));
     };
 
+    const getFeatureGuestImageData = (data, index) => {
+        const updatedGuests = [...formData.featureGuests];
+        updatedGuests[index].image = data.url;
+        updatedGuests[index].thumbnail = data.thumbnailUrl;
+        updatedGuests[index].fileId = data.fileId;
+        setFormData({
+            ...formData,
+            featureGuests: updatedGuests,
+        });
+    };
+
     const validateField = (field, value) => {
         let error = '';
 
+        value = value.trim();
+
         if (field === 'name' && allEvents.includes(value)) {
             error = 'Event with this name already exists';
+        }
+
+        if (field === 'name') {
+            // Check for special characters
+            const specialCharRegex = /[^a-zA-Z0-9\s]/;
+            if (specialCharRegex.test(value)) {
+                error = 'Name cannot contain special characters';
+            } else if (allEvents.includes(value)) {
+                error = 'Event with this name already exists';
+            }
         }
 
         if (!value && field !== 'image') {
@@ -157,6 +184,14 @@ const Page = () => {
         const newErrors = {};
         let isValid = true;
 
+        setFormData((prev) => ({
+            ...prev,
+            name: prev.name.trim(),
+            shortDescription: prev.shortDescription.trim(),
+            location: prev.location.trim(),
+            locationURL: prev.locationURL.trim(),
+        }));
+
         if (allEvents.includes(formData.name)) {
             newErrors.name = 'Event with this name already exists';
             isValid = false;
@@ -189,7 +224,7 @@ const Page = () => {
         }
 
         try {
-            let response = fetch('/api/create-event', {
+            let response = await fetch('/api/create-event', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -202,6 +237,7 @@ const Page = () => {
                 setFormData({});
                 setShowPreview(false);
                 ref.current.reset();
+                redirect('/admin/');
             }
         } catch (error) {
             console.error(error);
@@ -211,10 +247,10 @@ const Page = () => {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-white flex flex-col items-center py-10">
+            <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 mt-10">
                 {/* Page Title */}
-                <div className="w-4/5 ">
-                    <h1 className="text-4xl font-bold mb-6 text-gray-800 ">
+                <div className="w-4/5 mb-6">
+                    <h1 className="text-4xl font-extrabold text-gray-800">
                         Create Event
                     </h1>
                 </div>
@@ -222,92 +258,109 @@ const Page = () => {
                 <form
                     ref={ref}
                     onSubmit={handleSubmit}
-                    className="w-4/5 bg-white rounded-lg p-6 space-y-9"
+                    className="w-4/5 bg-white shadow-md rounded-lg p-8 space-y-8"
                 >
                     {/* Form */}
-                    {/* Event Title */}
-                    <div className="w-3/4 flex flex-col gap-8">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {/* Event Title */}
-                        <div className="w-full flex flex-col">
-                            <div className="w-full flex gap-10 items-center">
-                                <label
-                                    className="w-[20%] text-lg font-medium text-gray-700"
-                                    htmlFor="name"
-                                >
-                                    Event Title
-                                </label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    placeholder="Title"
-                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                            </div>
-                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                        <div className="col-span-2">
+                            <label
+                                htmlFor="name"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Event Title
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Title"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                            />
+                            <p className="text-red-500 text-sm">
                                 {errors.name}
                             </p>
                         </div>
 
                         {/* Category */}
-                        <div className="w-full flex flex-col">
-                            <div className="w-full flex gap-10 items-center">
-                                <label
-                                    className="w-[20%] text-lg font-medium text-gray-700"
-                                    htmlFor="category"
-                                >
-                                    Event Category
-                                </label>
-                                <select
-                                    name="category"
-                                    id="category"
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                >
-                                    <option value="">Select</option>
-                                    <option value="Hackthon">Hackthon</option>
-                                    <option value="Ideathon">Ideathon</option>
-                                    <option value="Tech talk">Tech talk</option>
-                                </select>
-                            </div>
-                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                        <div>
+                            <label
+                                htmlFor="category"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Event Category
+                            </label>
+                            <select
+                                name="category"
+                                id="category"
+                                value={formData.category}
+                                onChange={handleChange}
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                            >
+                                <option value="">Select</option>
+                                <option value="Hackathon">Hackathon</option>
+                                <option value="Ideathon">Ideathon</option>
+                                <option value="Tech talk">Tech talk</option>
+                            </select>
+                            <p className="text-red-500 text-sm">
                                 {errors.category}
                             </p>
                         </div>
-
-                        {/* Description */}
-                        <div className="w-full flex flex-col">
-                            <div className="w-full flex gap-10 items-start">
-                                <label
-                                    className="w-[20%] text-lg font-medium text-gray-700"
-                                    htmlFor="description"
-                                >
-                                    About The Event
-                                </label>
-                                <textarea
-                                    id="description"
-                                    name="description"
-                                    value={formData.description}
-                                    onChange={handleChange}
-                                    placeholder="Enter a description"
-                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                    rows="7"
-                                ></textarea>
-                            </div>
-                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
-                                {errors.description}
-                            </p>
-                        </div>
                     </div>
+                    {/* Short Description */}
+                    <div>
+                        <label
+                            htmlFor="shortDescription"
+                            className="block text-lg font-medium text-gray-700"
+                        >
+                            Short Description
+                        </label>
+                        <textarea
+                            id="shortDescription"
+                            name="shortDescription"
+                            value={formData.shortDescription}
+                            onChange={handleChange}
+                            maxLength="40"
+                            placeholder="Enter a short description (30-40 characters)"
+                            rows="1"
+                            className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                        ></textarea>
+                        <p className="text-red-500 text-sm">
+                            {formData.shortDescription?.length < 30
+                                ? 'Description must be at least 30 characters.'
+                                : errors.shortDescription}
+                        </p>
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <label
+                            htmlFor="description"
+                            className="block text-lg font-medium text-gray-700"
+                        >
+                            About The Event
+                        </label>
+                        <ReactQuill
+                            placeholder="Enter a description"
+                            theme="snow"
+                            onChange={(prev) => {
+                                setFormData({ ...formData, description: prev });
+                            }}
+                            value={formData.description}
+                        />
+                        <p className="text-red-500 text-sm">
+                            {errors.description}
+                        </p>
+                    </div>
+
                     {/* Dates and Time */}
-                    <div className="w-full flex gap-4 pt-10">
-                        <div className="w-[20%] flex flex-col space-y-2">
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <div>
                             <label
-                                className="text-lg font-medium text-gray-700"
                                 htmlFor="start"
+                                className="block text-lg font-medium text-gray-700"
                             >
                                 Start Date
                             </label>
@@ -317,16 +370,16 @@ const Page = () => {
                                 name="start"
                                 value={formData.start}
                                 onChange={handleChange}
-                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             />
                             <p className="text-red-500 text-sm">
                                 {errors.start}
                             </p>
                         </div>
-                        <div className="w-[20%] flex flex-col space-y-2">
+                        <div>
                             <label
-                                className="text-lg font-medium text-gray-700"
                                 htmlFor="end"
+                                className="block text-lg font-medium text-gray-700"
                             >
                                 End Date
                             </label>
@@ -336,14 +389,14 @@ const Page = () => {
                                 name="end"
                                 value={formData.end}
                                 onChange={handleChange}
-                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             />
                             <p className="text-red-500 text-sm">{errors.end}</p>
                         </div>
-                        <div className="w-[20%] flex flex-col space-y-2">
+                        <div>
                             <label
-                                className="text-lg font-medium text-gray-700"
                                 htmlFor="time"
+                                className="block text-lg font-medium text-gray-700"
                             >
                                 Time
                             </label>
@@ -353,85 +406,64 @@ const Page = () => {
                                 name="time"
                                 value={formData.time}
                                 onChange={handleChange}
-                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             />
                             <p className="text-red-500 text-sm">
                                 {errors.time}
                             </p>
                         </div>
-                        <div className="w-[20%] flex flex-col space-y-2">
+                    </div>
+
+                    {/* Location */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
                             <label
-                                className="text-lg font-medium text-gray-700"
-                                htmlFor="duration"
+                                htmlFor="location"
+                                className="block text-lg font-medium text-gray-700"
                             >
-                                Run Time
+                                Location
                             </label>
                             <input
                                 type="text"
-                                id="duration"
-                                name="duration"
-                                placeholder="Eg. 12 Hours"
-                                value={formData.duration}
+                                id="location"
+                                name="location"
+                                value={formData.location}
                                 onChange={handleChange}
-                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                placeholder="Enter location"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             />
                             <p className="text-red-500 text-sm">
-                                {errors.duration}
-                            </p>
-                        </div>
-                    </div>
-                    {/* Other Details */}
-                    <div className="w-3/4 flex flex-col gap-8">
-                        <div className="w-full flex flex-col">
-                            <div className="w-full flex gap-10 items-start">
-                                <label
-                                    className="w-[20%] text-lg font-medium text-gray-700"
-                                    htmlFor="location"
-                                >
-                                    Location
-                                </label>
-                                <input
-                                    type="text"
-                                    id="location"
-                                    name="location"
-                                    value={formData.location}
-                                    onChange={handleChange}
-                                    placeholder="Enter location"
-                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                            </div>
-                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
                                 {errors.location}
                             </p>
                         </div>
-                        <div className="w-full flex flex-col">
-                            <div className=" w-full flex gap-10 items-start">
-                                <label
-                                    className="w-[20%] text-lg font-medium text-gray-700"
-                                    htmlFor="locationURL"
-                                >
-                                    Location URL
-                                </label>
-                                <input
-                                    type="url"
-                                    id="locationURL"
-                                    name="locationURL"
-                                    value={formData.locationURL}
-                                    onChange={handleChange}
-                                    placeholder="Enter location URL"
-                                    className="w-[70%] border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                                />
-                            </div>
-                            <p className="text-red-500 text-sm mt-2 w-[70%] ml-auto">
+                        <div>
+                            <label
+                                htmlFor="locationURL"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Location URL
+                            </label>
+                            <input
+                                type="url"
+                                id="locationURL"
+                                name="locationURL"
+                                value={formData.locationURL}
+                                onChange={handleChange}
+                                placeholder="Enter location URL"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                            />
+                            <p className="text-red-500 text-sm">
                                 {errors.locationURL}
                             </p>
                         </div>
                     </div>
-                    <div className="grid grid-cols-3 gap-6 items-center">
-                        <div className="flex flex-col space-y-2">
+
+                    {/* Event Type */}
+                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                        <div>
                             <label
-                                className="text-lg font-medium text-gray-700"
                                 htmlFor="eventType"
+                                className="block text-lg font-medium text-gray-700"
                             >
                                 Event Type
                             </label>
@@ -440,7 +472,7 @@ const Page = () => {
                                 id="eventType"
                                 value={formData.eventType}
                                 onChange={handleChange}
-                                className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             >
                                 <option value="">Select</option>
                                 <option value="paid">Ticketed Event</option>
@@ -451,10 +483,10 @@ const Page = () => {
                             </p>
                         </div>
                         {formData.eventType === 'paid' && (
-                            <div className="flex flex-col space-y-2">
+                            <div>
                                 <label
-                                    className="text-lg font-medium text-gray-700"
                                     htmlFor="price"
+                                    className="block text-lg font-medium text-gray-700"
                                 >
                                     Ticket Price
                                 </label>
@@ -465,7 +497,7 @@ const Page = () => {
                                     value={formData.price}
                                     onChange={handleChange}
                                     placeholder="Enter price"
-                                    className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
+                                    className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                                 />
                                 <p className="text-red-500 text-sm">
                                     {errors.price}
@@ -473,69 +505,451 @@ const Page = () => {
                             </div>
                         )}
                     </div>
-                    <div className="w-[20%] flex flex-col space-y-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Maximum Participation */}
+                        <div>
+                            <label
+                                htmlFor="maxParticipation"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Maximum Entries
+                            </label>
+                            <input
+                                type="number"
+                                id="maxParticipation"
+                                name="maxParticipation"
+                                value={formData.maxParticipation}
+                                onChange={(e) => {
+                                    if (
+                                        parseInt(e.target.value) >= 1 ||
+                                        e.target.value === ''
+                                    )
+                                        handleChange(e);
+                                }}
+                                min="1"
+                                placeholder="Enter maximum entries (minimum 1)"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                            />
+                            <p className="text-red-500 text-sm">
+                                {errors.maxParticipation}
+                            </p>
+                        </div>
+
+                        {/* Prize Pool */}
+                        <div>
+                            <label
+                                htmlFor="prizePool"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Prize Pool (in INR)
+                            </label>
+                            <input
+                                type="number"
+                                id="prizePool"
+                                name="prizePool"
+                                value={formData.prizePool}
+                                onChange={(e) => {
+                                    if (
+                                        parseInt(e.target.value) >= 0 ||
+                                        e.target.value === ''
+                                    )
+                                        handleChange(e);
+                                }}
+                                min="0"
+                                placeholder="Enter the prize pool amount (minimum 0)"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                            />
+                            <p className="text-red-500 text-sm">
+                                {errors.prizePool}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Sponsors Upload */}
+                    <div>
                         <label
-                            className="text-lg font-medium text-gray-700"
-                            htmlFor="maxParticipation"
+                            htmlFor="sponsors"
+                            className="block text-lg font-semibold text-gray-800 mb-4"
                         >
-                            Maximum Participation
+                            Upload Sponsors
                         </label>
-                        <input
-                            type="text"
-                            id="maxParticipation"
-                            name="maxParticipation"
-                            value={formData.maxParticipation}
-                            onChange={handleChange}
-                            placeholder="Enter max participants"
-                            className="border rounded-lg px-4 py-3 focus:outline-none focus:ring focus:ring-red-300"
-                        />
-                        <p className="text-red-500 text-sm">
-                            {errors.maxParticipation}
+
+                        {/* Sponsors Upload Form */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {formData.sponsors?.map((sponsor, index) => (
+                                <div
+                                    key={index}
+                                    className="relative bg-white shadow-md rounded-lg p-6 border border-gray-200"
+                                >
+                                    {/* Remove Sponsor Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const updatedSponsors =
+                                                formData.sponsors.filter(
+                                                    (_, i) => i !== index
+                                                );
+                                            setFormData({
+                                                ...formData,
+                                                sponsors: updatedSponsors,
+                                            });
+                                        }}
+                                        className="absolute top-3 right-3 text-gray-400 hover:text-red-600"
+                                    >
+                                        ✕
+                                    </button>
+
+                                    {/* Sponsor Image Upload */}
+                                    <div className="mb-4">
+                                        <ImageUpload
+                                            theme="small"
+                                            getImageData={(data) => {
+                                                const updatedSponsors = [
+                                                    ...formData.sponsors,
+                                                ];
+                                                updatedSponsors[index] = {
+                                                    ...updatedSponsors[index],
+                                                    image: data,
+                                                };
+                                                setFormData({
+                                                    ...formData,
+                                                    sponsors: updatedSponsors,
+                                                });
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Sponsor Name */}
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`sponsorName-${index}`}
+                                            className="block text-sm font-medium text-gray-600"
+                                        >
+                                            Sponsor Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`sponsorName-${index}`}
+                                            name={`sponsorName-${index}`}
+                                            value={sponsor.name || ''}
+                                            onChange={(e) => {
+                                                const updatedSponsors = [
+                                                    ...formData.sponsors,
+                                                ];
+                                                updatedSponsors[index] = {
+                                                    ...updatedSponsors[index],
+                                                    name: e.target.value,
+                                                };
+                                                setFormData({
+                                                    ...formData,
+                                                    sponsors: updatedSponsors,
+                                                });
+                                            }}
+                                            placeholder="Enter sponsor name"
+                                            className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Sponsor Website Link */}
+                                    <div>
+                                        <label
+                                            htmlFor={`sponsorLink-${index}`}
+                                            className="block text-sm font-medium text-gray-600"
+                                        >
+                                            Sponsor Website Link
+                                        </label>
+                                        <input
+                                            type="url"
+                                            id={`sponsorLink-${index}`}
+                                            name={`sponsorLink-${index}`}
+                                            value={sponsor.link || ''}
+                                            onChange={(e) => {
+                                                const updatedSponsors = [
+                                                    ...formData.sponsors,
+                                                ];
+                                                updatedSponsors[index] = {
+                                                    ...updatedSponsors[index],
+                                                    link: e.target.value,
+                                                };
+                                                setFormData({
+                                                    ...formData,
+                                                    sponsors: updatedSponsors,
+                                                });
+                                            }}
+                                            placeholder="Enter sponsor website link"
+                                            className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Sponsor Button */}
+                        <div className="mt-6">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setFormData({
+                                        ...formData,
+                                        sponsors: [
+                                            ...formData.sponsors,
+                                            { name: '', link: '', image: null },
+                                        ],
+                                    });
+                                }}
+                                className="bg-main text-white px-6 py-2 rounded-lg shadow hover:bg-primary hover:text-background border transition"
+                            >
+                                + Add Sponsor
+                            </button>
+                        </div>
+
+                        <p className="text-red-500 text-sm mt-2">
+                            {errors.sponsors}
                         </p>
                     </div>
-                    {/* Image */}
-                    <div className="flex flex-col space-y-2">
+
+                    {/* Feature Guests */}
+                    <div>
                         <label
-                            className="text-lg font-medium text-gray-700"
+                            htmlFor="featureGuests"
+                            className="block text-lg font-medium text-gray-700 mb-4"
+                        >
+                            Feature Guests
+                        </label>
+
+                        {/* Guest Details Form */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {formData.featureGuests?.map((guest, index) => (
+                                <div
+                                    key={index}
+                                    className="border rounded-lg bg-white shadow-lg p-6 flex flex-col space-y-4"
+                                >
+                                    {/* Guest Image Upload */}
+                                    <div>
+                                        <ImageUpload
+                                            theme="small"
+                                            getImageData={(data) => {
+                                                getFeatureGuestImageData(
+                                                    data,
+                                                    index
+                                                );
+                                            }}
+                                        />
+                                    </div>
+
+                                    {/* Guest Name */}
+                                    <div>
+                                        <label
+                                            htmlFor={`guestName-${index}`}
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Guest Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`guestName-${index}`}
+                                            name={`guestName-${index}`}
+                                            value={guest.name}
+                                            onChange={(e) => {
+                                                const updatedGuests = [
+                                                    ...formData.featureGuests,
+                                                ];
+                                                updatedGuests[index].name =
+                                                    e.target.value;
+                                                setFormData({
+                                                    ...formData,
+                                                    featureGuests:
+                                                        updatedGuests,
+                                                });
+                                            }}
+                                            placeholder="Enter guest name"
+                                            className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Guest Role */}
+                                    <div>
+                                        <label
+                                            htmlFor={`guestRole-${index}`}
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Role
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`guestRole-${index}`}
+                                            name={`guestRole-${index}`}
+                                            value={guest.role}
+                                            onChange={(e) => {
+                                                const updatedGuests = [
+                                                    ...formData.featureGuests,
+                                                ];
+                                                updatedGuests[index].role =
+                                                    e.target.value;
+                                                setFormData({
+                                                    ...formData,
+                                                    featureGuests:
+                                                        updatedGuests,
+                                                });
+                                            }}
+                                            placeholder="Eg. Speaker, Judge, Mentor"
+                                            className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Guest Designation */}
+                                    <div>
+                                        <label
+                                            htmlFor={`guestDesignation-${index}`}
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Designation
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`guestDesignation-${index}`}
+                                            name={`guestDesignation-${index}`}
+                                            value={guest.designation}
+                                            onChange={(e) => {
+                                                const updatedGuests = [
+                                                    ...formData.featureGuests,
+                                                ];
+                                                updatedGuests[
+                                                    index
+                                                ].designation = e.target.value;
+                                                setFormData({
+                                                    ...formData,
+                                                    featureGuests:
+                                                        updatedGuests,
+                                                });
+                                            }}
+                                            placeholder="Enter guest designation"
+                                            className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Guest Social Links */}
+                                    <div>
+                                        <label
+                                            htmlFor={`guestSocialLinks-${index}`}
+                                            className="block text-sm font-medium text-gray-700"
+                                        >
+                                            Social Links
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id={`guestSocialLinks-${index}`}
+                                            name={`guestSocialLinks-${index}`}
+                                            value={guest.socialLinks}
+                                            onChange={(e) => {
+                                                const updatedGuests = [
+                                                    ...formData.featureGuests,
+                                                ];
+                                                updatedGuests[
+                                                    index
+                                                ].socialLinks = e.target.value;
+                                                setFormData({
+                                                    ...formData,
+                                                    featureGuests:
+                                                        updatedGuests,
+                                                });
+                                            }}
+                                            placeholder="Enter social media links (e.g., LinkedIn, Twitter)"
+                                            className="mt-1 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        />
+                                    </div>
+
+                                    {/* Remove Guest */}
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            const updatedGuests =
+                                                formData.featureGuests.filter(
+                                                    (_, i) => i !== index
+                                                );
+                                            setFormData({
+                                                ...formData,
+                                                featureGuests: updatedGuests,
+                                            });
+                                        }}
+                                        className="bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-primary hover:text-background border transition"
+                                    >
+                                        Remove Guest
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Add Guest Button */}
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setFormData({
+                                    ...formData,
+                                    featureGuests: [
+                                        ...formData.featureGuests,
+                                        {
+                                            name: '',
+                                            role: '',
+                                            designation: '',
+                                            socialLinks: '',
+                                            image: null,
+                                        },
+                                    ],
+                                });
+                            }}
+                            className="mt-4 bg-main text-white px-6 py-2 rounded-lg shadow hover:bg-primary hover:text-background border transition"
+                        >
+                            Add Guest
+                        </button>
+
+                        <p className="text-red-500 text-sm mt-2">
+                            {errors.featureGuests}
+                        </p>
+                    </div>
+
+                    {/* Image Upload */}
+                    <div>
+                        <label
                             htmlFor="image"
+                            className="block text-lg font-medium text-gray-700"
                         >
                             Upload Banner
                         </label>
                         <ImageUpload getImageData={getImageData} />
                         <p className="text-red-500 text-sm">{errors.image}</p>
                     </div>
-                    {/* Submit Button */}
-                    <div className="flex justify-end">
+
+                    {/* Actions */}
+                    <div className="flex justify-between">
                         <button
                             onClick={(e) => {
                                 e.preventDefault();
                                 if (!validateForm()) return;
                                 setShowPreview(true);
                             }}
-                            className="bg-neutral-500 text-white px-9 py-3 rounded-full hover:bg-neutral-900 transition duration-100"
+                            className="bg-main text-white px-6 py-3 rounded-lg hover:bg-primary hover:text-background border"
                         >
                             Preview
                         </button>
+                        <button
+                            type="submit"
+                            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+                        >
+                            Publish Event
+                        </button>
                     </div>
+
                     {showPreview && (
-                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ">
-                            <div className="flex flex-col justify-center items-center bg-white  rounded-lg shadow-lg h-[90%] w-[90%] overflow-auto">
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                            <div className="bg-white rounded-lg p-6 shadow-lg w-4/5 h-4/5">
                                 <Preview data={formData} />
-                                <div className="w-full flex justify-end gap-6 mr-8  p-8">
+                                <div className="flex justify-end gap-4 mt-4">
                                     <button
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            setShowPreview(false);
-                                        }}
-                                        className="bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition duration-300"
+                                        onClick={() => setShowPreview(false)}
+                                        className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
                                     >
                                         Make Changes
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition duration-300"
-                                    >
-                                        Publish Event
                                     </button>
                                 </div>
                             </div>
@@ -543,6 +957,7 @@ const Page = () => {
                     )}
                 </form>
             </div>
+
             <Footer />
         </>
     );
