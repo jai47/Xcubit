@@ -31,13 +31,13 @@ const HomeAbout = () => {
                         <ul className="flex flex-wrap justify-start gap-8 md:gap-14">
                             <li className="min-w-[80px]">
                                 <p className="font-sans font-medium tracking-widest text-2xl bg-clip-text text-transparent bg-gradient-to-r from-violet-200 via-fuchsia-200 to-rose-200/75">
-                                    500+
+                                    5K+
                                 </p>
                                 <p className="text-sm">Participant</p>
                             </li>
                             <li className="min-w-[80px]">
                                 <p className="font-sans font-medium tracking-widest text-2xl bg-clip-text text-transparent bg-gradient-to-r from-violet-200 via-fuchsia-200 to-rose-200/75">
-                                    48
+                                    72
                                 </p>
                                 <p className="text-sm">Hours</p>
                             </li>
@@ -54,11 +54,11 @@ const HomeAbout = () => {
                 {/* Right Image */}
                 <div className="flex-1 flex justify-center md:justify-end">
                     <Image
-                        src="/hero.jpg"
+                        src="https://res.cloudinary.com/dql4uvrzz/image/upload/v1733043089/awards/qyshlpyfxhtxj1puxyil.png"
                         alt="template"
-                        width={500}
+                        width={650}
                         height={500}
-                        className="rounded-lg object-cover h-auto w-full max-w-sm md:max-w-md lg:max-w-lg shadow"
+                        className=" object-cover h-auto w-full max-w-sm md:max-w-md lg:max-w-lg rounded-lg hover:brightness-75 duration-700"
                     />
                 </div>
             </div>

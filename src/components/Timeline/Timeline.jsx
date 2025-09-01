@@ -22,7 +22,7 @@ export const Timeline = ({ data }) => {
                     ease: 'none',
                     scrollTrigger: {
                         trigger: containerRef.current,
-                        start: 'top 10%',
+                        start: 'top 30%',
                         end: 'bottom 50%',
                         scrub: true,
                     },
@@ -36,15 +36,15 @@ export const Timeline = ({ data }) => {
     return (
         <div
             ref={containerRef}
-            className="w-full bg-neutral-950 font-sans md:px-10 relativ pb-20"
+            className="w-full bg-neutral-950 font-sans md:px-10 relativ pb-20 pt-10"
         >
             <div className="max-w-7xl mx-auto px-4 md:px-8 lg:px-10 flex flex-col justify-center items-center">
                 <h2 className="text-2xl md:text-5xl mb-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white/70 to-gray-100/50">
-                    Hackathon Timeline
+                    Timeline
                 </h2>
                 <p className="text-neutral-400 text-sm md:text-lg">
-                    Our hackathon will last 4 weeks. Submissions will be
-                    accepted from July 29th until 11:59 PM PT on August 25th.
+                    Our Ideathon will last 3 days. Submissions will be accepted
+                    from July 29th until 11:59 PM PT on August 25th.
                 </p>
             </div>
 

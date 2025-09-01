@@ -81,7 +81,10 @@ const Navbar = () => {
 
                 {/* Right hamburger button */}
                 <div className="flex-shrink-0">
-                    <button onClick={() => setIsOpen(!isOpen)}>
+                    <button
+                        aria-label={'menu'}
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
                         <svg
                             viewBox="0 0 24 24"
                             className="w-6 h-6 fill-white stroke-white"
@@ -115,6 +118,7 @@ const Navbar = () => {
             >
                 {/* Close button */}
                 <button
+                    aria-label={'close menu'}
                     className="close absolute top-6 left-6"
                     onClick={() => setIsOpen(false)}
                 >

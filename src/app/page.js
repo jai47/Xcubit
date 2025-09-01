@@ -1,20 +1,25 @@
 import Footer from '@/src/components/layout/Footer';
 import Navbar from '@/src/components/layout/NavbarHome';
-import HeroSection from '@/src/components/HeroSection/HeroSection';
 import UpcomingEvents from '../components/UpcomingEvents/UpcomingEvents';
 import Head from 'next/head';
 import { TimelineDemo } from '../components/Timeline/TimelineDemo';
-import HomeAbout from '../components/Home/About/HomeAbout';
-import SponsorSection from '../components/Home/Sponsor/SponsorSection';
+const HomeAbout = dynamic(() => import('../components/Home/About/HomeAbout'));
+const SponsorSection = dynamic(() =>
+    import('../components/Home/Sponsor/SponsorSection')
+);
+const HeroSection = dynamic(() =>
+    import('../components/Home/HeroSection/HeroSection')
+);
+const CompetitionTracks = dynamic(() =>
+    import('../components/Home/CompetitionTracks/CompetitionTracks')
+);
+const Judges = dynamic(() => import('../components/Home/Judges/Judges'));
+import dynamic from 'next/dynamic';
 
 export default async function Home() {
     return (
         <>
             <Head>
-                <title>
-                    About Us | Xcubit - Revolutionizing Ticketing and Event
-                    Management
-                </title>
                 <meta
                     name="description"
                     content="Learn about Xcubit, a cutting-edge platform designed to simplify ticketing and event management. Discover our features, benefits, and how we empower events globally."
@@ -37,7 +42,7 @@ export default async function Home() {
                 <meta property="og:url" content="https://xcubit.in/about" />
                 <meta
                     property="og:image"
-                    content="https://xcubit.in/images/logo/logo.png"
+                    content="https://xcubit.in/logo/logo.png"
                 />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="About Us | Xcubit" />
@@ -55,11 +60,11 @@ export default async function Home() {
                 <Navbar />
                 <main>
                     <HeroSection />
-
                     {/* <UpcomingEvents /> */}
-
                     <HomeAbout />
+                    <CompetitionTracks />
                     <TimelineDemo />
+                    <Judges />
                     <SponsorSection />
                 </main>
                 <Footer />
