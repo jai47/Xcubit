@@ -25,3 +25,12 @@ const userSchema = new Schema({
 
 export const userModels =
     mongoose.models?.user || mongoose.model('user', userSchema);
+
+// event = [
+//     {
+//         _id: 'ajhdskajd',
+//         document: 'data:64/dadas',
+//         video: 'youtube.com/watch=sadas',
+//         repo: 'github.com',
+//     },
+// ];

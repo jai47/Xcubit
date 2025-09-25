@@ -49,13 +49,14 @@ export async function userFormAction(formData) {
                 subject: `Welcome to the community, ${user.name}`,
                 message: {
                     name: user.name,
-                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/${user.verifyToken}`,
-                    contactEmail: 'helpdesk@xcubit.in',
+                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/user${user.verifyToken}`,
+                    contactEmail: 'support@xcubit.in',
                 },
                 type: 'verify',
             }),
         });
-        return redirect('/login');
+        redirect('/login');
+        return;
     } catch (error) {
         console.log(error);
         throw error;
@@ -250,7 +251,13 @@ export async function getAllUsers() {
     try {
         await connectDB();
         const users = await userModels.find({}).lean(); // Use .lean() to return plain objects
-        return JSON.parse(JSON.stringify(users)); // Serialize for safe client-side usage
+        if (!users) {
+            return {
+                success: false,
+                message: 'Cannot able to fetch all users at the moment',
+            };
+        }
+        return { success: true, data: JSON.parse(JSON.stringify(users)) };
     } catch (error) {
         throw new Error(`Error getting users: ${error.message}`);
     }

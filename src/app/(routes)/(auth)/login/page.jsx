@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { auth } from '@/src/auth';
 import { loginCred, loginGoogle } from '@/src/serverAction/authAction';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -58,11 +58,7 @@ export default async function Login() {
                         <form
                             action={async (formData) => {
                                 'use server';
-                                try {
-                                    await loginCred(formData);
-                                } catch (error) {
-                                    console.error(error);
-                                }
+                                await loginCred(formData);
                             }}
                             className="mt-10 mb-12 w-full flex flex-col justify-center items-center gap-6"
                         >

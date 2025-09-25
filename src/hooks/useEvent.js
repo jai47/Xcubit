@@ -12,7 +12,7 @@ const useEvent = () => {
     useEffect(() => {
         const fetchEvent = async () => {
             if (!eventQuery) {
-                redirect('/');
+                redirect('/events');
             }
             try {
                 const response = await fetch('/api/events/', {
@@ -21,7 +21,7 @@ const useEvent = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ event: eventQuery }),
+                    body: JSON.stringify({ slug: eventQuery }),
                 });
                 if (!response.ok) {
                     throw new Error('Failed to fetch event');

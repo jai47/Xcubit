@@ -1,4 +1,4 @@
-import { getEventByName } from '@/src/serverAction/eventAction';
+import { getEventBySlug } from '@/src/serverAction/eventAction';
 import React from 'react';
 import Footer from '@/src/components/layout/Footer';
 import MultiSection from '@/src/components/Details/MultiSection';
@@ -12,63 +12,63 @@ import UpcomingEvents from '@/src/components/UpcomingEvents/UpcomingEvents';
 import Image from '@/src/components/Image';
 
 // Metadata for SEO
-export async function generateMetadata({ params }) {
-    const param = await params;
-    const eventName = decodeURI(param.event[0]);
-    const data = await getEventByName(eventName);
+// export async function generateMetadata({ params }) {
+//     const param = await params;
+//     const eventName = decodeURI(param.event[0]);
+//     const data = await getEventBySlug(eventName);
 
-    if (!data) {
-        return {
-            title: `Event Not Found | Xcubit`,
-            description: `The event "${eventName}" could not be found.`,
-        };
-    }
+//     if (!data) {
+//         return {
+//             title: `Event Not Found | Xcubit`,
+//             description: `The event "${eventName}" could not be found.`,
+//         };
+//     }
 
-    return {
-        title: `${data.name} | Xcubit`,
-        description:
-            data.description || `Join us for ${data.name} at ${data.location}.`,
-        openGraph: {
-            title: `${data.name} | Xcubit`,
-            description:
-                data.description ||
-                `Experience ${data.name} at ${data.location}.`,
-            type: 'website', // Changed 'event' to 'website'
-            url: `https://xcubit.in/events/${eventName}`,
-            images: [
-                {
-                    url:
-                        data.image ||
-                        'https://xcubit.in/images/default-event.jpg',
-                    width: 1200,
-                    height: 630,
-                    alt: `${data.name} Event Image`,
-                },
-            ],
-        },
-        twitter: {
-            card: 'summary_large_image',
-            title: `${data.name} | Xcubit`,
-            description:
-                data.description ||
-                `Don't miss ${data.name} at ${data.location}.`,
-            images: [
-                data.image || 'https://xcubit.in/images/default-event.jpg',
-            ],
-        },
-    };
-}
+//     return {
+//         title: `${data.name} | Xcubit`,
+//         description:
+//             data.description || `Join us for ${data.name} at ${data.location}.`,
+//         openGraph: {
+//             title: `${data.name} | Xcubit`,
+//             description:
+//                 data.description ||
+//                 `Experience ${data.name} at ${data.location}.`,
+//             type: 'website', // Changed 'event' to 'website'
+//             url: `https://xcubit.in/events/${eventName}`,
+//             images: [
+//                 {
+//                     url:
+//                         data.image ||
+//                         'https://xcubit.in/images/default-event.jpg',
+//                     width: 1200,
+//                     height: 630,
+//                     alt: `${data.name} Event Image`,
+//                 },
+//             ],
+//         },
+//         twitter: {
+//             card: 'summary_large_image',
+//             title: `${data.name} | Xcubit`,
+//             description:
+//                 data.description ||
+//                 `Don't miss ${data.name} at ${data.location}.`,
+//             images: [
+//                 data.image || 'https://xcubit.in/images/default-event.jpg',
+//             ],
+//         },
+//     };
+// }
 
 const Event = async (props) => {
     const params = await props.params;
-    const data = await getEventByName(decodeURI(params.event[0]));
+    const data = await getEventBySlug(decodeURI(params.event[0]));
 
     return (
         <>
             <Navbar />
 
             {data ? (
-                <div className="min-h-screen dark:bg-background dark:text-primary pt-20 md:pt-0 lg:pt-0">
+                <div className="min-h-screen dark:bg-background dark:text-primary pt-20 md:pt-0 lg:pt-0 bg-neutral-950 text-white">
                     {/* Header Section */}
                     <div className="relative w-full h-[50vh] sm:h-[60vh] hidden sm:block">
                         <div className="absolute inset-0">
@@ -81,15 +81,7 @@ const Event = async (props) => {
                             />
                             <div className="absolute inset-0 bg-black bg-opacity-40 flex justify-center items-center">
                                 <div className="text-center px-4">
-                                    <h2
-                                        className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text"
-                                        style={{
-                                            backgroundImage:
-                                                'linear-gradient(-45deg, rgb(247, 110, 31), rgb(251, 216, 96))',
-                                            color: 'transparent',
-                                            backgroundClip: 'text',
-                                        }}
-                                    >
+                                    <h2 className="text-4xl sm:text-5xl tracking-widest font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300">
                                         {data.name}
                                     </h2>
                                     <p className="text-base sm:text-lg text-gray-300 mt-2">
@@ -219,7 +211,7 @@ const Event = async (props) => {
                                         <Link
                                             href={{
                                                 pathname: '/register',
-                                                query: { event: data.name },
+                                                query: { event: data.slug },
                                             }}
                                         >
                                             <Button text={'Register Now'} />

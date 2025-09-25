@@ -1,23 +1,29 @@
-import { getEventByName, getEvents } from '@/src/serverAction/eventAction';
+import { getEventBySlug, getEvents } from '@/src/serverAction/eventAction';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
     try {
-        const { event } = await req?.json();
-        const eventDetails = await getEventByName(event);
-        if (!event) {
-            return NextResponse.status(404).json({
-                error: `Event with name "${event}" not found.`,
-            });
+        const { slug } = await req.json();
+
+        // Call DB/service
+        const eventDetails = await getEventBySlug(slug);
+
+        if (!eventDetails) {
+            return NextResponse.json(
+                { error: `Event not found.` },
+                { status: 404 }
+            );
         }
+
         return NextResponse.json({
             details: JSON.parse(JSON.stringify(eventDetails)),
         });
     } catch (error) {
         console.error('Error fetching event:', error);
-        return NextResponse.status(500).json({
-            error: 'Failed to fetch event',
-        });
+        return NextResponse.json(
+            { error: 'Failed to fetch event' },
+            { status: 500 }
+        );
     }
 }
 

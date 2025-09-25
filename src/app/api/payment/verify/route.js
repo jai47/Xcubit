@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const { auth } = require('@/auth');
+const { auth } = require('@/src/auth');
 
 export const POST = auth(async (req) => {
     if (!req.auth) {

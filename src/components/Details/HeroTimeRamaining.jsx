@@ -41,7 +41,9 @@ const HeroTimeRemaining = ({ data, className }) => {
     const containerRefs = useRef([]);
 
     useEffect(() => {
-        const timer = setInterval(() => {
+        let timer;
+
+        const tick = () => {
             const newTime = calculateTimeLeft();
             setTimeLeft((prev) => {
                 Object.keys(newTime).forEach((key) => {
@@ -61,9 +63,16 @@ const HeroTimeRemaining = ({ data, className }) => {
                 });
                 return newTime;
             });
-        }, 1000);
 
-        return () => clearInterval(timer);
+            // Schedule next tick only if time remains
+            if (Object.values(newTime).some((v) => v !== '00')) {
+                timer = setTimeout(tick, 1000);
+            }
+        };
+
+        tick();
+
+        return () => clearTimeout(timer);
     }, [targetTime]);
 
     // Animate divs with stagger on mount
@@ -111,35 +120,3 @@ const HeroTimeRemaining = ({ data, className }) => {
 };
 
 export default HeroTimeRemaining;
-
-// {[
-//                 { label: 'DAYS', value: days, ref: refs.days },
-//                 { label: 'HOURS', value: hours, ref: refs.hours },
-//                 { label: 'MINUTES', value: minutes, ref: refs.minutes },
-//                 { label: 'SECONDS', value: seconds, ref: refs.seconds },
-//             ].map((item, idx, arr) => (
-//                 <div key={item.label} className="flex items-center gap-2">
-//                     {/* Timer Block */}
-//                     <div
-//                         ref={(el) => (containerRefs.current[idx] = el)}
-//                         className="text-center flex flex-col bg-white/5 rounded-xl px-4 py-2 shadow-lg backdrop-blur-md border border-white/10"
-//                     >
-//                         <span
-//                             ref={item.ref}
-//                             className="text-5xl font-bold text-white drop-shadow-md"
-//                         >
-//                             {item.value}
-//                         </span>
-//                         <span className="text-[10px] tracking-widest text-gray-300 mt-2">
-//                             {item.label}
-//                         </span>
-//                     </div>
-
-//                     {/* Colon (skip after last) */}
-//                     {idx < arr.length - 1 && (
-//                         <span className="text-4xl font-bold text-white drop-shadow-md">
-//                             :
-//                         </span>
-//                     )}
-//                 </div>
-//             ))}

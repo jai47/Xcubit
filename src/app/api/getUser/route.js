@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { auth } from '@/src/auth';
 import { getUserFromDB } from '@/src/serverAction/userAction';
 import { NextResponse } from 'next/server';
 

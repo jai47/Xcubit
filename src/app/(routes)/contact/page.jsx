@@ -11,16 +11,16 @@ const ContactPage = () => {
     return (
         <>
             <Navbar />
-            <div className="w-screen h-screen flex flex-col pt-20 dark:bg-background dark:text-primary">
+            <div className="w-screen h-[103%] flex flex-col pt-28 dark:bg-background dark:text-primary bg-black">
                 <div className="relative bg-center h-[calc(100vh-4rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-8rem)] flex items-center justify-center">
                     <div className="absolute inset-0 "></div>
-                    <h1 className="relative text-3xl mt-6 sm:text-4xl lg:text-5xl font-bold text-center">
+                    <h1 className="relative text-3xl mt-6 sm:text-4xl lg:text-5xl font-bold text-center text-white">
                         Contact Us
                     </h1>
                 </div>
 
-                <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-                    <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8  p-8 rounded-lg shadow-lg">
+                <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-white">
+                    <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-lg shadow-lg">
                         <div className="space-y-6">
                             <h2 className="text-2xl sm:text-3xl font-semibold">
                                 Let&apos;s talk with us
@@ -93,7 +93,7 @@ const ContactPage = () => {
                                         name="name"
                                         onChange={handleChange}
                                         value={formData.name}
-                                        className="w-full p-4 bg-white border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                                     />
                                     <input
                                         type="email"
@@ -101,14 +101,14 @@ const ContactPage = () => {
                                         name="email"
                                         onChange={handleChange}
                                         value={formData.email}
-                                        className="w-full p-4 bg-white border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                                     />
                                     <textarea
                                         placeholder="Your Message"
                                         name="query"
                                         onChange={handleChange}
                                         value={formData.message}
-                                        className="w-full p-4 bg-white border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
                                     ></textarea>
                                     <button
                                         type="submit"

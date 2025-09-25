@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { auth } from '@/src/auth';
 import { userFormAction } from '@/src/serverAction/userAction';
 import { FcGoogle } from 'react-icons/fc';
 import { redirect } from 'next/navigation';
@@ -49,11 +49,7 @@ export default async function SignIn() {
                     <form
                         action={async (formData) => {
                             'use server';
-                            try {
-                                await userFormAction(formData);
-                            } catch (error) {
-                                console.log(error);
-                            }
+                            await userFormAction(formData); // don't catch it here, let it propagate
                         }}
                         className="mt-10 mb-12 w-full flex flex-col justify-center items-center gap-6"
                     >

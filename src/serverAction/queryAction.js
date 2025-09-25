@@ -18,10 +18,19 @@ export async function queryFormAction(formData) {
 export async function getAllQuery() {
     try {
         await connectDB();
-        const query = await queryModels.find();
-        return query;
+        const query = await queryModels.find().lean();
+        if (!query) {
+            return {
+                success: false,
+                message: 'Cannot fetch queries at this moment',
+            };
+        }
+        return { success: true, data: JSON.parse(JSON.stringify(query)) };
     } catch (e) {
-        return e;
+        return {
+            success: false,
+            message: 'Internal server error',
+        };
     }
 }
 

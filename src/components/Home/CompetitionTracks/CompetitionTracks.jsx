@@ -63,7 +63,15 @@ const tracks = [
 
 export default function CompetitionTracks() {
     return (
-        <section className="px-6 text-center bg-neutral-950 pb-20">
+        <section
+            className="px-6 text-center bg-neutral-950 pb-20"
+            style={{
+                backgroundImage: "url('/grid-2.webp')",
+                backgroundPosition: '-81% 205%, 10% 10%',
+                backgroundRepeat: 'no-repeat, no-repeat',
+                backgroundSize: '1300px , 425px',
+            }}
+        >
             <h2 className="text-2xl md:text-5xl mb-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white/70 to-gray-100/50">
                 Competition{' '}
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300">

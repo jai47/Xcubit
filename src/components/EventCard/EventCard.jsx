@@ -8,7 +8,15 @@ import { useGSAP } from '@gsap/react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EventCard = ({ image, date, title, description, price, category }) => {
+const EventCard = ({
+    image,
+    slug,
+    date,
+    title,
+    description,
+    price,
+    category,
+}) => {
     const cardRef = useRef(null);
     const imgRef = useRef(null);
     const titleRef = useRef(null);
@@ -59,7 +67,7 @@ const EventCard = ({ image, date, title, description, price, category }) => {
     return (
         <Link
             ref={cardRef}
-            href={`/events/${title}`}
+            href={`/events/${slug}`}
             className="flex flex-col justify-between  h-[430px] w-full sm:w-[350px] md:w-[300px] lg:w-[350px] overflow-hidden mb-10 cursor-pointer border border-gray-300 rounded-lg p-5"
         >
             <div className="group h-3/5 w-full relative " ref={imgRef}>

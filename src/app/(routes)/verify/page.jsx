@@ -1,4 +1,4 @@
-import { auth } from '@/auth';
+import { auth } from '@/src/auth';
 import Button from '@/src/components/Button';
 import { getUserFromDB } from '@/src/serverAction/userAction';
 import Link from 'next/link';

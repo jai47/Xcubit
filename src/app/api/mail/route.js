@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.hostinger.com',
     port: 465,
     secure: true, // true for port 465, false for other ports
     auth: {
@@ -304,6 +304,159 @@ function template({ type, message }) {
 </html>
 
             `;
+
+        case 'college-registration':
+            return `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Email Verification</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #121212;
+        color: #ccc;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: linear-gradient(135deg, #1f1f1f, #2a2a2a);
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        text-align: center;
+      }
+      .header {
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        color: #ffffff;
+        padding: 20px;
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .content {
+        padding: 20px;
+      }
+      .content h2 {
+        font-size: 20px;
+        color: #4f46e5;
+        margin-bottom: 15px;
+      }
+      .content p {
+        margin: 10px 0;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+      .button {
+        display: inline-block;
+        margin: 10px 5px;
+        padding: 12px 25px;
+        background: linear-gradient(135deg, #4f46e5, #3b82f6);
+        color: #ffffff;
+        text-decoration: none;
+        font-size: 15px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+      }
+      .button:hover {
+        background: linear-gradient(135deg, #3b82f6, #4f46e5);
+      }
+      .onboarding {
+        text-align: left;
+        background: #1f1f1f;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        border: 1px solid #333;
+      }
+      .onboarding h3 {
+        margin-top: 0;
+        color: #4f46e5;
+      }
+      .onboarding ol {
+        padding-left: 20px;
+        margin: 0;
+      }
+      .onboarding li {
+        margin-bottom: 12px;
+        line-height: 1.5;
+        font-size: 14px;
+      }
+      .onboarding a {
+        color: #3b82f6;
+        text-decoration: none;
+      }
+      .onboarding a:hover {
+        text-decoration: underline;
+      }
+      .footer {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #888;
+      }
+      .footer a {
+        color: #3b82f6;
+        text-decoration: none;
+      }
+      .footer a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Email Verification Required</h1>
+      </div>
+      <div class="content">
+        <h2>Hi ${message.name || 'User'},</h2>
+        <p>
+          Your institute is now registered with <a href="https://xcubit.in" style="color: #3b82f6;">Xcubit.in</a>. Kindly signup with this <strong>${
+              message.email || 'your email'
+          }</strong> to continue and host your internal ideathon! Complete your registration by logging in and verifying your email.
+        </p>
+
+        ${
+            message.loginLink
+                ? `<a href="${message.loginLink}" class="button">Login</a>`
+                : ''
+        }
+        ${
+            message.verifyLink
+                ? `<a href="${message.verifyLink}" class="button">Verify My Email</a>`
+                : ''
+        }
+
+        <p>
+          If you did not sign up for this account, please ignore this email. Your email address will not be registered unless verified.
+        </p>
+
+        <!-- Onboarding Instructions -->
+        <div class="onboarding">
+          <h3>Getting Started</h3>
+          <ol>
+            <li><strong>Login:</strong> Visit <a href="https://xcubit.in/login">xcubit.in/login</a> and sign in using your registered email.</li>
+            <li><strong>Verify Email:</strong> Click the verification link sent to your inbox to confirm your email address.</li>
+            <li><strong>Access Dashboard:</strong> After verification, visit <a href="https://xcubit.in/institute">xcubit.in/institute</a> to manage your events and teams.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="footer">
+        <p>Need help? Contact us at <a href="mailto:helpdesk@xcubit.in">helpdesk@xcubit.in</a>.</p>
+        <p>©️ ${new Date().getFullYear()} Xcubit. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>
+`;
         default:
             return `
             <!DOCTYPE html>
@@ -403,7 +556,7 @@ function template({ type, message }) {
 export async function POST(req, res) {
     if (!req) {
         return NextResponse.json(
-            { message: 'Structure is incorrect' },
+            { success: false, message: 'Structure is incorrect' },
             { status: 400 }
         );
     }
@@ -412,7 +565,7 @@ export async function POST(req, res) {
 
     if (!reqBody.email) {
         return NextResponse.json(
-            { message: 'Email is required' },
+            { success: false, message: 'Email is required' },
             { status: 400 }
         );
     }
@@ -437,17 +590,20 @@ export async function POST(req, res) {
         if (error) {
             console.log(error);
             return NextResponse.json(
-                { message: 'Email not sent' },
+                { success: false, message: 'Email not sent' },
                 { status: 500 }
             );
         } else {
             console.log('Email sent: ' + info.response);
             return NextResponse.json(
-                { message: 'Email sent' },
+                { success: true, message: 'Email sent' },
                 { status: 200 }
             );
         }
     });
 
-    return NextResponse.json({ message: 'sent' }, { status: 200 });
+    return NextResponse.json(
+        { success: true, message: 'sent' },
+        { status: 200 }
+    );
 }

@@ -1,34 +1,46 @@
-import React from 'react';
-import { FaReact, FaNodeJs, FaPython, FaJava, FaGithub } from 'react-icons/fa';
-import { SiMongodb, SiTailwindcss, SiNextdotjs } from 'react-icons/si';
+'use client';
 
-const logos = [
-    { id: 'react', icon: FaReact },
-    { id: 'nextjs', icon: SiNextdotjs },
-    { id: 'node', icon: FaNodeJs },
-    { id: 'mongodb', icon: SiMongodb },
-    { id: 'tailwind', icon: SiTailwindcss },
-    { id: 'python', icon: FaPython },
-    { id: 'java', icon: FaJava },
-    { id: 'github', icon: FaGithub },
-];
+import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { sponsorGET } from '@/src/serverAction/sponsorAction'; // adjust path
 
-const LogoCarousel = () => {
+const LogoCarousel = ({ sponsors }) => {
     return (
-        <div className="relative w-full overflow-hidden py-8 mx-auto flex items-center">
+        <div className="relative w-full overflow-hidden mx-auto flex items-center justify-center ">
             {/* Sliding container */}
             <div className="flex w-max animate-logoSlide space-x-16">
-                {[...logos, ...logos, ...logos, ...logos].map((logo, i) => {
-                    const Icon = logo.icon;
-                    return (
+                {[...sponsors, ...sponsors, ...sponsors, ...sponsors].map(
+                    (sponsor, i) => (
                         <div
-                            key={`${logo.id}-${i}`}
-                            className="text-white drop-shadow-xl hover:scale-110 transition-transform duration-300"
+                            key={`${sponsor._id}-${i}`}
+                            className="drop-shadow-xl hover:scale-110 transition-transform duration-300"
                         >
-                            <Icon size={50} />
+                            {sponsor.social?.link ? (
+                                <a
+                                    href={sponsor.social.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Image
+                                        src={sponsor.logo || '/fallback.png'}
+                                        alt={sponsor.name}
+                                        width={100}
+                                        height={100}
+                                        className="object-contain"
+                                    />
+                                </a>
+                            ) : (
+                                <Image
+                                    src={sponsor.logo || '/fallback.png'}
+                                    alt={sponsor.name}
+                                    width={100}
+                                    height={100}
+                                    className="object-contain"
+                                />
+                            )}
                         </div>
-                    );
-                })}
+                    )
+                )}
             </div>
         </div>
     );

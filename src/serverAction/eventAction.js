@@ -51,9 +51,14 @@ export async function getEvents() {
     try {
         // Retrieve all events using the Event model
         await connectDB();
-        const events = await eventModels.find();
-        // Return the list of events
-        return events;
+        const events = await eventModels.find().lean();
+        if (!events) {
+            return {
+                success: false,
+                message: 'Cannot fetch events at this moment',
+            };
+        }
+        return { success: true, data: JSON.parse(JSON.stringify(events)) };
     } catch (error) {
         // If an error occurs during event retrieval, log the error and throw it
         console.log(error);
@@ -76,13 +81,30 @@ export async function getEventById(id) {
 }
 
 // Function to get a single event by name
-export async function getEventByName(name) {
+// export async function getEventByName(name) {
+//     await connectDB();
+//     try {
+//         if (typeof name !== 'string') {
+//             return false;
+//         }
+//         const event = await eventModels.findOne({ name: name });
+//         if (!event) {
+//             return false;
+//         }
+//         return event;
+//     } catch (error) {
+//         console.error('Error fetching event by name:', error.message);
+//         throw error; // Re-throw error for handling in getServerSideProps
+//     }
+// }
+
+export async function getEventBySlug(slug) {
     await connectDB();
     try {
-        if (typeof name !== 'string') {
+        if (typeof slug !== 'string') {
             return false;
         }
-        const event = await eventModels.findOne({ name: name });
+        const event = await eventModels.findOne({ slug: slug });
         if (!event) {
             return false;
         }

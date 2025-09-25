@@ -4,16 +4,23 @@ import React from 'react';
 import Navbar from '@/src/components/layout/NavbarHome';
 import Footer from '@/src/components/layout/Footer';
 import EventCard from '@/src/components/EventCard/EventCard'; // Import the EventCard component
-import { auth } from '@/auth';
+import { auth } from '@/src/auth';
 import Link from 'next/link';
+import Ticket from '@/src/components/EventCard/Tickets';
+import QRCode from 'qrcode';
 
 const Events = async () => {
     const session = await auth();
     const user = session?.user;
-    const data = await getEvents();
+    const { data } = await getEvents();
     const currentDate = new Date();
     const upcomingEvents = data.filter(
         (event) => new Date(event.start) > currentDate
+    );
+    const qrDataURL = await QRCode.toDataURL(
+        JSON.stringify({
+            name: 'Jai',
+        })
     );
     const pastEvents = data.filter(
         (event) => new Date(event.start) <= currentDate
@@ -23,7 +30,7 @@ const Events = async () => {
         <>
             <Navbar user={user} />
 
-            <div className="min-h-screen py-16 px-6 sm:px-10 lg:px-20 mt-10 dark:bg-background dark:text-primary">
+            <div className="bg-neutral-950 text-white min-h-screen py-16 px-6 sm:px-10 lg:px-20 pt-36 dark:text-white">
                 {/* Heading Section */}
                 <div className="text-center mb-12">
                     <p className="text-lg sm:text-xl">
@@ -35,7 +42,7 @@ const Events = async () => {
                 {/* Upcoming Events */}
                 {upcomingEvents.length > 0 && (
                     <section className="mb-24">
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-8">
                             Upcoming Events
                         </h2>
                         <div className="grid grid-cols-1 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
@@ -52,12 +59,13 @@ const Events = async () => {
                                         description={event.shortDescription}
                                         price={event.price}
                                         category={event.category}
+                                        slug={event?.slug}
                                     />
                                     <div className="p-4">
                                         {/* Buttons Side by Side */}
                                         <div className="flex justify-between items-center  space-x-4">
                                             <Link
-                                                href={`/events/${event.name}`}
+                                                href={`/events/${event.slug}`}
                                             >
                                                 <Button text="Details" />
                                             </Link>
@@ -65,7 +73,7 @@ const Events = async () => {
                                                 href={{
                                                     pathname: '/register',
                                                     query: {
-                                                        event: `${event.name}`,
+                                                        event: `${event.slug}`,
                                                     },
                                                 }}
                                             >
@@ -81,7 +89,7 @@ const Events = async () => {
                 {/* Past Events */}
                 {pastEvents.length > 0 && (
                     <section>
-                        <h2 className="text-2xl sm:text-3xl font-semibold text-primary mb-8">
+                        <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-8">
                             Past Events
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
@@ -105,7 +113,7 @@ const Events = async () => {
 
                 {/* No Events Available */}
                 {upcomingEvents.length === 0 && pastEvents.length === 0 && (
-                    <div className="text-center text-primary">
+                    <div className="text-center ">
                         <p>
                             No events available at the moment. Please check back
                             later!
@@ -113,6 +121,12 @@ const Events = async () => {
                     </div>
                 )}
             </div>
+
+            {/* <Ticket
+                name="Adam Coleman"
+                image="/images/profile.jpg"
+                qrCode={qrDataURL}
+            /> */}
             <Footer />
         </>
     );

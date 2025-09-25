@@ -2,7 +2,9 @@ import Footer from '@/src/components/layout/Footer';
 import Navbar from '@/src/components/layout/NavbarHome';
 import UpcomingEvents from '../components/UpcomingEvents/UpcomingEvents';
 import Head from 'next/head';
-import { TimelineDemo } from '../components/Timeline/TimelineDemo';
+const TimelineDemo = dynamic(() =>
+    import('../components/Timeline/TimelineDemo')
+);
 const HomeAbout = dynamic(() => import('../components/Home/About/HomeAbout'));
 const SponsorSection = dynamic(() =>
     import('../components/Home/Sponsor/SponsorSection')
@@ -13,8 +15,13 @@ const HeroSection = dynamic(() =>
 const CompetitionTracks = dynamic(() =>
     import('../components/Home/CompetitionTracks/CompetitionTracks')
 );
-const Judges = dynamic(() => import('../components/Home/Judges/Judges'));
+const GuestsCarousel = dynamic(() =>
+    import('../components/Home/GuestsCarousel/GuestsCarousel')
+);
 import dynamic from 'next/dynamic';
+import { sponsorGET } from '../serverAction/sponsorAction';
+import { speakerGET } from '../serverAction/speakerAction';
+import { judgeGET } from '../serverAction/judgeAction';
 
 export default async function Home() {
     return (
@@ -59,12 +66,15 @@ export default async function Home() {
             <div>
                 <Navbar />
                 <main>
-                    <HeroSection />
+                    <HeroSection sponsorGET={sponsorGET} />
                     {/* <UpcomingEvents /> */}
                     <HomeAbout />
                     <CompetitionTracks />
                     <TimelineDemo />
-                    <Judges />
+                    <GuestsCarousel
+                        judgeGET={judgeGET}
+                        speakerGET={speakerGET}
+                    />
                     <SponsorSection />
                 </main>
                 <Footer />

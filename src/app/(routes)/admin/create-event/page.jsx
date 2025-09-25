@@ -16,6 +16,7 @@ const Page = () => {
     const ref = useRef(null);
     const [formData, setFormData] = useState({
         name: '',
+        slug: '',
         category: '',
         shortDescription: '',
         description: '',
@@ -33,6 +34,12 @@ const Page = () => {
         prizePool: '',
         sponsors: [],
         featureGuests: [],
+        postRegistration: {
+            text: false,
+            video: false,
+            document: false,
+            repo: false,
+        },
     });
 
     const [errors, setErrors] = useState({
@@ -70,7 +77,7 @@ const Page = () => {
                 setAllEvents(data);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
-                setError(error.message);
+                setErrors(error.message);
             }
         };
 
@@ -234,9 +241,34 @@ const Page = () => {
             response = await response.json();
             if (response.success) {
                 alert('Event created successfully');
-                setFormData({});
+                setFormData({
+                    name: '',
+                    slug: '',
+                    category: '',
+                    shortDescription: '',
+                    description: '',
+                    start: '',
+                    end: '',
+                    time: '',
+                    image: '',
+                    fileId: '',
+                    thumbnail: '',
+                    location: '',
+                    locationURL: '',
+                    eventType: '',
+                    price: '',
+                    maxParticipation: '',
+                    prizePool: '',
+                    sponsors: [],
+                    featureGuests: [],
+                    postRegistration: {
+                        text: false,
+                        video: false,
+                        document: false,
+                        repo: false,
+                    },
+                });
                 setShowPreview(false);
-                ref.current.reset();
                 redirect('/admin/');
             }
         } catch (error) {
@@ -247,7 +279,7 @@ const Page = () => {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gray-100 flex flex-col items-center py-10 mt-10">
+            <div className="min-h-screen bg-gray-100 flex flex-col items-center py-36">
                 {/* Page Title */}
                 <div className="w-4/5 mb-6">
                     <h1 className="text-4xl font-extrabold text-gray-800">
@@ -275,7 +307,16 @@ const Page = () => {
                                 id="name"
                                 name="name"
                                 value={formData.name}
-                                onChange={handleChange}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        name: e.target.value,
+                                        slug: e.target.value
+                                            .toLowerCase()
+                                            .replace(/\s+/g, '-') // replace all spaces
+                                            .replace(/[^a-z0-9-]/g, ''),
+                                    })
+                                }
                                 placeholder="Title"
                                 className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
                             />
@@ -283,7 +324,6 @@ const Page = () => {
                                 {errors.name}
                             </p>
                         </div>
-
                         {/* Category */}
                         <div>
                             <label
@@ -306,6 +346,27 @@ const Page = () => {
                             </select>
                             <p className="text-red-500 text-sm">
                                 {errors.category}
+                            </p>
+                        </div>
+                        {/* Slug */}
+                        <div className="col-span-2">
+                            <label
+                                htmlFor="name"
+                                className="block text-lg font-medium text-gray-700"
+                            >
+                                Event Slug
+                            </label>
+                            <input
+                                type="text"
+                                id="slug"
+                                name="slug"
+                                value={formData.slug}
+                                placeholder="Slug"
+                                className="mt-2 w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-background"
+                                readOnly
+                            />
+                            <p className="text-red-500 text-sm">
+                                {errors.name}
                             </p>
                         </div>
                     </div>
@@ -919,7 +980,46 @@ const Page = () => {
                         <ImageUpload getImageData={getImageData} />
                         <p className="text-red-500 text-sm">{errors.image}</p>
                     </div>
-
+                    {/* Post Registration Requirements */}
+                    <div>
+                        <label className="block text-lg font-medium text-gray-700 mb-2">
+                            Post Registration Requirements
+                        </label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            {[
+                                { key: 'text', label: 'Text Submission' },
+                                { key: 'video', label: 'Video Submission' },
+                                { key: 'document', label: 'Document Upload' },
+                                { key: 'repo', label: 'Repository Link' },
+                            ].map((item) => (
+                                <label
+                                    key={item.key}
+                                    className="flex items-center space-x-2 p-2 border rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={
+                                            formData.postRegistration[item.key]
+                                        }
+                                        onChange={(e) =>
+                                            setFormData((prev) => ({
+                                                ...prev,
+                                                postRegistration: {
+                                                    ...prev.postRegistration,
+                                                    [item.key]:
+                                                        e.target.checked,
+                                                },
+                                            }))
+                                        }
+                                        className="w-4 h-4 text-main border-gray-300 rounded focus:ring-main"
+                                    />
+                                    <span className="text-gray-700">
+                                        {item.label}
+                                    </span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
                     {/* Actions */}
                     <div className="flex justify-between">
                         <button

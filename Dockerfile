@@ -40,3 +40,8 @@ CMD ["npm", "start"]
 # helpdesk
 # about
 # remove ticket
+
+#  docker build --platform linux/amd64 -t xcubit:2.6 .
+#  docker tag xcubit:2.6 jai4/xcubit:2.6
+# docker push jai4/xcubit:2.6
+# docker run -d -p 3000:3000 --env-file .env jai4/xcubit:2.5
