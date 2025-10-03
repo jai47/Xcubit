@@ -12,10 +12,11 @@ const CollegeSchema = new mongoose.Schema(
         state: { type: String },
         phone: { type: String },
         website: { type: String },
-        events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'event' }], // Linked events
+        national: [{ type: mongoose.Schema.Types.ObjectId, ref: 'national' }], // <-- track nationals, not events
         verified: { type: Boolean, default: false },
         verifyToken: { type: String, default: generateVerificationTokens },
         contract: { type: String, default: '' },
+        postEventImages: [{ type: String }],
     },
     { timestamps: true }
 );

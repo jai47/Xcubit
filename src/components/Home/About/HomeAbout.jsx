@@ -1,7 +1,10 @@
+'use client';
+import { useNationalEvent } from '@/src/context/National/NationalEventContext';
 import Image from 'next/image';
 import React from 'react';
 
 const HomeAbout = () => {
+    const event = useNationalEvent();
     return (
         <div className="w-full bg-neutral-950 font-sans pb-20 relative">
             {/* Background gradient */}
@@ -12,10 +15,14 @@ const HomeAbout = () => {
                 {/* Left Text */}
                 <div className="flex-1">
                     <h2 className="text-2xl md:text-5xl mb-4 font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-white/70 to-gray-100/50">
-                        About Innovation Connect - 2026
+                        About{' '}
+                        {event?.name?.toString() +
+                            ' - ' +
+                            event?.session?.toString() || 'Innovation Connect'}
                     </h2>
                     <p className="text-neutral-400 text-sm md:text-base lg:text-lg max-w-md">
-                        Xcubiton 2026 is the premier tech and industry ideathon
+                        {event?.description ||
+                            `Innnovation Connect is the premier tech and industry ideathon
                         bringing together the brightest minds from around the
                         globe. Over 36 hours, participants will tackle
                         real-world challenges using cutting-edge technologies
@@ -23,7 +30,7 @@ const HomeAbout = () => {
                         in prizes, mentorship from industry experts, and
                         networking opportunities with leading tech companies,
                         Xcubiton is your gateway to innovation and career
-                        advancement.
+                        advancement.`}
                     </p>
 
                     {/* Stats */}
@@ -54,7 +61,7 @@ const HomeAbout = () => {
                 {/* Right Image */}
                 <div className="flex-1 flex justify-center md:justify-end">
                     <Image
-                        src="/promo1.jpg"
+                        src={event?.banner || '/promo1.jpg'}
                         alt="template"
                         width={650}
                         height={800}

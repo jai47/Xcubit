@@ -8,7 +8,7 @@ import { BsCalendarEventFill } from 'react-icons/bs';
 import { AiFillNotification } from 'react-icons/ai';
 import { BiLogOutCircle } from 'react-icons/bi';
 import { MdSchool } from 'react-icons/md';
-import { SiGithubsponsors } from 'react-icons/si';
+import { SiGithubsponsors, SiReverbnation } from 'react-icons/si';
 import { RiSpeakAiLine } from 'react-icons/ri';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -24,6 +24,10 @@ const Sidebar = ({ query }) => {
                     {
                         section: 'Dashboard',
                         icon: <IoPieChart size={20} />,
+                    },
+                    {
+                        section: 'Nationals',
+                        icon: <SiReverbnation size={20} />,
                     },
                     {
                         section: 'Sponsors',

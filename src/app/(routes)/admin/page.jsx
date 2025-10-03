@@ -5,14 +5,13 @@ import { redirect } from 'next/navigation';
 import Sidebar from '@/src/components/Admin/sidebar';
 import AdminRenderSection from '@/src/components/Admin/adminRenderSection';
 import AdminNavbar from '@/src/components/Admin/adminNavbar';
-import { getEvents } from '@/src/serverAction/eventAction';
+import { eventGET } from '@/src/serverAction/eventAction';
 import { getAllUsers, getUserFromDB } from '@/src/serverAction/userAction';
 import { getAllQuery } from '@/src/serverAction/queryAction';
 
 const AdminDashboard = async () => {
     const session = await auth();
 
-    console.log(session);
     if (!session?.user?.email) {
         return redirect('login');
     }
@@ -25,7 +24,7 @@ const AdminDashboard = async () => {
     let events = {};
     let query = {};
 
-    const eventsRes = await getEvents();
+    const eventsRes = await eventGET();
     events = eventsRes.data;
 
     const usersRes = await getAllUsers();

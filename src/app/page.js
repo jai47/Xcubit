@@ -1,10 +1,6 @@
 import Footer from '@/src/components/layout/Footer';
 import Navbar from '@/src/components/layout/NavbarHome';
-import UpcomingEvents from '../components/UpcomingEvents/UpcomingEvents';
 import Head from 'next/head';
-const TimelineDemo = dynamic(() =>
-    import('../components/Timeline/TimelineDemo')
-);
 const HomeAbout = dynamic(() => import('../components/Home/About/HomeAbout'));
 const SponsorSection = dynamic(() =>
     import('../components/Home/Sponsor/SponsorSection')
@@ -22,6 +18,8 @@ import dynamic from 'next/dynamic';
 import { sponsorGET } from '../serverAction/sponsorAction';
 import { speakerGET } from '../serverAction/speakerAction';
 import { judgeGET } from '../serverAction/judgeAction';
+import { FloatingAiAssistant } from '../components/Home/Chat/FloatingAiAssistant';
+import { Timeline } from '../components/Home/Timeline/Timeline';
 
 export default async function Home() {
     return (
@@ -63,22 +61,15 @@ export default async function Home() {
                 />
                 <link rel="canonical" href="https://xcubit.in/about" />
             </Head>
-            <div>
-                <Navbar />
-                <main>
-                    <HeroSection sponsorGET={sponsorGET} />
-                    {/* <UpcomingEvents /> */}
-                    <HomeAbout />
-                    <CompetitionTracks />
-                    <TimelineDemo />
-                    <GuestsCarousel
-                        judgeGET={judgeGET}
-                        speakerGET={speakerGET}
-                    />
-                    <SponsorSection />
-                </main>
-                <Footer />
-            </div>
+            <Navbar />
+            <HeroSection sponsorGET={sponsorGET} />
+            <HomeAbout />
+            <CompetitionTracks />
+            <Timeline />
+            <GuestsCarousel judgeGET={judgeGET} speakerGET={speakerGET} />
+            <SponsorSection />
+            <Footer />
+            <FloatingAiAssistant />
         </>
     );
 }

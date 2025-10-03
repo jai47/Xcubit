@@ -1,5 +1,4 @@
 import React from 'react';
-import MultiSection from '@/src/components/Details/MultiSection';
 import FeaturedGuestsSection from '@/src/components/Details/FeaturedGuestsSection';
 import HeroTimeRemaining from '@/src/components/Details/HeroTimeRamaining';
 import Link from 'next/link';
@@ -190,10 +189,6 @@ const Preview = ({ data }) => {
                     </div>
                 </div>
             </div>
-            <MultiSection
-                details={[data.description]}
-                sponsors={data.sponsors}
-            />
             {/* <FeaturedGuestsSection featuredGuests={data.featureGuests} />
              */}
             {data.featureGuests && data.featureGuests.length > 0 && (

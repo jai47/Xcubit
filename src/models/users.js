@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { generateVerificationTokens } from '../utils/generateVerificationTokens';
 
 const userSchema = new Schema({
     name: { type: String },
@@ -6,10 +7,11 @@ const userSchema = new Schema({
     password: { type: String },
     role: { type: String },
     verified: { type: Boolean, default: false },
-    events: { type: Array },
+    events: [{ type: mongoose.Schema.Types.ObjectId, ref: 'event' }], // better than Array
+    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }], // user can join multiple teams
     forgotPasswordToken: { type: String },
     forgotPasswordTokenExpiry: { type: Date },
-    verifyToken: { type: String },
+    verifyToken: { type: String, default: generateVerificationTokens },
     verifyTokenExpiry: { type: Date },
     timestamp: { type: Date, default: Date.now },
     phoneNumber: { type: String },
@@ -32,5 +34,6 @@ export const userModels =
 //         document: 'data:64/dadas',
 //         video: 'youtube.com/watch=sadas',
 //         repo: 'github.com',
+//         teamCode: {team._id}
 //     },
 // ];

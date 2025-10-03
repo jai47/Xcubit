@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import React, { useState } from 'react';
 import { MdClose, MdDelete, MdEdit, MdSave } from 'react-icons/md';
 
 const InstituteAdminModal = ({ data, onClose, onDelete, onUpdate }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({ ...data });
+    const [isPdfLoading, setIsPdfLoading] = useState(true);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -90,20 +92,35 @@ const InstituteAdminModal = ({ data, onClose, onDelete, onUpdate }) => {
                     </div>
 
                     {/* Right side: PDF Viewer */}
-                    <div className="w-1/2 flex flex-col">
+                    <div className="w-1/2 flex flex-col relative">
                         <h3 className="text-lg font-semibold text-white mb-2">
                             Contract Document
                         </h3>
                         {data?.contract ? (
-                            <iframe
-                                src={data.contract}
-                                className="flex-1 w-full border border-neutral-700 rounded-lg"
-                            />
+                            <div className="relative flex-1 w-full border border-neutral-700 rounded-lg overflow-hidden">
+                                {isPdfLoading && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-neutral-900">
+                                        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                                    </div>
+                                )}
+                                <iframe
+                                    src={data.contract}
+                                    className="flex-1 w-full h-full"
+                                    onLoad={() => setIsPdfLoading(false)}
+                                />
+                            </div>
                         ) : (
                             <div className="flex-1 flex items-center justify-center text-gray-400 border border-dashed border-neutral-700 rounded-lg">
                                 No contract uploaded
                             </div>
                         )}
+                        <Link
+                            href={data?.contract || '#'}
+                            target="_blank"
+                            className="text-xs text-blue-500 mt-2"
+                        >
+                            View in other tab
+                        </Link>
                     </div>
                 </div>
 

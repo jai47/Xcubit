@@ -4,7 +4,12 @@ import React, { useState } from 'react';
 
 import { MdSchool } from 'react-icons/md';
 import { BiLogOutCircle } from 'react-icons/bi';
-import { FaCalendarPlus, FaUsers, FaRegChartBar } from 'react-icons/fa';
+import {
+    FaCalendarPlus,
+    FaUsers,
+    FaRegChartBar,
+    FaImages,
+} from 'react-icons/fa';
 import Link from 'next/link';
 import { signOut } from 'next-auth/react';
 
@@ -28,6 +33,11 @@ const SideNavbar = () => {
             name: 'Submit Teams',
             icon: <FaUsers size={20} />,
             href: '/institute?section=Submit Teams',
+        },
+        {
+            name: 'Upload Images',
+            icon: <FaImages size={20} />,
+            href: '/institute?section=Upload Images',
         },
         {
             name: 'Report',

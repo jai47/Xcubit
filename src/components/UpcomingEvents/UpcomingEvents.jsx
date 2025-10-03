@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import EventCard from '../EventCard/EventCard';
-import { getEvents } from '@/src/serverAction/eventAction';
+import { eventGET } from '@/src/serverAction/eventAction';
 import Button from '../Button';
 import FiltersSection from '../FiltersSection/FiltersSection';
 
 const UpcomingEvents = async () => {
-    const data = await getEvents();
+    const data = await eventGET();
     const currentDate = new Date();
-    let event = data.filter((event) => new Date(event.start) > currentDate);
+    let event = data;
 
     return (
         data.length > 0 && (

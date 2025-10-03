@@ -6,7 +6,7 @@ import {
     saltAndHashPassword,
 } from '@/src/utils/saltAndHashPassword';
 import { redirect } from 'next/navigation';
-import { updateRegistered } from './eventAction';
+import { sendEmail } from '../utils/sendEmail';
 
 export async function userFormAction(formData) {
     await connectDB();
@@ -31,32 +31,23 @@ export async function userFormAction(formData) {
         verified: false,
         forgotPasswordToken: 'first',
         forgotPasswordTokenExpiry: Date.now(),
-        verifyToken: encodeURIComponent(
-            await saltAndHashPassword(process.env.VERIFY_STRING + data.password)
-        ),
         verifyTokenExpiry: Date.now() + 24 * 60 * 60 * 1000,
     };
     try {
         const user = await userModels.create(data);
         await user.save();
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/mail`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
+
+        const response = await sendEmail({
+            email: user.email,
+            subject: `Welcome to the community, ${user.name}`,
+            message: {
+                name: user.name,
+                verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/user/${user.verifyToken}`,
+                contactEmail: 'support@xcubit.in',
             },
-            body: JSON.stringify({
-                email: user.email,
-                subject: `Welcome to the community, ${user.name}`,
-                message: {
-                    name: user.name,
-                    verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/user${user.verifyToken}`,
-                    contactEmail: 'support@xcubit.in',
-                },
-                type: 'verify',
-            }),
+            type: 'verify',
         });
         redirect('/login');
-        return;
     } catch (error) {
         console.log(error);
         throw error;
@@ -116,7 +107,7 @@ export async function getUserFromDB(email) {
         if (!user) {
             return null;
         } else {
-            return user;
+            return JSON.parse(JSON.stringify(user));
         }
     } catch (error) {
         console.log(error);
@@ -130,50 +121,50 @@ export async function updateVerifyUser(token) {
         await connectDB(); // Ensure DB is connected
         const user = await userModels.findOne({ verifyToken: token });
 
-        if (user) {
-            user.verifyTokenExpiry > Date.now()
-                ? (user.verified = true)
-                : (user.verified = false);
-
-            await user.save();
-        } else {
-            throw new Error('User not found');
+        if (!user) {
+            return { success: false, message: 'Invalid verification token' };
         }
 
-        return user; // Return the updated user document
+        if (user?.verifyTokenExpiry > Date.now()) {
+            user.verified = true;
+            await user.save();
+            return { success: true, message: 'Verification Successful' };
+        } else {
+            return { success: false, message: 'Verification link expired' };
+        }
     } catch (error) {
-        console.error('Error updating user:', error);
-        throw error;
+        return {
+            success: false,
+            message:
+                'Internal Server error, Raise your councern with the support bot',
+        };
     }
 }
 
 export async function updateForgotPasswordToken(email) {
     try {
         await connectDB();
-        const user = await getUserFromDB(email);
+        const user = await userModels.findOne({ email: email });
         if (user) {
-            if (user.forgotPasswordTokenExpiry >= Date.now()) {
+            if (
+                user.forgotPasswordTokenExpiry &&
+                user.forgotPasswordTokenExpiry >= Date.now()
+            ) {
                 return {
                     msg: `Forgot password token is still active. Please try again after ${new Date(
                         user.forgotPasswordTokenExpiry
-                    ).toDateString('hi-IN')} when it expires.`,
+                    ).toLocaleString('hi-IN')} when it expires.`,
                     sucess: false,
                 };
             }
-            user.forgotPasswordToken = encodeURIComponent(
-                await saltAndHashPassword(
-                    process.env.VERIFY_STRING + Math.random().toString()
-                )
+            user.forgotPasswordToken = await saltAndHashPassword(
+                process.env.VERIFY_STRING + Math.random().toString()
             );
+
             user.forgotPasswordTokenExpiry = Date.now() + 24 * 60 * 60 * 1000;
             await user.save();
-        }
-        await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/mail`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+
+            await sendEmail({
                 email: user.email,
                 subject: `Reset your password`,
                 message: {
@@ -182,8 +173,14 @@ export async function updateForgotPasswordToken(email) {
                     contactEmail: user.email,
                 },
                 type: 'reset',
-            }),
-        });
+            });
+        } else {
+            return {
+                success: false,
+                message: 'User not found',
+            };
+        }
+
         return {
             msg: 'A password-changing link has been sent to your registered email. Please check your inbox and follow the instructions.',
             sucess: true,
@@ -234,10 +231,6 @@ export async function userEventRegistration(
             user.linkedInOrGithub = userDetails.linkedInOrGithub;
             await user.save();
         }
-
-        // if(registrationDetails.events.name)
-
-        await updateRegistered(registrationDetails.events.name);
 
         // Return the updated user
         return true;

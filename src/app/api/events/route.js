@@ -1,4 +1,4 @@
-import { getEventBySlug, getEvents } from '@/src/serverAction/eventAction';
+import { eventGET, getEventBySlug } from '@/src/serverAction/eventAction';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -29,7 +29,7 @@ export async function POST(req) {
 
 export async function GET() {
     try {
-        const events = await getEvents();
+        const events = await eventGET();
         return NextResponse.json({
             events: JSON.parse(JSON.stringify(events)),
         });

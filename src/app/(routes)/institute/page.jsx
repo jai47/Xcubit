@@ -20,18 +20,14 @@ const InstitutePage = async () => {
     }
 
     // Fetch institute data
-    let college;
-    try {
-        const { success, data } = await fetchInstituteByAdminEmail(
-            session.user.email
-        );
-        if (!success) {
-            console.error('Failed to fetch college data');
-            return redirect('/');
-        }
-        college = JSON.parse(JSON.stringify(data));
-    } catch (error) {
-        console.error('Error fetching college data:', error);
+    const { success, data } = await fetchInstituteByAdminEmail(
+        session.user.email
+    );
+    if (!success) {
+        return redirect('/'); // immediately exit
+    }
+    const college = JSON.parse(JSON.stringify(data));
+    if (!college?.verified) {
         return redirect('/');
     }
 

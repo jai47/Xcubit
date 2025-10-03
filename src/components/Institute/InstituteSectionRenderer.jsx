@@ -3,6 +3,7 @@ import { useSearchParams } from 'next/navigation';
 import React from 'react';
 
 import CollegeInfo from '@/src/components/Institute/CollegeInfo/CollegeInfo';
+import CollegeEvent from './CollegeEvent/CollegeEvent';
 
 const InstituteSectionRenderer = ({ college }) => {
     const searchParams = useSearchParams();
@@ -13,13 +14,7 @@ const InstituteSectionRenderer = ({ college }) => {
             case 'College Info':
                 return <CollegeInfo college={college} />;
             case 'My Event':
-                return (
-                    <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md">
-                        <p className="text-gray-600 dark:text-gray-300">
-                            Create Event form goes here.
-                        </p>
-                    </div>
-                );
+                return <CollegeEvent college={college} />;
             case 'Submit Teams':
                 return (
                     <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md">

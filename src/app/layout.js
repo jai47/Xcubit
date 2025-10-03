@@ -2,8 +2,9 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { auth } from '@/src/auth';
-import { FloatingAiAssistant } from '../components/Home/Chat/FloatingAiAssistant';
 import Script from 'next/script';
+import { NationalEventProvider } from '../context/National/NationalEventContext';
+import { nationalEventAdminGETLATEST } from '../serverAction/nationalAction';
 
 export const metadata = {
     title: 'Xcubit: Revolutionizing Ticketing and Event Management',
@@ -13,7 +14,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }) {
     const session = await auth();
-
+    const { data: latestEvent } = await nationalEventAdminGETLATEST();
     return (
         <html lang="en">
             <head>
@@ -39,8 +40,11 @@ export default async function RootLayout({ children }) {
                     ></iframe>
                 </noscript>
 
-                <FloatingAiAssistant />
-                <SessionProvider session={session}>{children}</SessionProvider>
+                <SessionProvider session={session}>
+                    <NationalEventProvider initialEvent={latestEvent}>
+                        {children}
+                    </NationalEventProvider>
+                </SessionProvider>
             </body>
         </html>
     );

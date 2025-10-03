@@ -1,29 +1,22 @@
 import Button from '@/src/components/Button';
-import { getEvents } from '@/src/serverAction/eventAction';
+import { eventGET } from '@/src/serverAction/eventAction';
 import React from 'react';
 import Navbar from '@/src/components/layout/NavbarHome';
 import Footer from '@/src/components/layout/Footer';
 import EventCard from '@/src/components/EventCard/EventCard'; // Import the EventCard component
 import { auth } from '@/src/auth';
 import Link from 'next/link';
-import Ticket from '@/src/components/EventCard/Tickets';
-import QRCode from 'qrcode';
 
 const Events = async () => {
     const session = await auth();
     const user = session?.user;
-    const { data } = await getEvents();
+    const { data } = await eventGET();
     const currentDate = new Date();
     const upcomingEvents = data.filter(
-        (event) => new Date(event.start) > currentDate
-    );
-    const qrDataURL = await QRCode.toDataURL(
-        JSON.stringify({
-            name: 'Jai',
-        })
+        (event) => new Date(event.dateTime) > currentDate
     );
     const pastEvents = data.filter(
-        (event) => new Date(event.start) <= currentDate
+        (event) => new Date(event.dateTime) <= currentDate
     );
 
     return (
@@ -53,7 +46,7 @@ const Events = async () => {
                                 >
                                     <EventCard
                                         key={index}
-                                        image={event.thumbnail}
+                                        image={event.image}
                                         title={event.name}
                                         date={event.start}
                                         description={event.shortDescription}

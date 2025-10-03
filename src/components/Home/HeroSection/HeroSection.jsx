@@ -8,6 +8,7 @@ import Link from 'next/link';
 import HeroTimeRemaining from '../../Details/HeroTimeRamaining';
 import VideoPlayer from '../Videoplayer/VideoPlayer';
 import LogoCarousel from './LogoCarousel';
+import { useNationalEvent } from '@/src/context/National/NationalEventContext';
 
 const HeroSection = ({ sponsorGET }) => {
     const socialIconsRef = useRef(null);
@@ -17,6 +18,8 @@ const HeroSection = ({ sponsorGET }) => {
     const [showAurora, setShowAurora] = useState(true);
     const [sponsors, setSponsors] = useState([]);
 
+    //fetch national event using context provider
+    const event = useNationalEvent();
     // Read cookie and set animation
     useEffect(() => {
         const cookies = document.cookie.split(';').map((c) => c.trim());
@@ -159,7 +162,7 @@ const HeroSection = ({ sponsorGET }) => {
                 {/* Left Content */}
                 <div className="flex flex-col items-center lg:items-start max-w-2xl">
                     <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-6xl font-sans font-medium tracking-wide capitalize">
-                        Innovation Connect
+                        {event?.name || 'Innovation Connect'}
                     </h1>
 
                     <h2 className="text-xl sm:text-3xl md:text-4xl lg:text-7xl font-sans font-medium tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-300 via-white/90 to-rose-300 mt-2 sm:mt-4">
@@ -167,14 +170,13 @@ const HeroSection = ({ sponsorGET }) => {
                     </h2>
 
                     <HeroTimeRemaining
-                        data={new Date('2026-04-03T09:30:00')}
+                        data={event?.date}
                         className="text-sm sm:text-lg md:text-2xl lg:text-5xl font-mono mt-2 sm:mt-4"
                     />
 
                     <p className="font-extralight text-sm sm:text-md max-w-lg sm:max-w-xl mt-2 sm:mt-4 px-2">
-                        Xcubiton-2026 is a premier national-level ideathon that
-                        brings together the brightest minds, boldest thinkers,
-                        and most passionate innovators from across India.
+                        {event?.shortDescription ||
+                            'A premier national-level ideathon that brings together the brightest minds, boldest thinkers, and most passionate innovators from across India.'}
                     </p>
 
                     {/* Explore Events Button */}
@@ -196,7 +198,7 @@ const HeroSection = ({ sponsorGET }) => {
                 {/* Right Content (Video) */}
                 <div className="flex-shrink-0 w-full max-w-full sm:max-w-xl mt-4 lg:mt-0">
                     <VideoPlayer
-                        thumbnailUrl="/promo2.png"
+                        thumbnailUrl={event?.banner || '/promo2.png'}
                         videoUrl="/Promovideo.mp4"
                         title=""
                         description=""

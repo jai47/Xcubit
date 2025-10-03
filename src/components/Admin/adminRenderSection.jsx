@@ -31,6 +31,12 @@ import {
     problemStatementGET,
     problemStatementPOST,
 } from '@/src/serverAction/problemStatementAction';
+import NationalEventSection from './NationalEvent/NationalEventSection';
+import {
+    nationalEventAdminGET,
+    nationalEventAdminPOST,
+    nationalEventAdminPUT,
+} from '@/src/serverAction/nationalAction';
 
 const AdminRenderSection = ({ events, users, query }) => {
     const searchParams = useSearchParams();
@@ -43,6 +49,15 @@ const AdminRenderSection = ({ events, users, query }) => {
                         events={events}
                         users={users}
                         queries={query}
+                    />
+                );
+
+            case 'Nationals':
+                return (
+                    <NationalEventSection
+                        nationalEventAdminGET={nationalEventAdminGET}
+                        nationalEventAdminPOST={nationalEventAdminPOST}
+                        nationalEventAdminPUT={nationalEventAdminPUT}
                     />
                 );
 
