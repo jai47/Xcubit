@@ -11,21 +11,25 @@ const DashboardSideBar = ({ profile, session }) => {
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Profile';
 
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
+    const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+
+    const navItems = [
+        'Profile',
+        'My Tickets',
+        'My Events',
+        'Bookmarks',
+        'Settings',
+    ];
+
     return (
         <>
-            {/* Sidebar Toggle Button (Hamburger) */}
-            <div className="lg:hidden p-4 z-20 flex justify-between items-center">
-                <button
-                    onClick={toggleSidebar}
-                    className="text-white focus:outline-none"
-                >
+            {/* 🔹 Mobile Header */}
+            <header className="lg:hidden fixed top-0 left-0 w-full bg-neutral-950 text-white border-b border-neutral-800 z-40 flex justify-between items-center px-4 py-3">
+                <button onClick={toggleSidebar} className="focus:outline-none">
                     {isSidebarOpen ? (
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-black dark:text-white"
+                            className="h-6 w-6"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -40,7 +44,7 @@ const DashboardSideBar = ({ profile, session }) => {
                     ) : (
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            className="h-6 w-6 text-black dark:text-white"
+                            className="h-6 w-6"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -54,95 +58,107 @@ const DashboardSideBar = ({ profile, session }) => {
                         </svg>
                     )}
                 </button>
-                <Link href="/">
+
+                <Link href="/" className="flex items-center gap-2">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6 text-black dark:text-white"
-                        fill="currentColor"
+                        className="h-6 w-6"
+                        fill="white"
                         viewBox="0 0 24 24"
-                        stroke="none"
                     >
-                        <path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"></path>
+                        <path d="M12 2.1L1 12h3v9h7v-6h2v6h7v-9h3L12 2.1z" />
                     </svg>
+                    <span className="font-semibold text-sm">Dashboard</span>
                 </Link>
-            </div>
+            </header>
 
-            {/* Sidebar */}
-            <div
-                className={`z-10 lg:w-64 shadow-lg shadow-white bg-primary dark:bg-background dark:text-primary lg:block ${
-                    isSidebarOpen ? 'fixed h-full w-4/5 left-0 top-0' : 'hidden'
-                } lg:block lg:static lg:w-64`}
+            {/* 🔹 Sidebar */}
+            <aside
+                className={`fixed lg:static top-0 left-0 h-full lg:h-auto w-4/5 sm:w-2/5 md:w-1/3 lg:w-64 
+                bg-neutral-950 text-gray-200 border-r border-neutral-800 
+                transform transition-transform duration-300 ease-in-out z-30 
+                ${
+                    isSidebarOpen
+                        ? 'translate-x-0'
+                        : '-translate-x-full lg:translate-x-0'
+                }`}
             >
-                <div className="p-6 text-center border-b mt-32">
+                {/* Profile Section */}
+                <div className="p-6 text-center border-b border-neutral-800 mt-20 lg:mt-10">
                     <Image
                         src={
                             profile?.image ||
                             `${process.env.NEXT_PUBLIC_BASE_URL}/avatar/default.png`
                         }
                         alt="Profile"
-                        className="w-20 h-20 rounded-full mx-auto"
+                        className="w-20 h-20 rounded-full mx-auto border border-neutral-700"
                         width={80}
                         height={80}
                     />
-                    <h2 className="mt-4 text-lg font-semibold">
-                        {session?.user?.name}
+                    <h2 className="mt-4 text-lg font-semibold text-white truncate">
+                        {session?.user?.name || 'User'}
                     </h2>
-                    <p className="text-sm">{session?.user?.email}</p>
+                    <p className="text-xs text-neutral-400 truncate">
+                        {session?.user?.email || ''}
+                    </p>
                 </div>
-                <nav className="mt-4">
-                    <ul>
-                        {[
-                            'Profile',
-                            'My Tickets',
-                            'My Events',
-                            'Bookmarks',
-                            'Settings',
-                        ].map((item) => (
-                            <Link
-                                href={{
-                                    pathname: '/dashboard',
-                                    query: { section: item },
-                                }}
-                                key={item}
-                                onClick={toggleSidebar}
+
+                {/* Navigation */}
+                <nav className="mt-4 flex flex-col">
+                    {navItems.map((item) => (
+                        <Link
+                            href={{
+                                pathname: '/dashboard',
+                                query: { section: item },
+                            }}
+                            key={item}
+                            onClick={() => setIsSidebarOpen(false)}
+                        >
+                            <div
+                                className={`px-6 py-3 text-sm font-medium transition-all duration-200
+                                ${
+                                    querySection === item
+                                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-inner'
+                                        : 'hover:bg-neutral-800 text-gray-300'
+                                }`}
                             >
-                                <li
-                                    className={`w-full px-6 py-3 text-left ${
-                                        querySection === item
-                                            ? 'bg-gray-100 dark:text-background'
-                                            : ''
-                                    }`}
-                                >
-                                    {item}
-                                </li>
-                            </Link>
-                        ))}
-                        <li className="w-full flex items-center pr-5">
-                            <button
-                                className="w-full px-6 py-3 text-left text-red-500"
-                                onClick={() => signOut({ redirectTo: '/' })}
-                            >
-                                Logout
-                            </button>
-                            <svg
-                                fill="none"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                width="24"
-                                xmlns="http://www.w3.org/2000/svg"
-                            >
-                                <path
-                                    d="M17 16L21 12M21 12L17 8M21 12L7 12M13 16V17C13 18.6569 11.6569 20 10 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H10C11.6569 4 13 5.34315 13 7V8"
-                                    stroke="red"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                />
-                            </svg>
-                        </li>
-                    </ul>
+                                {item}
+                            </div>
+                        </Link>
+                    ))}
+
+                    {/* Logout */}
+                    <button
+                        className="flex items-center justify-between px-6 py-3 text-sm text-red-500 hover:bg-neutral-800 transition-colors duration-200"
+                        onClick={() => signOut({ redirectTo: '/' })}
+                    >
+                        <span className="font-medium">Logout</span>
+                        <svg
+                            fill="none"
+                            height="22"
+                            viewBox="0 0 24 24"
+                            width="22"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M17 16L21 12M21 12L17 8M21 12L7 12M13 16V17C13 18.7 11.7 20 10 20H6C4.3 20 3 18.7 3 17V7C3 5.3 4.3 4 6 4H10C11.7 4 13 5.3 13 7V8"
+                                stroke="red"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                            />
+                        </svg>
+                    </button>
                 </nav>
-            </div>
+            </aside>
+
+            {/* 🔹 Overlay for mobile */}
+            {isSidebarOpen && (
+                <div
+                    onClick={toggleSidebar}
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-20 lg:hidden"
+                />
+            )}
         </>
     );
 };

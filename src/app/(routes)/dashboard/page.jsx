@@ -1,13 +1,15 @@
 import { auth } from '@/src/auth';
 import DashboardSectionRenderer from '@/src/components/Dashboard/dashboardSectionRenderer';
 import DashboardSideBar from '@/src/components/Dashboard/dashboardSideBar';
+import { teamAndEventUserGET } from '@/src/serverAction/teamAction';
 import { getUserFromDB } from '@/src/serverAction/userAction';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
 export default async function Dashboard() {
     const session = await auth();
-    const profile = await getUserFromDB(session.user.email);
+    const profile = await getUserFromDB(session?.user?.email);
+    const userTeams = await teamAndEventUserGET(profile);
 
     if (!session) {
         redirect('/api/auth/signin');
@@ -26,10 +28,11 @@ export default async function Dashboard() {
                 <DashboardSideBar profile={profile} session={session} />
 
                 {/* Main Content */}
-                <div className="flex-1 pt-10 p-6">
+                <div className="flex-1 pt-10 p-6 bg-neutral-950">
                     <DashboardSectionRenderer
                         profile={profile}
                         session={session}
+                        userTeams={userTeams}
                     />
                 </div>
             </div>

@@ -91,7 +91,7 @@ const HeroTimeRemaining = ({ data, className }) => {
 
     return (
         <div
-            className={`mt-6 flex flex-wrap justify-center items-center gap-4 sm:gap-6 ${className}`}
+            className={`mt-6 flex flex-shrink justify-center items-center gap-4 sm:gap-6 ${className}`}
         >
             {[
                 { label: 'DAYS', value: days, ref: refs.days },

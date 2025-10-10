@@ -83,10 +83,10 @@ export default function CompetitionTracks() {
                 cutting-edge technology domains
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <div className="flex flex-wrap items-center justify-center lg:grid lg:grid-cols-4 sm:grid-cols-2 gap-6 max-w-6xl mx-auto overflow-auto">
                 {tracks.map((track, idx) => (
                     <GlowCard key={idx}>
-                        <div className="rounded-xl p-6 flex flex-col items-start">
+                        <div className="rounded-xl p-4 lg:p-6 flex flex-col items-start">
                             <div className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/10 mb-4">
                                 {track.icon}
                             </div>

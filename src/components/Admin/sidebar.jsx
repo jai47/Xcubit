@@ -18,7 +18,7 @@ const Sidebar = ({ query }) => {
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Dashboard';
     return (
-        <aside className="bg-gray-50 py-4 px-3 dark:bg-gray-800 basis-1/6 lg:basis-1/5 h-full">
+        <aside className="bg-gray-50 py-4 px-3 dark:bg-gray-800 basis-1/6 lg:basis-1/5 h-full overflow-auto">
             <ul className="flex flex-col gap-3">
                 {[
                     {

@@ -4,67 +4,78 @@ import Footer from '@/src/components/layout/Footer';
 import React from 'react';
 
 const ContactPage = () => {
-    const [formData, setFormData] = React.useState({});
+    const [formData, setFormData] = React.useState({
+        name: '',
+        email: '',
+        query: '',
+    });
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
+
     return (
         <>
             <Navbar />
-            <div className="w-screen h-[103%] flex flex-col pt-28 dark:bg-background dark:text-primary bg-black">
-                <div className="relative bg-center h-[calc(100vh-4rem)] sm:h-[calc(100vh-6rem)] lg:h-[calc(100vh-8rem)] flex items-center justify-center">
-                    <div className="absolute inset-0 "></div>
-                    <h1 className="relative text-3xl mt-6 sm:text-4xl lg:text-5xl font-bold text-center text-white">
+            <div className="min-h-screen flex flex-col bg-black text-gray-100">
+                {/* HEADER SECTION */}
+                <section className="flex flex-col items-center justify-center text-center px-6 py-16 sm:py-24 bg-gradient-to-b from-neutral-900 to-black">
+                    <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
                         Contact Us
                     </h1>
-                </div>
+                    <p className="text-gray-400 max-w-2xl">
+                        We’d love to hear from you — whether it’s a question,
+                        feedback, or collaboration idea.
+                    </p>
+                </section>
 
-                <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 text-white">
-                    <div className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-8 p-8 rounded-lg shadow-lg">
-                        <div className="space-y-6">
-                            <h2 className="text-2xl sm:text-3xl font-semibold">
-                                Let&apos;s talk with us
+                {/* CONTACT SECTION */}
+                <section className="flex-1 flex items-center justify-center px-6 pb-20">
+                    <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-10 bg-neutral-900/70 backdrop-blur-lg rounded-2xl p-8 shadow-lg border border-neutral-800">
+                        {/* LEFT SIDE INFO */}
+                        <div className="space-y-8">
+                            <h2 className="text-3xl font-semibold text-white">
+                                Let’s Talk
                             </h2>
-                            <p>
-                                Questions, comments, or suggestions? Simply fill
-                                in the form, and we&apos;ll be in touch shortly.
+                            <p className="text-gray-400">
+                                Questions, comments, or suggestions? Fill out
+                                the form, and we’ll get back to you shortly.
                             </p>
 
                             <div className="space-y-6">
-                                <div className="flex items-start space-x-4">
-                                    <div>
-                                        <h4 className="font-semibold">
-                                            Our Location
-                                        </h4>
-                                        <p>
-                                            61-C Rajouri Garden, New
-                                            Delhi-110027
-                                        </p>
-                                    </div>
+                                <div>
+                                    <h4 className="font-semibold text-white mb-1">
+                                        Our Location
+                                    </h4>
+                                    <p className="text-gray-400">
+                                        61-C Rajouri Garden, New Delhi 110027
+                                    </p>
                                 </div>
 
-                                <div className="flex items-start space-x-4">
-                                    <div>
-                                        <h4 className="font-semibold">
-                                            Phone Number
-                                        </h4>
-                                        <p>+91-9667576014</p>
-                                    </div>
+                                <div>
+                                    <h4 className="font-semibold text-white mb-1">
+                                        Phone Number
+                                    </h4>
+                                    <p className="text-gray-400">
+                                        +91-9667576014
+                                    </p>
                                 </div>
 
-                                <div className="flex items-start space-x-4">
-                                    <div>
-                                        <h4 className="font-semibold">
-                                            Email Address
-                                        </h4>
-                                        <p>info@vief.in, helpdesk@vief.in</p>
-                                    </div>
+                                <div>
+                                    <h4 className="font-semibold text-white mb-1">
+                                        Email Address
+                                    </h4>
+                                    <p className="text-gray-400">
+                                        info@xcubit.in <br />
+                                        helpdesk@xcubit.in
+                                    </p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-6 rounded-lg shadow-lg space-y-6 dark:bg-muted">
-                            <h3 className="text-xl font-semibold">
+                        {/* RIGHT SIDE FORM */}
+                        <div className="p-6 bg-neutral-950 rounded-xl shadow-md border border-neutral-800">
+                            <h3 className="text-xl font-semibold mb-6 text-white">
                                 Send Us a Message
                             </h3>
                             <form
@@ -80,47 +91,54 @@ const ContactPage = () => {
                                     res = await res.json();
                                     if (res.success) {
                                         alert('Message Sent Successfully');
-                                        setFormData({});
+                                        setFormData({
+                                            name: '',
+                                            email: '',
+                                            query: '',
+                                        });
                                     } else {
                                         alert('Message Failed to Send');
                                     }
                                 }}
+                                className="space-y-5"
                             >
-                                <div className="space-y-4">
-                                    <input
-                                        type="text"
-                                        placeholder="Your Name"
-                                        name="name"
-                                        onChange={handleChange}
-                                        value={formData.name}
-                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-                                    />
-                                    <input
-                                        type="email"
-                                        placeholder="Your Email"
-                                        name="email"
-                                        onChange={handleChange}
-                                        value={formData.email}
-                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-                                    />
-                                    <textarea
-                                        placeholder="Your Message"
-                                        name="query"
-                                        onChange={handleChange}
-                                        value={formData.message}
-                                        className="w-full p-4 bg-gray-800 border border-gray-600 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-gray-500"
-                                    ></textarea>
-                                    <button
-                                        type="submit"
-                                        className="w-full bg-main text-white py-3 rounded-md text-lg font-medium hover:bg-main transition-all"
-                                    >
-                                        Send Message
-                                    </button>
-                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Your Name"
+                                    name="name"
+                                    onChange={handleChange}
+                                    value={formData.name}
+                                    className="w-full p-4 bg-neutral-800 text-gray-100 placeholder-gray-400 rounded-lg border border-neutral-700 focus:border-purple-400 focus:ring-2 focus:ring-main/30 outline-none transition"
+                                    required
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Your Email"
+                                    name="email"
+                                    onChange={handleChange}
+                                    value={formData.email}
+                                    className="w-full p-4 bg-neutral-800 text-gray-100 placeholder-gray-400 rounded-lg border border-neutral-700 focus:border-purple-400 focus:ring-2 focus:ring-main/30 outline-none transition"
+                                    required
+                                />
+                                <textarea
+                                    placeholder="Your Message"
+                                    name="query"
+                                    onChange={handleChange}
+                                    value={formData.query}
+                                    className="w-full h-36 p-4 bg-neutral-800 text-gray-100 placeholder-gray-400 rounded-lg border border-neutral-700 focus:border-purple-400 focus:ring-2 focus:ring-main/30 outline-none resize-none transition"
+                                    required
+                                ></textarea>
+
+                                <button
+                                    type="submit"
+                                    className="w-full bg-gradient-to-r from-purple-300/50 to-blue-300/50 backdrop-blur-md text-white hover:scale-[99%] transition-all duration-100 font-semibold py-3 rounded-lg"
+                                >
+                                    Send Message
+                                </button>
                             </form>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <Footer />
             </div>

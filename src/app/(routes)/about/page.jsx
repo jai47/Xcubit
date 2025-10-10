@@ -1,3 +1,4 @@
+'use client';
 import React from 'react';
 import Footer from '@/src/components/layout/Footer';
 import Navbar from '@/src/components/layout/NavbarHome';
@@ -8,6 +9,50 @@ import { GlowCard } from '@/src/components/Home/GlowCards';
 // import { GlowCard } from './GlowCards';
 
 const AboutUs = () => {
+    const teamMembers = [
+        {
+            name: 'Mr. Venkatesh Bharti',
+            role: 'CEO & Founder',
+            img: '/team/founder.jpeg',
+            link: 'https://www.linkedin.com/in/venkatesh-bharti/',
+            slug: 'venkatesh',
+        },
+        {
+            name: 'Ms. Deepa Kohli',
+            role: 'Marketing Executive',
+            img: '/team/deepa.png',
+            link: 'https://www.linkedin.com/in/jai47/',
+            slug: 'deepa',
+        },
+        {
+            name: 'Mr. Himanshu',
+            role: 'Business & Development Lead',
+            img: '/team/dalal.jpeg',
+            link: 'https://www.linkedin.com/in/himanshu-dalal-0aa488246/',
+            slug: 'himanshu',
+        },
+        {
+            name: 'Mr. Jai Mishra',
+            role: 'Operation Lead',
+            img: '/team/jai.jpg',
+            link: 'https://www.linkedin.com/in/jai47/',
+            slug: 'jai',
+        },
+        {
+            name: 'Mr. Ankit Singh',
+            role: 'Project Manager',
+            img: '/team/ankit.jpeg',
+            link: 'https://www.linkedin.com/in/ankit-singh-7b862a203',
+            slug: 'ankit',
+        },
+        {
+            name: 'Mr. Akshobya',
+            role: 'Sponsor Manager',
+            img: '/team/ak.jpeg',
+            link: 'https://www.linkedin.com/in/akshobhya-a-59631a225',
+            slug: 'akshobya',
+        },
+    ];
     return (
         <>
             <Head>
@@ -291,7 +336,7 @@ const AboutUs = () => {
                 {/* Founder Section */}
                 <div className="mt-20 w-full max-w-6xl flex flex-col md:flex-row items-center gap-8">
                     <img
-                        src="/founder.jpg"
+                        src="/team/founder.jpeg"
                         alt="Founder"
                         className="w-[350px] h-[350px] object-cover rounded-2xl shadow-lg"
                     />
@@ -310,59 +355,42 @@ const AboutUs = () => {
                 </div>
 
                 {/* Team Section */}
+                {/* Team Section */}
                 <div className="mt-20 w-full max-w-6xl text-center">
                     <h2 className="text-4xl font-semibold mb-10">Our Team</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
-                        {[
-                            {
-                                name: 'Mr. Venkatesh Bharti',
-                                role: 'CEO & Founder',
-                                img: '/team/founder.jpg',
-                            },
-                            {
-                                name: 'Ms. Deepa Kohli',
-                                role: 'Marketing Executive',
-                                img: '/team/deepa.png',
-                            },
-                            {
-                                name: 'Mr. Himanshu',
-                                role: 'Business & Devvelopment Lead',
-                                img: '/team/dalal.png',
-                            },
-                            {
-                                name: 'Mr. Jai Mishra',
-                                role: 'Operation Lead',
-                                img: '/team/jai.jpg',
-                            },
-                            {
-                                name: 'Mr. Ankit Singh',
-                                role: 'Project Manager',
-                                img: '/ex.jpg',
-                            },
-                            {
-                                name: 'Mr. Akshobya',
-                                role: 'Sponsor Manager',
-                                img: '/team/ak.png',
-                            },
-                        ].map((member, i) => (
+                        {teamMembers.map((member, i) => (
                             <div
                                 key={i}
-                                className="rounded-xl border border-gray-700 p-6 bg-white/5 shadow-md hover:bg-white/10 transition flex flex-col items-center"
+                                className="rounded-xl border border-gray-700 p-6 bg-white/5 shadow-md hover:bg-white/10 transition flex flex-col items-center cursor-pointer"
                             >
-                                <img
-                                    src={member.img}
-                                    alt={member.name}
-                                    className="w-28 h-28 object-cover rounded-full mb-4"
-                                />
-                                <h3 className="text-lg font-semibold text-white/80 mb-1">
-                                    {member.name}
-                                </h3>
-                                <p className="text-gray-400 text-sm mb-3">
-                                    {member.role}
-                                </p>
+                                {/* Main Profile Link */}
+                                <Link
+                                    href={`/about/${member.slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex flex-col items-center w-full"
+                                >
+                                    <img
+                                        src={member.img}
+                                        alt={member.name}
+                                        className="w-28 h-28 object-cover rounded-full mb-4"
+                                    />
+                                    <h3 className="text-lg font-semibold text-white/80 mb-1">
+                                        {member.name}
+                                    </h3>
+                                    <p className="text-gray-400 text-sm mb-3">
+                                        {member.role}
+                                    </p>
+                                </Link>
+
+                                {/* Separate LinkedIn Icon */}
                                 <a
-                                    href="#"
+                                    href={member.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="text-purple-300 hover:text-white transition"
+                                    onClick={(e) => e.stopPropagation()} // Prevent card click event
                                 >
                                     <FaLinkedin size={22} />
                                 </a>
@@ -443,7 +471,7 @@ const AboutUs = () => {
                                 <span className="absolute inset-[-1000%] animate-[spin_4s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#a855f7_0%,#6366f1_50%,#b27ce6_100%)]"></span>
                                 <div className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-gray-900/90 dark:bg-gray-950 text-sm sm:text-base lg:text-lg font-medium backdrop-blur-3xl">
                                     <Link
-                                        href="/events"
+                                        href="/contact"
                                         className="inline-flex rounded-full text-center group items-center w-full justify-center bg-gradient-to-tr from-purple-400/30 via-indigo-500/40 to-transparent dark:from-purple-400/20 dark:via-indigo-500/30 text-white border border-purple-500/40 hover:from-purple-400/50 hover:via-indigo-500/60 transition-all py-3 px-6 sm:py-4 sm:px-10 lg:py-4 lg:px-8"
                                     >
                                         Get in touch

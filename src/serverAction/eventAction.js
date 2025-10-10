@@ -121,6 +121,23 @@ export async function eventGET() {
     }
 }
 
+export async function getEventBySlug(slug) {
+    await connectDB();
+    try {
+        if (typeof slug !== 'string') {
+            return false;
+        }
+        const event = await eventModels.findOne({ slug: slug }).lean();
+        if (!event) {
+            return false;
+        }
+        return JSON.parse(JSON.stringify(event));
+    } catch (error) {
+        console.error('Error fetching event by name:', error.message);
+        throw error; // Re-throw error for handling in getServerSideProps
+    }
+}
+
 // Function to create a new event
 export async function eventFormAction(formData) {
     await connectDB();
@@ -145,22 +162,5 @@ export async function eventFormAction(formData) {
         // If an error occurs during event creation, log the error and throw it
         console.log(error);
         throw error;
-    }
-}
-
-export async function getEventBySlug(slug) {
-    await connectDB();
-    try {
-        if (typeof slug !== 'string') {
-            return false;
-        }
-        const event = await eventModels.findOne({ slug: slug }).lean();
-        if (!event) {
-            return false;
-        }
-        return JSON.parse(JSON.stringify(event));
-    } catch (error) {
-        console.error('Error fetching event by name:', error.message);
-        throw error; // Re-throw error for handling in getServerSideProps
     }
 }

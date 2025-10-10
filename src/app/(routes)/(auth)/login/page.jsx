@@ -75,7 +75,7 @@ export default async function Login() {
                                     name="email"
                                     placeholder="Email"
                                     required
-                                    className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
+                                    className="w-full px-4 py-3 outline-none invalid:border-red-500 border border-muted rounded-lg dark:bg-background dark:text-primary"
                                 />
                             </div>
 

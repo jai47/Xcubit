@@ -1,131 +1,111 @@
-import Link from 'next/link';
 import React, { useEffect, useRef } from 'react';
 import QRCodeGenerator from './QRCodeGenerator';
 
-const Tickets = ({ ticketData, showTicket }) => {
+const Tickets = ({ event, user, teamCode, showTicket }) => {
     const modalRef = useRef(null);
 
-    // Close the ticket when clicking outside the modal
-    const handleClickOutside = (event) => {
-        if (modalRef.current && !modalRef.current.contains(event.target)) {
-            showTicket(null); // Close ticket
+    const handleClickOutside = (e) => {
+        if (modalRef?.current && !modalRef.current.contains(e.target)) {
+            showTicket(null);
         }
     };
 
     useEffect(() => {
-        // Add event listener on mount
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            // Clean up the event listener on unmount
+        return () =>
             document.removeEventListener('mousedown', handleClickOutside);
-        };
     }, []);
 
     const qrData = {
-        name: ticketData.attendeeName,
-        event: ticketData.eventTitle,
-        teamMembers: ticketData.teamMates,
-        email: ticketData.email,
+        name: user?.name,
+        event: event?.name,
+        teamCode,
+        email: user?.email,
     };
 
     return (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black bg-opacity-50">
-            {/* Floating Window */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
             <div
-                className="relative bg-white max-w-lg w-full mx-4 border border-black rounded-lg shadow-lg overflow-hidden max-h-screen overflow-y-auto"
                 ref={modalRef}
+                className="relative w-full max-w-sm sm:max-w-md bg-neutral-900 text-white rounded-3xl shadow-2xl overflow-hidden border border-neutral-800 animate-fadeIn"
             >
-                <div className="rounded-lg border border-dashed border-black m-6 mb-3">
-                    {/* Header */}
-                    <div className="text-center bg-gray-500 text-white py-2 rounded-t-lg font-semibold mb-4 text-lg">
-                        Event Pass
-                    </div>
+                {/* Header */}
+                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-center py-4">
+                    <h2 className="text-2xl font-bold tracking-wide p-2">
+                        {event?.name}
+                    </h2>
+                    <p className="text-xs text-gray-200">
+                        {new Date(event?.dateTime).toLocaleString()}
+                    </p>
+                </div>
 
-                    {/* Event Details */}
-                    <div className="text-center">
-                        <h2 className="text-lg sm:text-xl font-bold">
-                            {ticketData.eventTitle}
-                        </h2>
-                        <p className="text-sm sm:text-base text-gray-600">
-                            {ticketData.eventDate}
-                        </p>
-                    </div>
-
-                    {/* Attendee Details */}
-                    <div className="text-center my-4">
-                        <p className="font-semibold text-sm sm:text-base">
-                            {ticketData.attendeeName}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-500">
-                            {ticketData.email}
-                        </p>
-                        <p className="text-xs sm:text-sm text-gray-500">
-                            {ticketData.contactNumber}
-                        </p>
-                    </div>
-
-                    {/* QR Code */}
-                    <div className="flex justify-center">
-                        <QRCodeGenerator data={qrData} />
-                    </div>
-
-                    {/* Ticket Details */}
-                    {ticketData.orderId && ticketData.ticketId && (
-                        <div className="text-center my-4">
-                            <p>
-                                <span className="font-semibold">
-                                    Order ID:{' '}
-                                </span>
-                                <span className="text-sm sm:text-base">
-                                    {ticketData.orderId}
-                                </span>
+                {/* Body */}
+                <div className="px-6 py-5 space-y-4 text-center">
+                    {/* User Info */}
+                    <div>
+                        <h3 className="text-lg font-semibold">{user?.name}</h3>
+                        <p className="text-sm text-gray-400">{user?.email}</p>
+                        {user?.phoneNumber && (
+                            <p className="text-xs text-gray-500">
+                                {user?.phoneNumber}
                             </p>
-                            <p className="hidden sm:block">
-                                <span className="font-semibold">
-                                    Ticket ID:{' '}
-                                </span>
-                                {ticketData.ticketId}
-                            </p>
-                            <p className="hidden sm:block">
-                                <span className="font-semibold">
-                                    Payment Method:{' '}
-                                </span>
-                                {ticketData.paymentMethod}
+                        )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-neutral-700 my-3" />
+
+                    {/* Team Info */}
+                    {teamCode && (
+                        <div className="text-sm">
+                            <p className="text-gray-400">Team Code</p>
+                            <p className="font-mono font-semibold bg-neutral-800 inline-block px-3 py-1 rounded-md mt-1">
+                                {teamCode}
                             </p>
                         </div>
                     )}
 
-                    {/* Venue */}
-                    <div className="border-t my-4 py-4">
-                        <h3 className="font-semibold text-center mb-2 text-sm sm:text-base">
-                            Event Venue
-                        </h3>
-                        <p className="text-center text-xs sm:text-sm text-gray-600 whitespace-pre-line">
-                            {ticketData.venue}
-                        </p>
-                        <div className="text-center mt-2">
-                            <a
-                                href={ticketData.mapLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-500 underline text-xs sm:text-sm"
-                            >
-                                View on Google Maps
-                            </a>
+                    {/* QR Code */}
+                    <div className="flex justify-center my-3">
+                        <div className="bg-white p-2 rounded-xl shadow-inner">
+                            <QRCodeGenerator data={qrData} />
                         </div>
                     </div>
 
+                    {/* Event Venue */}
+                    {event?.location && (
+                        <div className="space-y-1 text-xs sm:text-sm">
+                            <p className="font-semibold text-gray-300 uppercase tracking-wide">
+                                Venue
+                            </p>
+                            <p className="text-gray-400">{event?.location}</p>
+                            {event?.locationURL && (
+                                <a
+                                    href={event?.locationURL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-indigo-400 underline text-xs sm:text-sm mt-1 inline-block"
+                                >
+                                    View on Google Maps
+                                </a>
+                            )}
+                        </div>
+                    )}
+
                     {/* Footer */}
-                    <p className="text-center text-xs sm:text-sm text-gray-500 mt-2">
-                        Thank you for registering!
-                    </p>
+                    <div className="pt-4 border-t border-neutral-700">
+                        <p className="text-xs text-gray-500">
+                            Thank you for registering! 🎟️
+                        </p>
+                    </div>
                 </div>
+
                 {/* Close Button */}
                 <button
-                    className="w-full text-gray-500 hover:text-gray-800 mb-2"
-                    onClick={() => showTicket(false)}
+                    onClick={() => showTicket(null)}
+                    className="absolute top-3 right-3 bg-white/10 hover:bg-white/20 text-white text-xs px-3 py-1 rounded-full transition-all"
                 >
-                    Close
+                    ✕
                 </button>
             </div>
         </div>

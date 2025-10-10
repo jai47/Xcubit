@@ -17,7 +17,6 @@ const userSchema = new Schema({
     phoneNumber: { type: String },
     dateOfBirth: { type: Date },
     gender: { type: String, enum: ['Male', 'Female', 'Other'] },
-    address: { type: String },
     city: { type: String },
     stateOrProvince: { type: String },
     country: { type: String },

@@ -1,105 +1,82 @@
+'use client';
 import React from 'react';
 
 const ProfileDashboard = ({ session, profile }) => {
-    console.log(profile, session);
     return (
-        <div className="p-6 shadow-lg rounded-lg mx-auto">
-            <h2 className="text-2xl font-bold mb-6 border-b pb-2">Profile</h2>
-            <div className="flex flex-col md:flex-row gap-6">
+        <div className="p-6 sm:p-8 rounded-2xl mx-auto w-full shadow-lg border border-neutral-800 bg-neutral-950 text-neutral-200">
+            {/* Header */}
+            <h2 className="text-3xl font-bold mb-6 border-b border-neutral-700 pb-3 text-center md:text-left text-white">
+                Profile
+            </h2>
+
+            {/* Profile Info */}
+            <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1 space-y-4">
-                    <p className="  text-md">
-                        <strong className="font-semibold">Name:</strong>{' '}
-                        {session?.user?.name}
-                    </p>
-                    <p className="  text-md">
-                        <strong className="font-semibold">Email:</strong>{' '}
-                        {session?.user?.email}
-                    </p>
+                    <ProfileItem label="Name" value={session?.user?.name} />
+                    <ProfileItem label="Email" value={session?.user?.email} />
                     {profile?.phone && (
-                        <p className="text-md">
-                            <strong className="font-semibold">Phone:</strong>{' '}
-                            {isEditing ? (
-                                <input
-                                    type="text"
-                                    name="phone"
-                                    value={profile?.phone}
-                                    onChange={handleInputChange}
-                                    className="border rounded px-2 py-1 w-full"
-                                />
-                            ) : (
-                                profile?.phone
-                            )}
-                        </p>
+                        <ProfileItem label="Phone" value={profile?.phone} />
                     )}
                     {profile?.address && (
-                        <p className="text-md">
-                            <strong className="font-semibold">Address:</strong>{' '}
-                            {profile?.address}
-                        </p>
+                        <ProfileItem label="Address" value={profile?.address} />
                     )}
                     {profile?.city && (
-                        <p className="text-md">
-                            <strong className="font-semibold">City:</strong>{' '}
-                            {profile?.city}
-                        </p>
+                        <ProfileItem label="City" value={profile?.city} />
                     )}
                     {profile?.state && (
-                        <p className="text-md">
-                            <strong className="font-semibold">
-                                State/Province:
-                            </strong>{' '}
-                            {profile?.state}
-                        </p>
+                        <ProfileItem
+                            label="State/Province"
+                            value={profile?.state}
+                        />
                     )}
                     {profile?.postalCode && (
-                        <p className="  text-md">
-                            <strong className="font-semibold">
-                                Postal Code:
-                            </strong>{' '}
-                            {profile?.postalCode}
-                        </p>
+                        <ProfileItem
+                            label="Postal Code"
+                            value={profile?.postalCode}
+                        />
                     )}
                     {profile?.country && (
-                        <p className="  text-md">
-                            <strong className="font-semibold">Country:</strong>{' '}
-                            {profile?.country}
-                        </p>
+                        <ProfileItem label="Country" value={profile?.country} />
                     )}
                     {profile?.dateOfBirth && (
-                        <p className="  text-md">
-                            <strong className="font-semibold">
-                                Date of Birth:
-                            </strong>{' '}
-                            {new Date(profile?.dateOfBirth).toDateString(
-                                'hi-IN'
-                            )}
-                        </p>
+                        <ProfileItem
+                            label="Date of Birth"
+                            value={new Date(
+                                profile?.dateOfBirth
+                            ).toDateString()}
+                        />
                     )}
                     {profile?.gender && (
-                        <p className="  text-md">
-                            <strong className="font-semibold">Gender:</strong>{' '}
-                            {profile?.gender}
-                        </p>
+                        <ProfileItem label="Gender" value={profile?.gender} />
                     )}
                     {profile?.linkedInOrGithub && (
-                        <p className="  text-md">
-                            <strong className="font-semibold">
+                        <div className="text-md">
+                            <strong className="font-semibold text-white">
                                 LinkedIn/GitHub:
                             </strong>{' '}
                             <a
                                 href={profile?.linkedInOrGithub}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-blue-600 font-medium hover:underline"
+                                className="text-blue-400 hover:text-blue-300 hover:underline transition-all"
                             >
-                                LinkedIn Profile
+                                {profile?.linkedInOrGithub.includes('github')
+                                    ? 'GitHub Profile'
+                                    : 'LinkedIn Profile'}
                             </a>
-                        </p>
+                        </div>
                     )}
                 </div>
             </div>
         </div>
     );
 };
+
+const ProfileItem = ({ label, value }) => (
+    <p className="sm:text-lg text-neutral-300">
+        <strong className="font-semibold text-white">{label}:</strong>{' '}
+        <span className="text-neutral-400 break-words">{value}</span>
+    </p>
+);
 
 export default ProfileDashboard;

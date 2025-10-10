@@ -6,7 +6,7 @@ import {
     saltAndHashPassword,
 } from '@/src/utils/saltAndHashPassword';
 import { redirect } from 'next/navigation';
-import { sendEmail } from '../utils/sendEmail';
+import { sendEmail } from '../utils/Email/sendEmail';
 
 export async function userFormAction(formData) {
     await connectDB();
@@ -281,5 +281,20 @@ export async function deleteUser(id) {
         return user;
     } catch (error) {
         throw new Error(`Error deleting user: ${error.message}`);
+    }
+}
+
+export async function updateUserProfile(userId, formData) {
+    await connectDB();
+    try {
+        const updated = await userModels.findByIdAndUpdate(
+            userId,
+            { $set: formData },
+            { new: true }
+        );
+        return { success: true, user: JSON.parse(JSON.stringify(updated)) };
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'Failed to update user profile' };
     }
 }

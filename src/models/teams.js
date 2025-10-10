@@ -9,7 +9,6 @@ const teamSchema = new Schema(
             required: true,
         },
         members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
-        teamCode: { type: String, unique: true, required: true },
         event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
         submission: {
             text: { type: Boolean, default: false },

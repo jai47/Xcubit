@@ -5,7 +5,7 @@ import { AiOutlineUpload } from 'react-icons/ai';
 import { FaCheck } from 'react-icons/fa';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import { MdOutlineDelete } from 'react-icons/md';
-import { sendEmail } from '@/src/utils/sendEmail';
+import { sendEmail } from '@/src/utils/Email/sendEmail';
 import InstituteAdminModal from './InstituteAdminModal';
 
 const CollegeSection = ({ fetchAllInstitutes, createNewCollege }) => {
