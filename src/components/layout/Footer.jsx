@@ -14,8 +14,8 @@ const Footer = () => {
                         <Image
                             src={logo1}
                             alt="Xcubit Logo"
-                            width={70}
-                            height={50}
+                            width={30}
+                            height={30}
                         />
                         <span className="text-3xl font-black text-white">
                             XCUBIT

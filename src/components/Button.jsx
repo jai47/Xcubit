@@ -7,7 +7,9 @@ const Button = ({ text, type, onClick, className }) => {
         <button
             type={type}
             onClick={onClick}
-            className={`bg-primary text-background border uppercase text-sm border-black py-2 px-8 mt-3 rounded-full hover:bg-main hover:border-primary hover:text-primary transition-all dark:border-white dark:bg-background dark:text-primary ${className}`}
+            className={`${
+                className || 'bg-green-500 px-2 py-1 rounded-full text-sm'
+            }`}
         >
             {text}
         </button>

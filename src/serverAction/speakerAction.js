@@ -1,6 +1,7 @@
 'use server';
+import mongoose from 'mongoose';
 import { connectDB } from '../lib/mongodb';
-import { SpeakerModel } from '../models/speakers';
+import { SpeakerModel } from '../models';
 
 // /admin to fetch sponsor all data for admin
 export async function speakerAdminGET() {
@@ -38,6 +39,40 @@ export async function speakerAdminPOST(data) {
         return { success: true, data: JSON.parse(JSON.stringify(newSpeaker)) };
     } catch (error) {
         return { success: false, message: 'Internal Server Error' };
+    }
+}
+
+//delete speaker in admin panel
+export async function speakerAdminDELETE(id) {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return {
+                success: false,
+                message:
+                    'Invalid speaker ID, contact website devloper to delete entry',
+            };
+        }
+
+        await connectDB();
+
+        const result = await SpeakerModel.deleteOne({ _id: id });
+
+        if (result.deletedCount === 0) {
+            return {
+                success: false,
+                message: 'Speaker not found or already deleted',
+            };
+        }
+        return {
+            success: true,
+            message: 'Speaker deleted successfully',
+        };
+    } catch (error) {
+        console.error('Error deleting speaker:', error);
+        return {
+            success: false,
+            message: 'Internal Server Error',
+        };
     }
 }
 

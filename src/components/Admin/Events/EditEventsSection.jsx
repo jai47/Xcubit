@@ -1,5 +1,4 @@
 'use client';
-import ImageUpload from '@/src/components/ImageUpload';
 import { MdKeyboardArrowLeft } from 'react-icons/md';
 import Preview from '@/src/components/Preview/Preview';
 import { useSession } from 'next-auth/react';
@@ -604,24 +603,6 @@ const EditEventsSection = ({ event, back }) => {
                                     </button>
 
                                     {/* Sponsor Image Upload */}
-                                    <div className="mb-4">
-                                        <ImageUpload
-                                            theme="small"
-                                            getImageData={(data) => {
-                                                const updatedSponsors = [
-                                                    ...formData.sponsors,
-                                                ];
-                                                updatedSponsors[index] = {
-                                                    ...updatedSponsors[index],
-                                                    image: data,
-                                                };
-                                                setFormData({
-                                                    ...formData,
-                                                    sponsors: updatedSponsors,
-                                                });
-                                            }}
-                                        />
-                                    </div>
 
                                     {/* Sponsor Name */}
                                     <div className="mb-4">
@@ -729,17 +710,6 @@ const EditEventsSection = ({ event, back }) => {
                                     className="border rounded-lg bg-white shadow-lg p-6 flex flex-col space-y-4"
                                 >
                                     {/* Guest Image Upload */}
-                                    <div>
-                                        <ImageUpload
-                                            theme="small"
-                                            getImageData={(data) => {
-                                                getFeatureGuestImageData(
-                                                    data,
-                                                    index
-                                                );
-                                            }}
-                                        />
-                                    </div>
 
                                     {/* Guest Name */}
                                     <div>
@@ -920,7 +890,6 @@ const EditEventsSection = ({ event, back }) => {
                         >
                             Upload Banner
                         </label>
-                        <ImageUpload getImageData={getImageData} />
                         <p className="text-red-500 text-sm">{errors.image}</p>
                     </div>
 

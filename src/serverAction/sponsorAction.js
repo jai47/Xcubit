@@ -1,6 +1,7 @@
 'use server';
+import mongoose from 'mongoose';
 import { connectDB } from '../lib/mongodb';
-import { sponsorModels } from '../models/sponsor';
+import { sponsorModels } from '../models';
 
 // /admin to fetch sponsor all data for admin
 export async function sponsorAdminGET() {
@@ -39,6 +40,40 @@ export async function sponsorAdminPOST(data) {
         return { success: true, data: JSON.parse(JSON.stringify(newSponsor)) };
     } catch (error) {
         return { success: false, message: 'Internal Server Error' };
+    }
+}
+
+//delete sponsor in admin panel
+export async function sponsorAdminDELETE(id) {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return {
+                success: false,
+                message:
+                    'Invalid sponsor ID, contact website devloper to delete entry',
+            };
+        }
+
+        await connectDB();
+
+        const result = await sponsorModels.deleteOne({ _id: id });
+
+        if (result.deletedCount === 0) {
+            return {
+                success: false,
+                message: 'Sponsor not found or already deleted',
+            };
+        }
+        return {
+            success: true,
+            message: 'Sponsor deleted successfully',
+        };
+    } catch (error) {
+        console.error('Error deleting sponsor:', error);
+        return {
+            success: false,
+            message: 'Internal Server Error',
+        };
     }
 }
 

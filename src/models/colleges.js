@@ -16,6 +16,7 @@ const CollegeSchema = new mongoose.Schema(
         verified: { type: Boolean, default: false },
         verifyToken: { type: String, default: generateVerificationTokens },
         contract: { type: String, default: '' },
+        approval: { type: Boolean, default: false },
         postEventImages: [{ type: String }],
     },
     { timestamps: true }

@@ -34,16 +34,16 @@ const SideNavbar = () => {
             icon: <FaUsers size={20} />,
             href: '/institute?section=Submit Teams',
         },
-        {
-            name: 'Upload Images',
-            icon: <FaImages size={20} />,
-            href: '/institute?section=Upload Images',
-        },
-        {
-            name: 'Report',
-            icon: <FaRegChartBar size={20} />,
-            href: '/institute?section=Report',
-        },
+        // {
+        //     name: 'Upload Images',
+        //     icon: <FaImages size={20} />,
+        //     href: '/institute?section=Upload Images',
+        // },
+        // {
+        //     name: 'Report',
+        //     icon: <FaRegChartBar size={20} />,
+        //     href: '/institute?section=Report',
+        // },
     ];
 
     return (

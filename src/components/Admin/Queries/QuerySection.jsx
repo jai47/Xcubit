@@ -109,7 +109,7 @@ const QuerySection = ({ query }) => {
                                                 type="text"
                                                 name="reply"
                                                 placeholder="Your reply"
-                                                className="outline-none p-3 text-primary border border-gray-400 bg-gray-600 hover:bg-slate-800 h-8 w-4/5 rounded-full break-words selection:bg-gray-500"
+                                                className="outline-none p-3 text-white border border-gray-400 bg-gray-600 hover:bg-slate-800 h-8 w-4/5 rounded-full break-words selection:bg-gray-500"
                                                 autoComplete="off"
                                                 required
                                             />

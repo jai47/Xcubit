@@ -13,10 +13,13 @@ const eventSchema = new mongoose.Schema(
         location: { type: String, required: true },
         locationURL: { type: String, required: true },
         featureGuests: [{ type: Object }],
-        registered: [{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }], // fix: 'team' not 'teams'
+        registered: [{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }],
+        postEventImags: [{ type: String }],
     },
     { timestamps: true }
 );
+
+eventSchema.index({ institute: 1, national: 1 }, { unique: true });
 
 export const eventModels =
     mongoose.models?.event || mongoose.model('event', eventSchema);

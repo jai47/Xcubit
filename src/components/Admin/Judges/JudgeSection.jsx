@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import { AiOutlineUpload } from 'react-icons/ai';
-import { FaCheck } from 'react-icons/fa';
+import { FaCheck, FaTrashAlt } from 'react-icons/fa';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import { MdOutlineDelete } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
-const JudgeSection = ({ judgeAdminGET, judgeAdminPOST }) => {
+const JudgeSection = ({ judgeAdminGET, judgeAdminPOST, judgeAdminDELETE }) => {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -77,7 +78,7 @@ const JudgeSection = ({ judgeAdminGET, judgeAdminPOST }) => {
             if (!res.ok) throw new Error('Failed to delete');
             setFormData({ ...formData, image: '' });
         } catch (err) {
-            console.error('Delete failed:', err);
+            toast.error('Delete failed:', err);
         }
     };
 
@@ -116,6 +117,37 @@ const JudgeSection = ({ judgeAdminGET, judgeAdminPOST }) => {
             } else console.error(message);
         } catch (err) {
             console.error('Error submitting judge:', err);
+        }
+    };
+
+    const handleDelete = async (judge) => {
+        if (!confirm('Are you sure you want to delete this judge?')) return;
+
+        if (judge?.image) {
+            try {
+                const urlParts = judge.image?.split('/');
+                const filename = urlParts[urlParts.length - 1];
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/delete/${filename}`,
+                    {
+                        method: 'DELETE',
+                    }
+                );
+                if (!res.ok)
+                    toast.error(
+                        'Failed to delete image, tring to delete judge'
+                    );
+            } catch (err) {
+                toast.error('Delete failed:', err);
+            }
+        }
+
+        const res = await judgeAdminDELETE(judge._id);
+        if (res.success) {
+            toast.success(res.message);
+            window.location.reload();
+        } else {
+            toast.error(res.message);
         }
     };
 
@@ -276,11 +308,10 @@ const JudgeSection = ({ judgeAdminGET, judgeAdminPOST }) => {
                             key={judge._id}
                             className="relative p-4 rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 flex items-start gap-4"
                         >
-                            {judge.email ? (
-                                <FaCheck className="absolute top-3 right-3 text-green-500" />
-                            ) : (
-                                <RiErrorWarningLine className="absolute top-3 right-3 text-red-500" />
-                            )}
+                            <FaTrashAlt
+                                className="absolute top-3 right-3 text-red-500 cursor-pointer"
+                                onClick={() => handleDelete(judge)}
+                            />
                             <div className="w-20 h-20 flex-shrink-0">
                                 <img
                                     src={judge.image || '/default-avatar.png'}
@@ -289,7 +320,7 @@ const JudgeSection = ({ judgeAdminGET, judgeAdminPOST }) => {
                                 />
                             </div>
                             <div className="flex flex-col gap-1">
-                                <span className="font-semibold text-lg">
+                                <span className="font-semibold text-lg text-white">
                                     {judge.name}
                                 </span>
                                 <span className="text-sm text-gray-600 dark:text-gray-300">

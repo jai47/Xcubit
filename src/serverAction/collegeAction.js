@@ -1,7 +1,7 @@
 'use server';
 
 import { connectDB } from '../lib/mongodb';
-import { collegeModels } from '../models/colleges';
+import { collegeModels } from '../models';
 
 //for /admin to fetch all the colleges
 export async function fetchAllInstitutes() {
@@ -75,6 +75,148 @@ export async function fetchInstituteByAdminEmail(email) {
     }
 }
 
+export async function updateCollegeAdmin(id, update) {
+    if (!id || !update || Object.keys(update).length === 0) {
+        return {
+            success: false,
+            message: 'College ID or update data not provided or empty.',
+        };
+    }
+
+    try {
+        await connectDB();
+
+        const allowedFields = [
+            'name',
+            'logo',
+            'address',
+            'city',
+            'state',
+            'phone',
+            'website',
+            'verified',
+            'approval',
+            'postEventImages',
+            'national',
+            'contract',
+            'adminUserEmail',
+        ];
+
+        const sanitizedUpdate = Object.fromEntries(
+            Object.entries(update).filter(([key]) =>
+                allowedFields.includes(key)
+            )
+        );
+
+        if (Object.keys(sanitizedUpdate).length === 0) {
+            return {
+                success: false,
+                message: 'No valid fields provided for update.',
+            };
+        }
+
+        const updatedCollege = await collegeModels.findByIdAndUpdate(
+            id,
+            { $set: sanitizedUpdate },
+            { new: true, runValidators: true, sanitizeFilter: true }
+        );
+
+        if (!updatedCollege) {
+            return { success: false, message: 'College not found.' };
+        }
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(updatedCollege)),
+            message: 'College updated successfully.',
+        };
+    } catch (error) {
+        console.error('Error updating college:', error);
+        return {
+            success: false,
+            message: error.message || 'Server error.',
+        };
+    }
+}
+
+// update college data, used in /institute?section=College Info
+export async function updateCollege(email, update) {
+    if (!email || !update || Object.keys(update).length === 0) {
+        return {
+            success: false,
+            message: 'Email or update data not provided or empty.',
+        };
+    }
+
+    try {
+        await connectDB();
+
+        // Make sure college exists
+        const existingCollege = await collegeModels.findOne({
+            adminUserEmail: email,
+        });
+        if (!existingCollege) {
+            return { success: false, message: 'College not found.' };
+        }
+
+        // Define safe, allowed fields for update
+        const allowedFields = [
+            'name',
+            'logo',
+            'address',
+            'city',
+            'state',
+            'phone',
+            'website',
+            'verified',
+            'approval',
+            'postEventImages',
+            'national',
+        ];
+
+        // Sanitize update object
+        const sanitizedUpdate = Object.fromEntries(
+            Object.entries(update).filter(
+                ([key]) =>
+                    allowedFields.includes(key) && key !== 'adminUserEmail'
+            )
+        );
+
+        if (Object.keys(sanitizedUpdate).length === 0) {
+            return {
+                success: false,
+                message: 'No valid fields provided for update.',
+            };
+        }
+
+        // Perform atomic update and return new document
+        const updatedCollege = await collegeModels.findOneAndUpdate(
+            { adminUserEmail: email },
+            { $set: sanitizedUpdate },
+            { new: true, runValidators: true }
+        );
+
+        if (!updatedCollege) {
+            return {
+                success: false,
+                message: 'College not found after update attempt.',
+            };
+        }
+
+        return {
+            success: true,
+            data: JSON.parse(JSON.stringify(updatedCollege)),
+            message: 'College updated successfully.',
+        };
+    } catch (error) {
+        console.error('Error updating college:', error);
+        return {
+            success: false,
+            message: error.message || 'Server error.',
+        };
+    }
+}
+
 // for /institute to update the contract url in document
 export async function updateCollegeContract(email, contractUrl) {
     if (!email || !contractUrl) {
@@ -91,7 +233,6 @@ export async function updateCollegeContract(email, contractUrl) {
         if (!college) {
             return { success: false, message: 'College not found' };
         }
-        console.log({ college, URL: contractUrl });
         college.contract = contractUrl; // add a new field in schema if not exists
         await college.save();
 

@@ -1,22 +1,14 @@
 'use client';
 import Link from 'next/link';
-import Image from '../Image';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import Image from 'next/image';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const EventCard = ({
-    image,
-    slug,
-    date,
-    title,
-    description,
-    price,
-    category,
-}) => {
+const EventCard = ({ image, slug, date, title, description, category }) => {
     const cardRef = useRef(null);
     const imgRef = useRef(null);
     const titleRef = useRef(null);
@@ -24,14 +16,52 @@ const EventCard = ({
     const categoryRef = useRef(null);
     const descRef = useRef(null);
     const detailsRef = useRef(null);
+    const tooltipRef = useRef(null);
+
+    useGSAP(() => {
+        gsap.set(tooltipRef.current, { opacity: 0, scale: 0.9 });
+    }, []);
+
+    const handleMouseEnter = () => {
+        gsap.to(tooltipRef.current, {
+            opacity: 1,
+            scale: 1,
+            filter: 'blur(0px)',
+            duration: 0.35,
+            ease: 'power3.out',
+        });
+    };
+
+    const handleMouseLeave = () => {
+        gsap.to(tooltipRef.current, {
+            opacity: 0,
+            scale: 0.9,
+            filter: 'blur(6px)',
+            duration: 0.4,
+            ease: 'power3.inOut',
+        });
+    };
+
+    const handleMouseMove = (e) => {
+        const rect = cardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        gsap.to(tooltipRef.current, {
+            x,
+            y,
+            duration: 1,
+            ease: 'power3.out',
+        });
+    };
 
     useGSAP(
         () => {
             const tl = gsap.timeline({
                 scrollTrigger: {
                     trigger: cardRef.current,
-                    start: 'top 80%', // Start animation when the top of the card is 80% of the viewport height
-                    toggleActions: 'play none none reverse', // Play when entering, reverse when leaving
+                    start: 'top 80%',
+                    toggleActions: 'play none none reverse',
                 },
             });
 
@@ -68,58 +98,77 @@ const EventCard = ({
         <Link
             ref={cardRef}
             href={`/events/${slug}`}
-            className="flex flex-col justify-between  h-[430px] w-full sm:w-[350px] md:w-[300px] lg:w-[350px] overflow-hidden mb-10 cursor-pointer border border-gray-300 rounded-lg p-5"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            onMouseMove={handleMouseMove}
+            className="group relative flex flex-col justify-between h-[420px] w-full sm:w-[340px] md:w-[320px] lg:w-[340px] 
+                       hover:z-10 rounded-2xl shadow-lg border border-white/10 bg-neutral-900 
+                       hover:scale-[1.02] transition-transform duration-300"
         >
-            <div className="group h-3/5 w-full relative " ref={imgRef}>
+            {/* Event Image */}
+            <div
+                ref={imgRef}
+                className="relative h-2/3 w-full rounded-t-2xl overflow-hidden"
+            >
                 <Image
-                    src={image}
+                    src={image || '/promo1.jpg'}
                     alt={title}
                     fill
-                    objectFit="cover"
-                    className="scale-105 group-hover:scale-100 transition-transform duration-300  rounded-lg"
-                    quality={70}
+                    className="object-cover transition-transform duration-500 scale-[1.02] group-hover:scale-100"
+                    quality={80}
                 />
-                <div className="h-full w-full absolute bg-black bg-opacity-40 flex flex-col justify-center items-center cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span className="text-primary text-sm font-black uppercase">
+                <div className="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <span className="text-white font-semibold text-sm uppercase tracking-wider">
                         View Details
                     </span>
                 </div>
             </div>
-            <div className="flex justify-between w-full">
-                <p
-                    ref={categoryRef}
-                    className="uppercase text-[12px] text-muted mt-5 mb-5"
-                >
-                    {category}
-                </p>
-                <p
-                    ref={dateRef}
-                    className="text-[12px] text-background px-1 bg-gray-300 rounded-full mt-5 mb-5"
-                >
+
+            {/* Event Info */}
+            <div className="flex flex-col justify-between p-5">
+                <p ref={dateRef} className="text-xs text-gray-400 mb-2">
                     {new Date(date).toDateString('hi-IN')}
                 </p>
-            </div>
-            <p ref={titleRef} className="w-full leading-relaxed">
-                <span className="text-4xl uppercase">{title?.charAt(0)}</span>
-                <span className="text-sm"> {title?.substring(1)}</span>
-            </p>
-            <p ref={descRef} className="w-full leading-relaxed">
-                <span className="text-sm">{description}</span>
-            </p>
-            <div ref={detailsRef} className="flex items-center mt-5 gap-5">
-                <span className="text-[12px] uppercase font-black">
-                    view details
-                </span>
-                <svg
-                    width="24"
-                    height="24"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fillRule="evenodd"
-                    clipRule="evenodd"
-                    className="fill-background dark:fill-white"
+                <h3
+                    ref={titleRef}
+                    className="text-lg font-bold text-white mb-2 line-clamp-1"
                 >
-                    <path d="M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z" />
-                </svg>
+                    {title}
+                </h3>
+                <p
+                    ref={descRef}
+                    className="text-sm text-gray-300 line-clamp-2 mb-4"
+                >
+                    {description || 'Exciting event awaits you!'}
+                </p>
+
+                <div
+                    ref={detailsRef}
+                    className="flex items-center justify-between"
+                >
+                    <span className="text-xs uppercase font-semibold text-gray-300 group-hover:text-indigo-300 transition-colors">
+                        View details
+                    </span>
+                    <svg
+                        width="24"
+                        height="20"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        className="fill-indigo-300 group-hover:translate-x-1 transition-transform duration-300"
+                    >
+                        <path d="M21.883 12l-7.527 6.235.644.765 9-7.521-9-7.479-.645.764 7.529 6.236h-21.884v1h21.883z" />
+                    </svg>
+                </div>
+            </div>
+
+            {/* Tooltip (hover-follow) */}
+            <div
+                ref={tooltipRef}
+                className="hidden md:block lg:block absolute pointer-events-none z-50 bg-neutral-900/90 text-white text-xs px-3 py-2 
+                           rounded-md max-w-[220px] backdrop-blur-md shadow-xl border border-white/10"
+            >
+                {description}
             </div>
         </Link>
     );

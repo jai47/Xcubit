@@ -2,7 +2,7 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import Image from '../Image';
+import Image from 'next/image';
 const MultiSection = ({ details }) => {
     const searchParams = useSearchParams();
     const querySection = searchParams.get('section') || 'Details';

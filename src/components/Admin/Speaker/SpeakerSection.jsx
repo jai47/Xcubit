@@ -3,8 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserTie, FaTrash, FaImage } from 'react-icons/fa';
 import { MdOutlineDelete } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
-const SpeakerSection = ({ speakerAdminGET, speakerAdminPOST }) => {
+const SpeakerSection = ({
+    speakerAdminGET,
+    speakerAdminPOST,
+    speakerAdminDELETE,
+}) => {
     const [formData, setFormData] = useState({
         name: '',
         image: '',
@@ -39,7 +44,6 @@ const SpeakerSection = ({ speakerAdminGET, speakerAdminPOST }) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    console.log(formData);
     // Generic upload handler (works for both image & banner)
     const handleFileChange = async (e, field) => {
         const file = e.target.files[0];
@@ -124,23 +128,51 @@ const SpeakerSection = ({ speakerAdminGET, speakerAdminPOST }) => {
         }
     };
 
-    const handleDelete = async (id) => {
+    const handleDelete = async (speaker) => {
         if (!confirm('Are you sure you want to delete this speaker?')) return;
 
         try {
-            const res = await fetch(`/api/admin/speakers/${id}`, {
-                method: 'DELETE',
-            });
+            // Helper to delete any file by URL
+            const deleteFile = async (fileUrl) => {
+                if (!fileUrl) return;
 
-            const data = await res.json();
-
-            if (data.success) {
-                setSpeakerList((prev) =>
-                    prev.filter((speaker) => speaker._id !== id)
+                const urlParts = fileUrl.split('/');
+                const filename = urlParts[urlParts.length - 1];
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/delete/${filename}`,
+                    { method: 'DELETE' }
                 );
+
+                if (!res.ok) {
+                    console.error(`Failed to delete file: ${filename}`);
+                    toast.error('Failed to delete images');
+                }
+            };
+
+            // Try deleting both image and banner (in parallel)
+            await Promise.allSettled([
+                deleteFile(speaker.image),
+                deleteFile(speaker.banner),
+            ]);
+        } catch (err) {
+            console.error('Image deletion error:', err);
+            toast.error('Error deleting image or banner');
+        }
+
+        try {
+            const res = await speakerAdminDELETE(speaker._id);
+
+            if (res.success) {
+                toast.success('Speaker deleted successfully');
+                setSpeakerList((prev) =>
+                    prev.filter((ele) => ele._id !== speaker._id)
+                );
+            } else {
+                toast.error(res.message || 'Failed to delete speaker');
             }
         } catch (err) {
-            console.error('Delete failed:', err);
+            console.error('Speaker deletion error:', err);
+            toast.error('Delete failed: ' + err.message);
         }
     };
 
@@ -378,10 +410,12 @@ const SpeakerSection = ({ speakerAdminGET, speakerAdminPOST }) => {
 
                             {/* Delete button */}
                             <button
-                                onClick={() => handleDelete(speaker._id)}
+                                onClick={() => {
+                                    handleDelete(speaker);
+                                }}
                                 className="absolute top-3 right-3 text-red-500 hover:text-red-700"
                             >
-                                <FaTrash className="text-white" />
+                                <FaTrash className="text-red-500" />
                             </button>
                         </div>
                     ))}

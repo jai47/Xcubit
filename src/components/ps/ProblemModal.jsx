@@ -10,6 +10,7 @@ export default function ProblemModal({ problem, onClose }) {
     const entries = [
         ['ID', problem._id],
         ['Title', problem.title],
+        ['Description', problem.description],
         ['Company', problem.company],
         ['Department', problem.department],
         ['Category', problem.category],

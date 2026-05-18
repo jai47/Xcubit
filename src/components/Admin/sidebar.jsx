@@ -53,11 +53,6 @@ const Sidebar = ({ query }) => {
                         section: 'Events',
                         icon: <BsCalendarEventFill size={20} />,
                     },
-                    {
-                        section: 'Create',
-                        icon: <FaCalendarPlus size={20} />,
-                        href: '/admin/create-event',
-                    },
                     { section: 'Users', icon: <FaUsers size={20} /> },
                     {
                         section: 'Queries',

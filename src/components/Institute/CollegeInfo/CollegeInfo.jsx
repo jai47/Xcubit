@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import { updateCollege } from '@/src/serverAction/collegeAction';
+import React, { useState, useRef, useTransition } from 'react';
 import { HiOutlineCamera } from 'react-icons/hi';
+import { toast } from 'react-toastify';
 
 const CollegeInfo = ({ college }) => {
+    const [isPending, startTransition] = useTransition();
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({
         name: college.name || '',
@@ -16,7 +19,6 @@ const CollegeInfo = ({ college }) => {
         adminUserEmail: college.adminUserEmail || '',
     });
 
-    const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -52,31 +54,25 @@ const CollegeInfo = ({ college }) => {
     };
 
     const handleSave = async () => {
-        setSaving(true);
         setError('');
         setSuccess('');
 
         try {
-            const response = await fetch('/api/college/instituteAdmin', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
+            startTransition(async () => {
+                const res = await updateCollege(
+                    college.adminUserEmail,
+                    formData
+                );
+                if (res.success) {
+                    setSuccess('College information updated successfully!');
+                    setIsEditing(false);
+                    toast.success('saved changes!');
+                } else {
+                    toast.error(res.message || 'Failed to save data');
+                }
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Failed to update');
-            }
-
-            setSuccess('College information updated successfully!');
-            setIsEditing(false);
         } catch (err) {
             setError(err.message);
-        } finally {
-            setSaving(false);
         }
     };
 
@@ -142,7 +138,7 @@ const CollegeInfo = ({ college }) => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg mt-8">
+        <div className="max-w-3xl mx-auto border border-gray-700 bg-white dark:bg-gray-900 p-6 rounded-xl shadow-lg mt-8">
             <div className="flex justify-between items-center mb-6 border-b pb-4 border-gray-200 dark:border-gray-700">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                     College Information
@@ -158,14 +154,14 @@ const CollegeInfo = ({ college }) => {
                     <div className="flex gap-2">
                         <button
                             onClick={handleSave}
-                            disabled={saving}
+                            disabled={isPending}
                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
                         >
                             Save
                         </button>
                         <button
                             onClick={handleCancel}
-                            disabled={saving}
+                            disabled={isPending}
                             className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 transition-colors"
                         >
                             Cancel

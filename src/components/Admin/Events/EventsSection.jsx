@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { MdEditCalendar } from 'react-icons/md';
 import { MdEventBusy } from 'react-icons/md';
-import Image from '../../Image';
 import EditEventsSection from './EditEventsSection';
+import Image from 'next/image';
 
 const EventsSection = ({ events }) => {
     const [edit, setEdit] = useState({ show: false, data: {} });
+    console.log(events);
 
     const handleEdit = (event) => {
         setEdit({ show: true, data: event });
@@ -22,7 +23,7 @@ const EventsSection = ({ events }) => {
                             <thead className="group/head text-xs uppercase text-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th className="group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3">
-                                        Date Created
+                                        Event Date
                                     </th>
                                     <th className="group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3">
                                         Picture
@@ -31,10 +32,7 @@ const EventsSection = ({ events }) => {
                                         Name
                                     </th>
                                     <th className="group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3">
-                                        Start Date
-                                    </th>
-                                    <th className="group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3">
-                                        Category
+                                        Institute
                                     </th>
                                     <th className="group-first/head:first:rounded-tl-lg group-first/head:last:rounded-tr-lg bg-gray-50 dark:bg-gray-700 px-6 py-3">
                                         Edit
@@ -55,14 +53,12 @@ const EventsSection = ({ events }) => {
                                             >
                                                 <td className="px-6 py-4">
                                                     {new Date(
-                                                        event?.[1].timestamp
+                                                        event?.[1].dateTime
                                                     ).toLocaleDateString()}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <Image
-                                                        src={
-                                                            event?.[1].thumbnail
-                                                        }
+                                                        src={event?.[1].image}
                                                         width={100}
                                                         height={80}
                                                         alt={event?.[1].name}
@@ -72,10 +68,7 @@ const EventsSection = ({ events }) => {
                                                     {event[1]?.name}
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    {event?.[1].start}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {event?.[1].category}
+                                                    {event?.[1].institute?.name}
                                                 </td>
                                                 <td
                                                     onClick={() =>

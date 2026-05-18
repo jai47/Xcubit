@@ -7,7 +7,7 @@ const SettingsDashboard = ({ profile, session }) => {
         message: '',
     });
     return (
-        <div className="p-6   shadow-lg rounded-lg mx-auto">
+        <div className="p-6   shadow-lg rounded-lg mx-auto text-white">
             <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
                 Settings
             </h2>
@@ -26,7 +26,7 @@ const SettingsDashboard = ({ profile, session }) => {
                     <p className="text-lg font-medium  ">Clear Bookmarks</p>
                     <label className="relative flex items-center cursor-pointer">
                         <button
-                            className="w-full h-[50px] bg-main text-white px-10 rounded-full transition-all duration-300 dark:bg-background dark:hover:bg-main dark:border dark:border-primary"
+                            className="w-full px-5 border border-gray-800 bg-neutral-900 hover:bg-indigo-950 py-3 rounded-full font-semibold transition-all duration-300"
                             onClick={() => {
                                 try {
                                     document.cookie =
@@ -44,7 +44,7 @@ const SettingsDashboard = ({ profile, session }) => {
                 {/* Change Password Button */}
                 {showModal?.visible && (
                     <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-10">
-                        <div className="bg-white p-6 rounded-lg shadow-lg relative w-11/12 max-w-md">
+                        <div className="bg-neutral-900 border border-gray-800 p-6 rounded-lg shadow-lg relative w-11/12 max-w-md">
                             {/* Close Button */}
                             <button
                                 onClick={() =>
@@ -53,7 +53,7 @@ const SettingsDashboard = ({ profile, session }) => {
                                         message: '',
                                     })
                                 }
-                                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+                                className="absolute top-3 right-3 text-white hover:text-red-800"
                                 aria-label="Close"
                             >
                                 <svg
@@ -74,10 +74,10 @@ const SettingsDashboard = ({ profile, session }) => {
 
                             {/* Modal Content */}
                             <div className="text-center">
-                                <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                                <h2 className="text-2xl font-semibold text-white mb-4">
                                     Password Reset Link Sent!
                                 </h2>
-                                <p className="text-gray-600">
+                                <p className="text-white">
                                     {showModal?.message}
                                 </p>
                                 <button

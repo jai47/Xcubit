@@ -1,7 +1,7 @@
 // FeaturedGuestsCard.js
+import Image from 'next/image';
 import React from 'react';
 import { CiLinkedin } from 'react-icons/ci';
-import Image from '../Image';
 const FeaturedGuestsCard = ({ image, name, title, bio, socialLinks, role }) => {
     return (
         <div className="p-6 rounded-lg flex items-center gap-6 shadow-sm cursor-pointer bg-slate-50 dark:bg-muted">

@@ -1,11 +1,20 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Tickets from '../../Tickets/Ticket';
 import Button from '../../Button';
 
-const TicketDashboard = ({ profile, userTeams }) => {
+const TicketDashboard = ({ profile, userTeams, queryTicket }) => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [selectedTeam, setSelectedTeam] = useState(null);
+
+    useEffect(() => {
+        if (queryTicket) {
+            const ticketData = userTeams?.find(
+                (team) => team._id === queryTicket
+            );
+            showTicket(ticketData);
+        }
+    }, [queryTicket, userTeams]);
 
     const showTicket = (team) => {
         if (!team) {
@@ -16,6 +25,7 @@ const TicketDashboard = ({ profile, userTeams }) => {
             setSelectedTeam(team);
         }
     };
+    console.log(queryTicket);
 
     return (
         <div className="p-4 sm:p-10 shadow-lg rounded-lg mx-auto w-full max-w-7xl">
@@ -24,29 +34,29 @@ const TicketDashboard = ({ profile, userTeams }) => {
             </h2>
 
             {/* Event Cards */}
-            {userTeams?.data?.length > 0 ? (
+            {userTeams?.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {userTeams.data.map((team, index) => (
+                    {userTeams?.map((team, index) => (
                         <div
                             key={index}
                             className="flex flex-col items-center justify-between p-6 bg-neutral-900 border border-neutral-800 rounded-xl hover:border-indigo-500 shadow-md hover:shadow-xl transition-all duration-300 text-white"
                         >
                             <div className="text-center space-y-2">
                                 <h3 className="text-xl font-semibold text-indigo-400">
-                                    {team.event.name}
+                                    {team?.event?.name}
                                 </h3>
                                 <p className="text-sm text-gray-300">
                                     Date:{' '}
                                     <span className="font-medium">
                                         {new Date(
-                                            team.event.dateTime
+                                            team?.event?.dateTime
                                         ).toLocaleString()}
                                     </span>
                                 </p>
                                 <p className="text-sm text-gray-300">
                                     Team:{' '}
                                     <span className="font-medium">
-                                        {team.name}
+                                        {team?.name}
                                     </span>
                                 </p>
                             </div>
@@ -66,14 +76,14 @@ const TicketDashboard = ({ profile, userTeams }) => {
             )}
 
             {/* Ticket Modal */}
-            {selectedEvent && selectedTeam && (
+            {selectedEvent && selectedTeam ? (
                 <Tickets
                     event={selectedEvent}
                     user={profile}
-                    teamCode={selectedTeam._id} // Pass team._id
+                    teamCode={selectedTeam._id}
                     showTicket={showTicket}
                 />
-            )}
+            ) : null}
         </div>
     );
 };

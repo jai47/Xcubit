@@ -4,7 +4,7 @@ import HeroTimeRemaining from '@/src/components/Details/HeroTimeRamaining';
 import Link from 'next/link';
 import Button from '@/src/components/Button';
 import BookmarkButton from '@/src/components/Details/BookmarkButton';
-import Image from '@/src/components/Image';
+import Image from 'next/image';
 
 const Preview = ({ data }) => {
     return (

@@ -195,21 +195,41 @@ export default function RegisterForm({ event, user, team, InviteCode }) {
 
     const handleJoinTeam = async () => {
         if (userAlreadyInTeam) return alert('You are already in a team!');
-        if (!InviteCode) {
-            const res = await joinTeam({ teamCode, userId: user._id });
-            if (res.success) {
-                alert('Joined team!');
-                redirect(`/dashboard?section=My+Teams`);
-            } else alert(res.message || 'Failed to join team');
-        } else {
-            const res = await joinTeam({
-                teamCode: InviteCode,
-                userId: user._id,
+
+        const codeToUse = InviteCode || teamCode;
+
+        if (!codeToUse) return alert('Please enter a team code.');
+
+        const res = await joinTeam({ teamCode: codeToUse, userId: user._id });
+
+        if (res.success) {
+            alert('Joined team successfully!');
+
+            // Send email with team details
+            await fetch('/api/mail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user?.email,
+                    type: 'joined-team',
+                    message: {
+                        name: user?.name || 'Participant',
+                        teamName: res.data.name,
+                        teamLink: `${process.env.NEXT_PUBLIC_BASE_URL}/register?team=${res.data._id}`,
+                        ticket: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard?section=My+Tickets&ticket=${res.data._id}`,
+                        eventName: res.data.event?.name || 'Event',
+                        eventDate: new Date(
+                            res.data.event?.dateTime
+                        ).toLocaleString(),
+                        eventLocation: res.data.event?.location || 'Location',
+                    },
+                    subject: `You have joined ${res.data.name}!`,
+                }),
             });
-            if (res.success) {
-                alert('Joined team!');
-                redirect(`/dashboard?section=My+Teams`);
-            } else alert(res.message || 'Failed to join team');
+
+            redirect(`/dashboard?section=My+Teams`);
+        } else {
+            alert(res.message || 'Failed to join team');
         }
     };
 
@@ -223,13 +243,60 @@ export default function RegisterForm({ event, user, team, InviteCode }) {
             name: teamName,
         });
         setLoading(false);
-        if (res.success) setTeamCreated(res.team);
-        else alert(res.message || 'Failed to create team');
+        if (res.success) {
+            setTeamCreated(res.team);
+            const sendEmailRes = await fetch('/api/mail', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: user?.email,
+                    type: 'new-team',
+                    message: {
+                        name: user?.name,
+                        teamName: teamName,
+                        teamLink: `${process.env.NEXT_PUBLIC_BASE_URL}/register?team=${res.team._id}`,
+                        ticket: `${
+                            process.env.NEXT_PUBLIC_BASE_URL
+                        }/dashboard?section=My+Tickets&ticket=${res.team._id.toString()}`,
+                    },
+                    subject: 'Congratulations! Your Team Has Been Created',
+                }),
+            });
+        } else alert(res.message || 'Failed to create team');
     };
+
+    // countdown (update every second)
+    const [countdown, setCountdown] = useState('');
+    useEffect(() => {
+        if (!event?.dateTime) return;
+        const updateTimer = () => {
+            const now = new Date();
+            const end = new Date(event.dateTime);
+            const diff = end - now;
+            if (diff <= 0) {
+                setCountdown('Event started');
+                return;
+            }
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const mins = Math.floor((diff / (1000 * 60)) % 60);
+            setCountdown(`${days}d ${hours}h ${mins}m`);
+        };
+        updateTimer();
+        const t = setInterval(updateTimer, 60 * 1000); // every minute
+        return () => clearInterval(t);
+    }, [event?.dateTime]);
 
     const totalFields = Object.keys(formData).length;
     const filledFields = Object.values(formData).filter((f) => f).length;
     const completionPercent = Math.floor((filledFields / totalFields) * 100);
+
+    // circular progress dash calculation
+    const CIRCLE_RADIUS = 46;
+    const CIRCLE_CIRC = 2 * Math.PI * CIRCLE_RADIUS;
+    const dashOffset = Math.round(
+        CIRCLE_CIRC - (completionPercent / 100) * CIRCLE_CIRC
+    );
 
     const shareLink =
         teamCreated || userAlreadyInTeam
@@ -244,277 +311,465 @@ export default function RegisterForm({ event, user, team, InviteCode }) {
     return (
         <>
             <Navbar />
-            <div className="min-h-screen bg-gray-900 text-white flex">
-                {/* Left Side */}
-                <div className="w-1/2 flex justify-center items-center p-6">
-                    <div className="w-full max-w-lg space-y-4">
-                        <h2 className="text-3xl font-bold mb-6 text-center">
-                            Register for {event.name}
-                        </h2>
-                        {sections.map((section, index) => (
-                            <div
-                                key={index}
-                                className="border border-gray-700 rounded-lg overflow-hidden shadow-lg"
-                            >
-                                <button
-                                    type="button"
-                                    className="flex justify-between items-center w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 font-medium"
-                                    onClick={() => toggleSection(index)}
-                                >
-                                    <div className="flex items-center gap-2">
-                                        {section.id === 'team' ? (
-                                            team?.success || teamCreated ? (
-                                                <FaCheckCircle className="text-green-400" />
+            <div className="min-h-screen bg-neutral-950 text-white py-10 px-6 lg:px-16 flex justify-center items-center">
+                <div className="w-full max-w-6xl flex flex-col lg:flex-row gap-8 items-start">
+                    {/* Left Side */}
+                    <div className="flex-1 bg-neutral-900/60 backdrop-blur-md border border-gray-800 rounded-2xl p-8 max-w-xl">
+                        <div className="w-full max-w-lg space-y-4">
+                            <h1 className="text-3xl font-extrabold leading-tight">
+                                Register for{' '}
+                                <span className="text-emerald-400">
+                                    {event?.name?.split(' - ')[0] || 'Event'}
+                                </span>
+                                <p className="mt-2 text-sm text-gray-400 max-w-prose">
+                                    Join the event — fill your details to secure
+                                    your spot. Save the profile before creating
+                                    or joining a team.
+                                </p>
+                            </h1>
+                            <div className="mt-6 space-y-5">
+                                {sections.map((section, index) => (
+                                    <div
+                                        key={index}
+                                        className="border border-gray-700 rounded-lg overflow-hidden shadow-lg"
+                                    >
+                                        <button
+                                            type="button"
+                                            className="flex justify-between items-center w-full px-4 py-3 bg-gray-800 hover:bg-gray-700 font-medium"
+                                            onClick={() => toggleSection(index)}
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                {section.id === 'team' ? (
+                                                    team?.success ||
+                                                    teamCreated ? (
+                                                        <FaCheckCircle className="text-green-400" />
+                                                    ) : (
+                                                        <FaQuestionCircle className="text-gray-400" />
+                                                    )
+                                                ) : isSectionComplete(
+                                                      section
+                                                  ) ? (
+                                                    <FaCheckCircle className="text-green-400" />
+                                                ) : (
+                                                    <FaQuestionCircle className="text-gray-400" />
+                                                )}
+                                                <span>{section.title}</span>
+                                            </div>
+                                            {activeSection === index ? (
+                                                <FaChevronUp />
                                             ) : (
-                                                <FaQuestionCircle className="text-gray-400" />
-                                            )
-                                        ) : isSectionComplete(section) ? (
-                                            <FaCheckCircle className="text-green-400" />
-                                        ) : (
-                                            <FaQuestionCircle className="text-gray-400" />
-                                        )}
-                                        <span>{section.title}</span>
-                                    </div>
-                                    {activeSection === index ? (
-                                        <FaChevronUp />
-                                    ) : (
-                                        <FaChevronDown />
-                                    )}
-                                </button>
+                                                <FaChevronDown />
+                                            )}
+                                        </button>
 
-                                <div
-                                    ref={section.ref}
-                                    className="overflow-hidden px-4"
-                                    style={{ height: 0, opacity: 0 }}
-                                >
-                                    {index === 0 && (
-                                        <div className="space-y-2 py-3">
-                                            {[
-                                                'name',
-                                                'phoneNumber',
-                                                'dateOfBirth',
-                                            ].map((field, i) => (
-                                                <input
-                                                    key={i}
-                                                    type={
-                                                        field === 'dateOfBirth'
-                                                            ? 'date'
-                                                            : 'text'
-                                                    }
-                                                    name={field}
-                                                    placeholder={field
-                                                        .replace(
-                                                            /([A-Z])/g,
-                                                            ' $1'
-                                                        )
-                                                        .replace(/^./, (s) =>
-                                                            s.toUpperCase()
-                                                        )}
-                                                    value={formData[field]}
-                                                    onChange={handleChange}
-                                                    className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
-                                                />
-                                            ))}
-                                            <select
-                                                value={formData?.gender}
-                                                onChange={(e) => {
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        gender: e.target.value,
-                                                    }));
-                                                }}
-                                                className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
-                                            >
-                                                <option value="">Select</option>
-                                                <option value="Other">
-                                                    Other
-                                                </option>
-                                                <option value="Female">
-                                                    Female
-                                                </option>
-                                                <option value="Male">
-                                                    Male
-                                                </option>
-                                            </select>
-                                            <Button
-                                                text={
-                                                    loading
-                                                        ? 'Saving...'
-                                                        : 'Save'
-                                                }
-                                                onClick={handleSaveProfile}
-                                                className="mt-2"
-                                            />
-                                        </div>
-                                    )}
-                                    {index === 1 && (
-                                        <div className="space-y-2 py-3">
-                                            {[
-                                                'linkedInOrGithub',
-                                                'city',
-                                                'stateOrProvince',
-                                                'country',
-                                                'postalCode',
-                                            ].map((field, i) => (
-                                                <input
-                                                    key={i}
-                                                    type="text"
-                                                    name={field}
-                                                    placeholder={field
-                                                        .replace(
-                                                            /([A-Z])/g,
-                                                            ' $1'
-                                                        )
-                                                        .replace(/^./, (s) =>
-                                                            s.toUpperCase()
-                                                        )}
-                                                    value={formData[field]}
-                                                    onChange={handleChange}
-                                                    className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
-                                                />
-                                            ))}
-                                            <Button
-                                                text={
-                                                    loading
-                                                        ? 'Saving...'
-                                                        : 'Save'
-                                                }
-                                                onClick={handleSaveProfile}
-                                                className="mt-2"
-                                            />
-                                        </div>
-                                    )}
-                                    {index === 2 && (
-                                        <div className="space-y-3 py-3 text-center">
-                                            {team?.success || teamCreated ? (
-                                                <>
-                                                    <p className="text-green-400 font-semibold">
-                                                        ✅ You are already part
-                                                        of a team!
-                                                    </p>
-
-                                                    <p className="text-sm text-gray-400 mt-1">
-                                                        Share this link with
-                                                        your teammates to let
-                                                        them join:
-                                                    </p>
-
-                                                    <div className="flex items-center gap-2 justify-center mt-3">
+                                        <div
+                                            ref={section.ref}
+                                            className="overflow-hidden px-4"
+                                            style={{ height: 0, opacity: 0 }}
+                                        >
+                                            {index === 0 && (
+                                                <div className="space-y-2 py-3">
+                                                    {[
+                                                        'name',
+                                                        'phoneNumber',
+                                                        'dateOfBirth',
+                                                    ].map((field, i) => (
                                                         <input
-                                                            type="text"
-                                                            readOnly
-                                                            value={`${
-                                                                window.location
-                                                                    .origin
-                                                            }/register?team=${
-                                                                teamCreated?._id ||
-                                                                team?.data
-                                                            }`}
-                                                            className="flex-grow border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white max-w-md"
-                                                        />
-                                                        <button
-                                                            onClick={() =>
-                                                                navigator.clipboard.writeText(
-                                                                    `${
-                                                                        window
-                                                                            .location
-                                                                            .origin
-                                                                    }/register?team=${
-                                                                        teamCreated?._id ||
-                                                                        team?.data
-                                                                    }`
-                                                                )
+                                                            key={i}
+                                                            type={
+                                                                field ===
+                                                                'dateOfBirth'
+                                                                    ? 'date'
+                                                                    : 'text'
                                                             }
-                                                            className="bg-green-500 px-3 py-2 rounded-lg hover:bg-green-600"
-                                                        >
-                                                            Copy
-                                                        </button>
-                                                    </div>
-                                                    <p className="text-xs">
-                                                        If copy not working
-                                                        share team code instead{' '}
-                                                        <span>
-                                                            {teamCreated?._id ||
-                                                                team?.data}
-                                                        </span>
-                                                    </p>
-
-                                                    <div className="mt-4">
-                                                        <Button
-                                                            text="Go to Dashboard"
-                                                            onClick={() =>
-                                                                redirect(
-                                                                    '/dashboard?section=My+Teams'
+                                                            name={field}
+                                                            placeholder={field
+                                                                .replace(
+                                                                    /([A-Z])/g,
+                                                                    ' $1'
                                                                 )
-                                                            }
-                                                        />
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {!InviteCode && (
-                                                        <Button
-                                                            text="Create New Team"
-                                                            onClick={() =>
-                                                                setModalOpen(
-                                                                    true
-                                                                )
-                                                            }
-                                                        />
-                                                    )}
-                                                    <div className="flex items-center gap-2 mt-2">
-                                                        <input
-                                                            type="text"
-                                                            placeholder="Enter Team Code"
+                                                                .replace(
+                                                                    /^./,
+                                                                    (s) =>
+                                                                        s.toUpperCase()
+                                                                )}
                                                             value={
-                                                                InviteCode ||
-                                                                teamCode
+                                                                formData[field]
                                                             }
-                                                            onChange={(e) =>
-                                                                setTeamCode(
-                                                                    e.target
-                                                                        .value
+                                                            onChange={
+                                                                handleChange
+                                                            }
+                                                            className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
+                                                        />
+                                                    ))}
+                                                    <select
+                                                        value={formData?.gender}
+                                                        onChange={(e) => {
+                                                            setFormData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    gender: e
+                                                                        .target
+                                                                        .value,
+                                                                })
+                                                            );
+                                                        }}
+                                                        className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
+                                                    >
+                                                        <option value="">
+                                                            Select
+                                                        </option>
+                                                        <option value="Other">
+                                                            Other
+                                                        </option>
+                                                        <option value="Female">
+                                                            Female
+                                                        </option>
+                                                        <option value="Male">
+                                                            Male
+                                                        </option>
+                                                    </select>
+                                                    <Button
+                                                        text={
+                                                            loading
+                                                                ? 'Saving...'
+                                                                : 'Save'
+                                                        }
+                                                        onClick={
+                                                            handleSaveProfile
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+                                            {index === 1 && (
+                                                <div className="space-y-2 py-3">
+                                                    {[
+                                                        'linkedInOrGithub',
+                                                        'city',
+                                                        'stateOrProvince',
+                                                        'country',
+                                                        'postalCode',
+                                                    ].map((field, i) => (
+                                                        <input
+                                                            key={i}
+                                                            type="text"
+                                                            name={field}
+                                                            placeholder={field
+                                                                .replace(
+                                                                    /([A-Z])/g,
+                                                                    ' $1'
                                                                 )
+                                                                .replace(
+                                                                    /^./,
+                                                                    (s) =>
+                                                                        s.toUpperCase()
+                                                                )}
+                                                            value={
+                                                                formData[field]
                                                             }
-                                                            disabled={
-                                                                InviteCode
+                                                            onChange={
+                                                                handleChange
                                                             }
-                                                            className="flex-grow border border-gray-600 rounded-lg px-4 py-2 bg-gray-800 text-white"
+                                                            className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white"
                                                         />
-                                                        <Button
-                                                            text="Join Team"
-                                                            onClick={
-                                                                handleJoinTeam
-                                                            }
-                                                        />
-                                                    </div>
-                                                </>
+                                                    ))}
+                                                    <Button
+                                                        text={
+                                                            loading
+                                                                ? 'Saving...'
+                                                                : 'Save'
+                                                        }
+                                                        onClick={
+                                                            handleSaveProfile
+                                                        }
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {index === 2 && (
+                                                <div className="space-y-3 py-3 text-center">
+                                                    {completionPercent < 100 ? (
+                                                        <div className="py-6 text-center text-gray-400 text-sm">
+                                                            ⚠️ Please complete
+                                                            and save all
+                                                            sections before
+                                                            creating or joining
+                                                            a team.
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            <div className="space-y-3 py-3 text-center">
+                                                                {team?.success ||
+                                                                teamCreated ? (
+                                                                    <>
+                                                                        <p className="text-green-400 font-semibold">
+                                                                            ✅
+                                                                            You
+                                                                            are
+                                                                            already
+                                                                            part
+                                                                            of a
+                                                                            team!
+                                                                        </p>
+
+                                                                        <p className="text-sm text-gray-400 mt-1">
+                                                                            Share
+                                                                            this
+                                                                            link
+                                                                            with
+                                                                            your
+                                                                            teammates
+                                                                            to
+                                                                            let
+                                                                            them
+                                                                            join:
+                                                                        </p>
+
+                                                                        <div className="flex items-center gap-2 justify-center mt-3">
+                                                                            <input
+                                                                                type="text"
+                                                                                readOnly
+                                                                                value={`${
+                                                                                    window
+                                                                                        .location
+                                                                                        .origin
+                                                                                }/register?team=${
+                                                                                    teamCreated?._id ||
+                                                                                    team?.data
+                                                                                }`}
+                                                                                className="flex-grow border border-gray-600 rounded-lg px-3 py-2 bg-gray-800 text-white max-w-md"
+                                                                            />
+                                                                            <button
+                                                                                onClick={(
+                                                                                    e
+                                                                                ) => {
+                                                                                    navigator.clipboard.writeText(
+                                                                                        `${
+                                                                                            window
+                                                                                                .location
+                                                                                                .origin
+                                                                                        }/register?team=${
+                                                                                            teamCreated?._id ||
+                                                                                            team?.data
+                                                                                        }`
+                                                                                    );
+                                                                                    e.target.textContent =
+                                                                                        'Copied';
+                                                                                    setTimeout(
+                                                                                        () => {
+                                                                                            e.target.textContent =
+                                                                                                'Copy';
+                                                                                        },
+                                                                                        2000
+                                                                                    );
+                                                                                }}
+                                                                                className="bg-green-500 px-3 py-2 rounded-lg hover:bg-green-600"
+                                                                            >
+                                                                                Copy
+                                                                            </button>
+                                                                        </div>
+                                                                        <p className="text-xs">
+                                                                            If
+                                                                            copy
+                                                                            not
+                                                                            working
+                                                                            share
+                                                                            team
+                                                                            code
+                                                                            instead{' '}
+                                                                            <span>
+                                                                                {teamCreated?._id ||
+                                                                                    team?.data}
+                                                                            </span>
+                                                                        </p>
+
+                                                                        <div className="mt-4">
+                                                                            <Button
+                                                                                text="Go to Dashboard"
+                                                                                onClick={() =>
+                                                                                    redirect(
+                                                                                        '/dashboard?section=My+Teams'
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        {!InviteCode && (
+                                                                            <Button
+                                                                                text="Create New Team"
+                                                                                onClick={() =>
+                                                                                    setModalOpen(
+                                                                                        true
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        )}
+                                                                        <div className="flex items-center gap-2 mt-2">
+                                                                            <input
+                                                                                type="text"
+                                                                                placeholder="Enter Team Code"
+                                                                                value={
+                                                                                    InviteCode ||
+                                                                                    teamCode
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    setTeamCode(
+                                                                                        e
+                                                                                            .target
+                                                                                            .value
+                                                                                    )
+                                                                                }
+                                                                                disabled={
+                                                                                    InviteCode
+                                                                                }
+                                                                                className="flex-grow border border-gray-600 rounded-lg px-4 py-2 bg-gray-800 text-white"
+                                                                            />
+                                                                            <Button
+                                                                                text="Join Team"
+                                                                                onClick={
+                                                                                    handleJoinTeam
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
                                             )}
                                         </div>
-                                    )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                        <p className="mt-6 text-xs text-gray-500">
+                            By registering you agree to the event terms. Make
+                            sure your details are accurate.
+                        </p>
+                    </div>
+
+                    {/* Right Side */}
+                    <aside className="w-2/5 min-w-[320px] bg-neutral-900/50 backdrop-blur-md border border-gray-800 rounded-2xl p-6 flex flex-col gap-6">
+                        <div className="rounded-xl overflow-hidden h-36 bg-black/20">
+                            {event?.image ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={event.image}
+                                    alt={event.name}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gradient-to-r from-purple-700 to-indigo-700" />
+                            )}
+                        </div>
+
+                        <div>
+                            <h2 className="text-xl font-bold">{event.name}</h2>
+                            <p className="text-sm text-gray-400 mt-2">
+                                {event.shortDescription}
+                            </p>
+                        </div>
+
+                        <div className="mt-3 grid grid-cols-2 gap-4 items-center">
+                            <div>
+                                <div className="text-xs text-gray-400">
+                                    Date
+                                </div>
+                                <div className="font-medium text-green-300 mt-1">
+                                    {event?.dateTime
+                                        ? new Date(
+                                              event.dateTime
+                                          ).toLocaleString()
+                                        : 'TBD'}
+                                </div>
+                                <div className="text-xs text-gray-400 mt-2">
+                                    Location
+                                </div>
+                                <div className="font-medium text-gray-200 mt-1">
+                                    {event.location || 'Online'}
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                </div>
 
-                {/* Right Side */}
-                <div className="w-1/2 p-6 border-l border-gray-700 flex flex-col justify-center items-center text-center space-y-6">
-                    <div className="text-6xl font-bold text-green-400">
-                        {completionPercent}%
-                    </div>
-                    <div className="text-xl">Form Completed</div>
-                    <div className="space-y-2 text-left">
-                        <h3 className="text-2xl font-bold">{event.name}</h3>
-                        <p>{event.shortDescription}</p>
-                        <p className="mt-2">
-                            <strong>Date:</strong>{' '}
-                            {new Date(event.dateTime).toLocaleString()}
-                        </p>
-                        <p>
-                            <strong>Location:</strong> {event.location}
-                        </p>
-                    </div>
+                            <div className="flex flex-col items-center justify-center gap-2">
+                                {/* circular progress */}
+                                <div className="flex flex-col items-center justify-center relative w-[90px] h-[90px]">
+                                    <svg
+                                        width="90"
+                                        height="90"
+                                        viewBox="0 0 100 100"
+                                        className="transform -rotate-90"
+                                    >
+                                        <defs>
+                                            <linearGradient id="g1">
+                                                <stop
+                                                    offset="0%"
+                                                    stopColor="#10b981"
+                                                />
+                                                <stop
+                                                    offset="100%"
+                                                    stopColor="#34d399"
+                                                />
+                                            </linearGradient>
+                                        </defs>
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r={CIRCLE_RADIUS}
+                                            stroke="#111827"
+                                            strokeWidth="8"
+                                            fill="none"
+                                        />
+                                        <circle
+                                            cx="50"
+                                            cy="50"
+                                            r={CIRCLE_RADIUS}
+                                            stroke="url(#g1)"
+                                            strokeWidth="8"
+                                            strokeLinecap="round"
+                                            fill="none"
+                                            strokeDasharray={CIRCLE_CIRC}
+                                            strokeDashoffset={dashOffset}
+                                        />
+                                    </svg>
+
+                                    {/* centered % text */}
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-lg font-semibold text-emerald-400">
+                                        {completionPercent}%
+                                    </div>
+                                </div>
+
+                                <div className="text-xs w-3/5 text-center">
+                                    Profile complete percentage
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 border-t border-gray-800 pt-4">
+                            <div className="text-sm text-gray-400">
+                                Registration Closes In
+                            </div>
+                            <div className="text-lg font-semibold text-emerald-300 mt-1">
+                                {countdown || '—'}
+                            </div>
+                        </div>
+
+                        <div className="mt-4 text-sm text-gray-500">
+                            Created:{' '}
+                            <span className="text-gray-400">
+                                {new Date(event.createdAt).toLocaleDateString()}
+                            </span>
+                            <br />
+                            Updated:{' '}
+                            <span className="text-gray-400">
+                                {new Date(event.updatedAt).toLocaleDateString()}
+                            </span>
+                        </div>
+                    </aside>
                 </div>
             </div>
 

@@ -18,15 +18,15 @@ const Loading = () => {
     ];
     const [currentIndex, setCurrentIndex] = useState(0);
     const textRef = useRef(null);
-
+    // Cycle through greetings
     useEffect(() => {
         const interval = setInterval(() => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % greetings.length);
-        }, 800);
-
+        }, 1000);
         return () => clearInterval(interval);
     }, []);
 
+    // Animate text fade in/out
     useEffect(() => {
         if (textRef.current) {
             gsap.fromTo(
@@ -37,17 +37,16 @@ const Loading = () => {
         }
     }, [currentIndex]);
 
-    console.log('www.linkedin.com/in/jai47/');
-
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-neutral-950 text-white text-3xl font-semibold z-[9999]">
+        <div className="fixed inset-0 flex items-center justify-center text-white text-3xl font-semibold z-[9999] bg-black">
             <div
                 ref={textRef}
-                className="flex items-center justify-center gap-3"
+                className="flex items-center justify-center gap-3 tracking-wide"
             >
-                <span className="w-3 h-3 rounded-full bg-gray-300" />
-                <span>{greetings[currentIndex]}</span>
+                <span className="font-sans">{greetings[currentIndex]}</span>
             </div>
+
+            <div className="absolute top-8 right-8 w-6 h-6 rounded-full animate-spin border border-white border-t-transparent hidden md:block lg:block"></div>
         </div>
     );
 };

@@ -1,130 +1,63 @@
+// app/signin/page.jsx
 import { auth } from '@/src/auth';
-import { userFormAction } from '@/src/serverAction/userAction';
-import { FcGoogle } from 'react-icons/fc';
-import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { signinWithGoogle } from '@/src/serverAction/authAction';
+import { redirect } from 'next/navigation';
+import GoogleLoginButton from '@/src/components/Auth/GoogleLoginButton';
+import SignInForm from '@/src/components/Auth/Signin/SigninForm';
 
-export default async function SignIn() {
-    const session = await auth(); // Check if the user is logged in
-    const user = session?.user;
-    if (user) {
+export default async function SignInPage() {
+    const session = await auth();
+
+    // SSR redirect for authenticated users
+    if (session?.user) {
         redirect('/');
     }
+
     return (
-        <div className="flex flex-col lg:flex-row w-full min-h-screen dark:bg-background dark:text-primary">
-            <div className=" w-full lg:w-1/2 p-6 lg:p-12 flex flex-col ">
-                <div className="flex justify-end gap-1">
+        <div className="flex flex-col lg:flex-row w-full min-h-screen dark:bg-background dark:text-primary transition-all duration-500">
+            {/* LEFT SIDE */}
+            <div className="w-full lg:w-1/2 p-6 lg:p-12 flex flex-col">
+                <div className="flex justify-end gap-1 text-sm">
                     <span>Already have an account?</span>
-                    <Link href="/login" className="underline">
+                    <Link
+                        href="/login"
+                        className="underline text-main font-medium"
+                    >
                         Login
                     </Link>
                 </div>
+
                 <div className="flex flex-col justify-center w-full px-6 md:px-10 mt-8 md:mt-32">
                     <h1 className="text-3xl font-black text-center lg:text-left">
-                        Sign up
+                        Create your account
                     </h1>
 
-                    <form
-                        action={async () => {
-                            'use server';
-                            await signinWithGoogle();
-                        }}
-                        className="mt-10 mb-12 w-full flex justify-center"
-                    >
-                        <button
-                            type="submit"
-                            className="w-full sm:w-3/5 hover:bg-gray-50 border border-background py-3 rounded-full flex items-center justify-center space-x-3 transition-all duration-300 dark:border-primary dark:hover:bg-muted"
-                        >
-                            <FcGoogle size={25} />
-                            <span>Continue with Google</span>
-                        </button>
-                    </form>
+                    <div className="mt-10 mb-12 w-full flex justify-center">
+                        <GoogleLoginButton />
+                    </div>
 
+                    {/* Divider */}
                     <div className="flex items-center justify-center my-4 text-sm dark:text-muted">
                         <div className="w-2/5 border-t border-gray-300"></div>
                         <span className="mx-4">OR</span>
                         <div className="w-2/5 border-t border-gray-300"></div>
                     </div>
-                    <form
-                        action={async (formData) => {
-                            'use server';
-                            await userFormAction(formData); // don't catch it here, let it propagate
-                        }}
-                        className="mt-10 mb-12 w-full flex flex-col justify-center items-center gap-6"
-                    >
-                        <div className="flex w-full sm:w-3/5 flex-col relative">
-                            <label
-                                htmlFor="name"
-                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
-                            >
-                                What should we call you?
-                            </label>
-                            <input
-                                id="name"
-                                type="text"
-                                name="name"
-                                placeholder="E.g. John Doe"
-                                required
-                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
-                            />
-                        </div>
 
-                        <div className="flex w-full sm:w-3/5 flex-col relative">
-                            <label
-                                htmlFor="email"
-                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
-                            >
-                                Email
-                            </label>
-                            <input
-                                id="email"
-                                type="email"
-                                name="email"
-                                placeholder="Email"
-                                required
-                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
-                            />
-                        </div>
-
-                        <div className="flex w-full sm:w-3/5 flex-col relative">
-                            <label
-                                htmlFor="password"
-                                className="absolute top-[-10px] left-3 px-1 text-sm bg-primary dark:bg-background dark:text-primary"
-                            >
-                                Password
-                            </label>
-                            <input
-                                id="password"
-                                type="password"
-                                name="password"
-                                placeholder="Password"
-                                required
-                                className="w-full px-4 py-3 outline-none border border-muted rounded-lg dark:bg-background dark:text-primary"
-                            />
-                        </div>
-
-                        <div className="w-full md:w-3/5">
-                            <button
-                                type="submit"
-                                className="w-full h-[50px] bg-main text-white py-2 rounded-full transition-all duration-300 dark:bg-background dark:hover:bg-main dark:border dark:border-primary"
-                            >
-                                CONTINUE
-                            </button>
-                        </div>
-                    </form>
+                    <SignInForm />
                 </div>
             </div>
+
+            {/* RIGHT SIDE */}
             <div
                 style={{
                     background:
-                        'url(https://vief.vercel.app/static/media/bg-landing.181eed223f887d01ee8e.jpeg)',
+                        'url(https://images.unsplash.com/photo-1642615835477-d303d7dc9ee9?w=2160&q=80)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                 }}
-                className="hidden md:block bg-slate-100 h-full md:h-screen w-full md:w-1/2"
-            ></div>
+                className="hidden lg:block w-full lg:w-1/2 rounded-2xl"
+            />
         </div>
     );
 }

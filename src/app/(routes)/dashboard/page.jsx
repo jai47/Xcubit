@@ -18,7 +18,7 @@ export default async function Dashboard() {
     return (
         <>
             {profile && !profile?.verified && (
-                <div className="w-full bg-red-500 text-xs text-center p-1">
+                <div className="w-full bg-red-500 text-xs text-center p-1 text-white">
                     <p>Account not verified</p>
                     <p>Check your email for verification link</p>
                 </div>
@@ -28,11 +28,11 @@ export default async function Dashboard() {
                 <DashboardSideBar profile={profile} session={session} />
 
                 {/* Main Content */}
-                <div className="flex-1 pt-10 p-6 bg-neutral-950">
+                <div className="flex-1 pt-10 p-6 bg-neutral-950 overflow-scroll">
                     <DashboardSectionRenderer
                         profile={profile}
                         session={session}
-                        userTeams={userTeams}
+                        userTeams={userTeams?.data || null}
                     />
                 </div>
             </div>

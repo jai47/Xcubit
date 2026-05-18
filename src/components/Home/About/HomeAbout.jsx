@@ -6,7 +6,7 @@ import React from 'react';
 const HomeAbout = () => {
     const event = useNationalEvent();
     return (
-        <div className="w-full bg-neutral-950 font-sans pb-20 relative">
+        <div className="w-full bg-neutral-950 font-sans pb-20 relative overflow-hidden">
             {/* Background gradient */}
             <div className="absolute top-0 h-full w-full bg-[radial-gradient(ellipse_40%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))] md:bg-[radial-gradient(ellipse_20%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]"></div>
 

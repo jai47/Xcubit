@@ -1,7 +1,7 @@
 'use server';
 
 import { template } from './emailTemplates';
-const nodemailer = require('nodemailer');
+import nodemailer from 'nodemailer';
 
 const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
@@ -13,32 +13,33 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-// Function to send emails
 export async function sendEmail({ email, subject, message, image, type }) {
     if (!email) {
         return { success: false, message: 'Email is required' };
     }
 
-    let mailOptions = {
+    const mailOptions = {
         from: process.env.EMAIL_FROM,
-        to: reqBody.email,
-        subject: subject,
-        html: template(type, message),
+        to: email,
+        subject,
+        html: template({ type, message }),
         attachments: [],
     };
 
     if (image) {
         mailOptions.attachments.push({
             filename: 'QR Ticket.png',
-            path: image, // Path to image provided in the request
-            cid: 'ticket', // same cid value as in the html img src
+            path: image,
+            cid: 'ticket',
         });
     }
+
     try {
         const info = await transporter.sendMail(mailOptions);
-        console.log('Email sent:', info.messageId);
+        console.log('✅ Email sent:', info.messageId);
+        return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.log(error);
+        console.error('❌ Email error:', error);
         return { success: false, message: 'Internal Server Error' };
     }
 }

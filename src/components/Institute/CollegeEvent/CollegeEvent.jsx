@@ -12,6 +12,7 @@ import Loading from '@/src/app/loading';
 import { generateVerificationTokens } from '@/src/utils/generateVerificationTokens';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import RegisteredTeamsTable from './TeamRegistrationTable';
 
 const CollegeEvent = ({ college }) => {
     const national = useNationalEvent();
@@ -130,7 +131,6 @@ const CollegeEvent = ({ college }) => {
         }
     };
 
-    console.log(formData);
     if (loading) {
         return <Loading />;
     }
@@ -139,22 +139,69 @@ const CollegeEvent = ({ college }) => {
         <div className="h-full overflow-auto p-6 max-w-5xl mx-auto">
             {/* Already created event */}
             {event ? (
-                <div className="p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                    <h3 className="text-xl font-semibold">
-                        {event.name} - {event.session}
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-300">
-                        {event.shortDescription}
-                    </p>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {new Date(event.dateTime).toLocaleString()} •{' '}
-                        {event.location}
-                    </p>
-                    <img
-                        src={event.image}
-                        alt={event.name}
-                        className="mt-4 w-full h-48 object-cover rounded-lg"
-                    />
+                <div className="space-y-10">
+                    {/* Event Details Card */}
+                    <div className="p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <div className="flex flex-col lg:flex-row gap-6">
+                            <div className="lg:w-1/3">
+                                <img
+                                    src={event.image}
+                                    alt={event.name}
+                                    className="w-full h-56 object-cover rounded-lg shadow-md"
+                                />
+                            </div>
+                            <div className="lg:w-2/3">
+                                <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
+                                    {event.name}
+                                </h3>
+                                <p className="text-gray-600 dark:text-gray-300 mb-3 break-words">
+                                    {event.shortDescription}
+                                </p>
+                                <div className="text-sm space-y-1 text-gray-900 dark:text-gray-100">
+                                    <p>
+                                        <span className="font-medium">
+                                            Date:
+                                        </span>{' '}
+                                        {new Date(
+                                            event.dateTime
+                                        ).toLocaleString()}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">
+                                            Location:
+                                        </span>{' '}
+                                        <a
+                                            href={event.locationURL}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-purple-500 hover:underline"
+                                        >
+                                            {event.location}
+                                        </a>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Registered Teams Section */}
+                    <div className="p-6 rounded-xl shadow border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
+                        <h3 className="text-xl font-semibold mb-6 border-b pb-2 text-gray-900 dark:text-gray-100">
+                            Registered Teams ({event.registered?.length || 0})
+                        </h3>
+
+                        {event && event.registered?.length > 0 ? (
+                            <div className="mt-10">
+                                <RegisteredTeamsTable
+                                    registered={event.registered}
+                                />
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-center">
+                                No teams have registered yet.
+                            </p>
+                        )}
+                    </div>
                 </div>
             ) : (
                 <div className="text-center">
@@ -176,7 +223,7 @@ const CollegeEvent = ({ college }) => {
                 <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
                     <form
                         onSubmit={handleSubmit}
-                        className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl p-6 grid gap-4"
+                        className="bg-white dark:bg-gray-900 h-5/6 rounded-xl shadow-xl w-full max-w-3xl p-6 grid gap-4 overflow-scroll"
                     >
                         {/* Header */}
                         <div className="flex justify-between items-center mb-4">

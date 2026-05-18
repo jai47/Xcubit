@@ -5,7 +5,6 @@ import { AiOutlineUpload } from 'react-icons/ai';
 import { FaCheck } from 'react-icons/fa';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import { MdOutlineDelete } from 'react-icons/md';
-import { sendEmail } from '@/src/utils/Email/sendEmail';
 import InstituteAdminModal from './InstituteAdminModal';
 
 const CollegeSection = ({ fetchAllInstitutes, createNewCollege }) => {
@@ -91,17 +90,21 @@ const CollegeSection = ({ fetchAllInstitutes, createNewCollege }) => {
             if (success) {
                 fetchColleges();
                 if (data.adminUserEmail) {
-                    const res = await sendEmail({
-                        email: data.adminUserEmail,
-                        subject: `Welcome to the community, ${data.name}`,
-                        message: {
-                            name: data.name,
-                            verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/college/${data.verifyToken}`,
+                    const res = await fetch('/api/mail', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
                             email: data.adminUserEmail,
-                            contactEmail: 'support@xcubit.in',
-                            loginLink: 'https://xcubit.in/login',
-                        },
-                        type: 'college-registration',
+                            type: 'college-registration',
+                            message: {
+                                name: data.name,
+                                verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/college/${data.verifyToken}`,
+                                email: data.adminUserEmail,
+                                contactEmail: 'support@xcubit.in',
+                                loginLink: 'https://xcubit.in/login',
+                            },
+                            subject: `Welcome to the community, ${data.name}`,
+                        }),
                     });
                 }
             }
@@ -317,8 +320,6 @@ const CollegeSection = ({ fetchAllInstitutes, createNewCollege }) => {
                     onClose={() => {
                         setShowModal(null);
                     }}
-                    onDelete={''}
-                    onUpdate={''}
                 />
             )}
         </div>

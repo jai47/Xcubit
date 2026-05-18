@@ -10,6 +10,7 @@ import SpeakerSection from '@/src/components/Admin/Speaker/SpeakerSection';
 import JudgeSection from '@/src/components/Admin/Judges/JudgeSection';
 import ProblemSection from '@/src/components/Admin/Problem/ProblemSection';
 import {
+    sponsorAdminDELETE,
     sponsorAdminGET,
     sponsorAdminPOST,
 } from '@/src/serverAction/sponsorAction';
@@ -22,10 +23,15 @@ import {
     fetchAllInstitutes,
 } from '@/src/serverAction/collegeAction';
 import {
+    speakerAdminDELETE,
     speakerAdminGET,
     speakerAdminPOST,
 } from '@/src/serverAction/speakerAction';
-import { judgeAdminGET, judgeAdminPOST } from '@/src/serverAction/judgeAction';
+import {
+    judgeAdminDELETE,
+    judgeAdminGET,
+    judgeAdminPOST,
+} from '@/src/serverAction/judgeAction';
 import {
     problemStatementDELETE,
     problemStatementGET,
@@ -69,6 +75,7 @@ const AdminRenderSection = ({ events, users, query }) => {
                         queries={query}
                         sponsorAdminGET={sponsorAdminGET}
                         sponsorAdminPOST={sponsorAdminPOST}
+                        sponsorAdminDELETE={sponsorAdminDELETE}
                     />
                 );
 
@@ -91,6 +98,7 @@ const AdminRenderSection = ({ events, users, query }) => {
                         queries={query}
                         speakerAdminGET={speakerAdminGET}
                         speakerAdminPOST={speakerAdminPOST}
+                        speakerAdminDELETE={speakerAdminDELETE}
                     />
                 );
 
@@ -102,6 +110,7 @@ const AdminRenderSection = ({ events, users, query }) => {
                         queries={query}
                         judgeAdminGET={judgeAdminGET}
                         judgeAdminPOST={judgeAdminPOST}
+                        judgeAdminDELETE={judgeAdminDELETE}
                     />
                 );
 

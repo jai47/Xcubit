@@ -1,16 +1,19 @@
 'use server';
 
 import { connectDB } from '@/src/lib/mongodb';
-import { eventModels } from '../models/events';
-import { collegeModels } from '../models/colleges';
+import { getOrSetCache } from '../utils/Cache';
+import { collegeModels, eventModels } from '../models';
 
 /**
  * Fetch the event for a specific college & national (returns null if none)
  */
-export async function eventInstituteGET(collegeId, nationalId) {
-    try {
-        await connectDB();
 
+export async function eventInstituteGET(
+    collegeId,
+    nationalId,
+    hotReload = false
+) {
+    try {
         if (!collegeId || !nationalId) {
             return {
                 success: false,
@@ -18,13 +21,38 @@ export async function eventInstituteGET(collegeId, nationalId) {
             };
         }
 
-        const event = await eventModels
-            .findOne({ institute: collegeId, national: nationalId })
-            .lean();
+        const cacheKey = `event:${collegeId}:${nationalId}`;
+
+        const { success, data, cache } = await getOrSetCache(
+            cacheKey,
+            async () => {
+                await connectDB();
+                return await eventModels
+                    .findOne({ institute: collegeId, national: nationalId })
+                    .populate({
+                        path: 'registered',
+                        populate: [
+                            { path: 'leader', select: 'name email' },
+                            { path: 'members', select: 'name email' },
+                        ],
+                    })
+                    .lean();
+            },
+            300,
+            hotReload
+        );
+        if (success) {
+            return {
+                success: true,
+                data: JSON.parse(JSON.stringify(data)),
+                message: cache,
+            };
+        }
 
         return {
-            success: true,
-            data: event ? JSON.parse(JSON.stringify(event)) : null,
+            success: false,
+            data: null,
+            message: 'Internal Server Error',
         };
     } catch (err) {
         console.error('eventInstituteGET error:', err);

@@ -1,10 +1,10 @@
-import localFont from 'next/font/local';
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
 import { auth } from '@/src/auth';
 import Script from 'next/script';
 import { NationalEventProvider } from '../context/National/NationalEventContext';
 import { nationalEventAdminGETLATEST } from '../serverAction/nationalAction';
+import { ToastContainer } from 'react-toastify';
 
 export const metadata = {
     title: 'Xcubit: Revolutionizing Ticketing and Event Management',
@@ -43,6 +43,7 @@ export default async function RootLayout({ children }) {
                 <SessionProvider session={session}>
                     <NationalEventProvider initialEvent={latestEvent}>
                         {children}
+                        <ToastContainer position="top-right" />
                     </NationalEventProvider>
                 </SessionProvider>
             </body>

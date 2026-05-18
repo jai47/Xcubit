@@ -1,56 +1,63 @@
 'use server';
 import { connectDB } from '@/src/lib/mongodb';
-import { userModels } from '../models/users';
 import {
     comparePassword,
     saltAndHashPassword,
 } from '@/src/utils/saltAndHashPassword';
-import { redirect } from 'next/navigation';
 import { sendEmail } from '../utils/Email/sendEmail';
+import { userModels } from '../models';
+import { generateVerificationTokens } from '../utils/generateVerificationTokens';
 
 export async function userFormAction(formData) {
-    await connectDB();
-    let data = Object.fromEntries(formData.entries());
-    const requiredFields = ['email', 'password'];
-    for (const field of requiredFields) {
-        if (!data[field]) {
-            throw new Error(`Field "${field}" is required.`);
-        }
-    }
-
-    let user = await getUserFromDB(data.email);
-
-    if (user) {
-        throw new Error({ msg: 'User already exists' });
-    }
-
-    data = {
-        ...data,
-        password: await saltAndHashPassword(data.password),
-        role: 'user',
-        verified: false,
-        forgotPasswordToken: 'first',
-        forgotPasswordTokenExpiry: Date.now(),
-        verifyTokenExpiry: Date.now() + 24 * 60 * 60 * 1000,
-    };
     try {
-        const user = await userModels.create(data);
-        await user.save();
+        await connectDB();
+        const data = Object.fromEntries(formData.entries());
 
-        const response = await sendEmail({
-            email: user.email,
-            subject: `Welcome to the community, ${user.name}`,
+        const { name, email, password } = data;
+
+        // Basic validation
+        if (!name || !email || !password) {
+            return { success: false, message: 'All fields are required.' };
+        }
+
+        // Check if user already exists
+        const existingUser = await userModels.findOne({ email });
+        if (existingUser) {
+            return { success: false, message: 'User already exists.' };
+        }
+
+        // Hash password
+        const hashedPassword = await saltAndHashPassword(password);
+
+        // Create new user
+        const newUser = await userModels.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: 'user',
+            verified: false,
+            forgotPasswordToken: generateVerificationTokens(),
+            forgotPasswordTokenExpiry: Date.now(),
+            verifyTokenExpiry: Date.now() + 24 * 60 * 60 * 1000,
+        });
+
+        // Send verification email
+
+        await sendEmail({
+            email: newUser.email,
+            subject: `Welcome to XCUBIT, ${newUser.name}!`,
+            type: 'verify',
             message: {
-                name: user.name,
-                verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/user/${user.verifyToken}`,
+                name: newUser.name,
+                verifyLink: `${process.env.NEXT_PUBLIC_BASE_URL}/verify/user/${newUser.verifyToken}`,
                 contactEmail: 'support@xcubit.in',
             },
-            type: 'verify',
         });
-        redirect('/login');
+
+        // Redirect after successful signup
+        return { success: true, message: 'Created Account!' };
     } catch (error) {
-        console.log(error);
-        throw error;
+        return { success: false, message: error };
     }
 }
 

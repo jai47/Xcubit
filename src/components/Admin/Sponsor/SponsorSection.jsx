@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { AiOutlineUpload } from 'react-icons/ai';
+import { FaTrash } from 'react-icons/fa';
 import { MdOutlineDelete } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
-const SponsorSection = ({ sponsorAdminGET, sponsorAdminPOST }) => {
+const SponsorSection = ({
+    sponsorAdminGET,
+    sponsorAdminPOST,
+    sponsorAdminDELETE,
+}) => {
     const [formData, setFormData] = useState({
         name: '',
         description: '',
@@ -66,7 +72,7 @@ const SponsorSection = ({ sponsorAdminGET, sponsorAdminPOST }) => {
             const urlParts = formData.logo.split('/');
             const filename = urlParts[urlParts.length - 1];
             const res = await fetch(
-                `${process.env.NEXT_PUBLIC_IMAGE_SERVER}localhost:8080/delete/${filename}`,
+                `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/delete/${filename}`,
                 {
                     method: 'DELETE',
                 }
@@ -112,6 +118,38 @@ const SponsorSection = ({ sponsorAdminGET, sponsorAdminPOST }) => {
         }
     };
 
+    const handleDelete = async (sponsor) => {
+        if (!confirm('Are you sure you want to delete this judge?')) return;
+
+        if (sponsor?.image) {
+            try {
+                const urlParts = sponsor.image?.split('/');
+                const filename = urlParts[urlParts.length - 1];
+                const res = await fetch(
+                    `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/delete/${filename}`,
+                    {
+                        method: 'DELETE',
+                    }
+                );
+                if (!res.ok)
+                    toast.error(
+                        'Failed to delete image, tring to delete sponsor'
+                    );
+            } catch (err) {
+                toast.error('Delete failed:', err);
+            }
+        }
+
+        const res = await sponsorAdminDELETE(sponsor._id);
+        if (res.success) {
+            toast.success(res.message + ' refreshing page in 5 sec');
+            setTimeout(() => {
+                window.location.reload();
+            }, 5000);
+        } else {
+            toast.error(res.message);
+        }
+    };
     return (
         <div className="h-full overflow-auto p-6 max-w-5xl mx-auto">
             <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100">
@@ -249,17 +287,28 @@ const SponsorSection = ({ sponsorAdminGET, sponsorAdminPOST }) => {
 
                             {/* Details */}
                             <div className="flex flex-col gap-1">
-                                <span className="font-semibold text-lg">
+                                <span className="font-semibold text-white text-lg">
                                     {sponsor.name}
                                 </span>
-                                <span className="text-sm text-gray-600 dark:text-gray-300">
-                                    {sponsor.partnerShip} • {sponsor.category}
+                                <span className="text-sm text-gray-600 dark:text-gray-300 capitalize">
+                                    {sponsor?.partnerShip &&
+                                        sponsor.partnerShip + '•'}{' '}
+                                    {sponsor.category}
                                 </span>
                                 {sponsor.description && (
                                     <span className="text-xs text-gray-500 dark:text-gray-400">
                                         {sponsor.description}
                                     </span>
                                 )}
+                                {/* Delete button */}
+                                <button
+                                    onClick={() => {
+                                        handleDelete(sponsor);
+                                    }}
+                                    className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+                                >
+                                    <FaTrash className="text-red-500" />
+                                </button>
                             </div>
                         </div>
                     ))}

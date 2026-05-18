@@ -1,6 +1,6 @@
 'use client';
+import Image from 'next/image';
 import { useEffect, useState, useRef } from 'react';
-import Image from '@/src/components/Image';
 
 export default function EventDetailsHeroImage({ src, alt }) {
     const [offset, setOffset] = useState(0);

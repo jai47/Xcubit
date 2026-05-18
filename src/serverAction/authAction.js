@@ -12,7 +12,7 @@ export async function loginCred(formData) {
         });
     } catch (error) {
         console.log(error);
-        throw error;
+        return { success: false, message: 'Invalid credential' };
     }
     redirect('/dashboard');
 }

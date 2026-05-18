@@ -11,10 +11,16 @@ const teamSchema = new Schema(
         members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'user' }],
         event: { type: mongoose.Schema.Types.ObjectId, ref: 'event' },
         submission: {
-            text: { type: Boolean, default: false },
-            video: { type: Boolean, default: false },
-            document: { type: Boolean, default: false },
-            repo: { type: Boolean, default: false },
+            text: { type: String, default: '' },
+            video: { type: String, default: '' },
+            document: { type: String, default: '' },
+            repo: { type: String, default: '' },
+        },
+        entered: { type: Boolean, default: false }, // for local level
+        national: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'national',
+            default: null,
         },
     },
     { timestamps: true }

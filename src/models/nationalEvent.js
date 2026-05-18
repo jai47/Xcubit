@@ -26,6 +26,8 @@ const nationalEventSchema = new Schema(
         name: { type: String, required: true },
         session: { type: String, required: true, unique: true }, // e.g., "2026"
         date: { type: Date, required: true },
+        submissionDate: { type: Date, required: true },
+        submissionDeadline: { type: Date, required: true },
         registrations: [{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }],
         entered: [{ type: mongoose.Schema.Types.ObjectId, ref: 'team' }],
         venue: { type: venueSchema, default: {} },
@@ -33,11 +35,8 @@ const nationalEventSchema = new Schema(
         shortDescription: { type: String },
         description: { type: String },
         banner: { type: String },
-        status: {
-            type: String,
-            enum: ['upcoming', 'ongoing', 'completed'],
-            default: 'upcoming',
-        },
+        collegeGuideline: { type: String, default: '#' },
+        participantsGuideline: { type: String, default: '#' },
     },
     { timestamps: true }
 );

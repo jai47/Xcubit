@@ -1,10 +1,11 @@
 import { auth } from '@/src/auth';
-import RegisterForm from '@/src/components/Registration/RegistrationForm';
 import { getEventBySlug } from '@/src/serverAction/eventAction';
 import { getUserFromDB } from '@/src/serverAction/userAction';
 import { redirect } from 'next/navigation';
 import NotFound from '../../not-found';
 import { checkAlreadyInTeam, getTeamById } from '@/src/serverAction/teamAction';
+import Footer from '@/src/components/layout/Footer';
+import RegisterForm from '@/src/components/Registration/RegistrationForm';
 
 export default async function Page({ searchParams }) {
     const Params = await searchParams;
@@ -49,12 +50,15 @@ export default async function Page({ searchParams }) {
     const safeUser = user ? JSON.parse(JSON.stringify(user)) : null;
 
     return (
-        <RegisterForm
-            event={safeEvent}
-            user={safeUser}
-            team={safeTeam}
-            InviteCode={InviteCode}
-            teamFromInvite={safeTeamFromInvite}
-        />
+        <>
+            <RegisterForm
+                event={safeEvent}
+                user={safeUser}
+                team={safeTeam}
+                InviteCode={InviteCode}
+                teamFromInvite={safeTeamFromInvite}
+            />
+            <Footer />
+        </>
     );
 }

@@ -4,6 +4,7 @@ import React from 'react';
 
 import CollegeInfo from '@/src/components/Institute/CollegeInfo/CollegeInfo';
 import CollegeEvent from './CollegeEvent/CollegeEvent';
+import CollegeSubmitTeams from './CollegeSubmitTeams/CollegeSubmitTeams';
 
 const InstituteSectionRenderer = ({ college }) => {
     const searchParams = useSearchParams();
@@ -16,13 +17,7 @@ const InstituteSectionRenderer = ({ college }) => {
             case 'My Event':
                 return <CollegeEvent college={college} />;
             case 'Submit Teams':
-                return (
-                    <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md">
-                        <p className="text-gray-600 dark:text-gray-300">
-                            Submit Teams form goes here.
-                        </p>
-                    </div>
-                );
+                return <CollegeSubmitTeams college={college} />;
             case 'Report':
                 return (
                     <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md">

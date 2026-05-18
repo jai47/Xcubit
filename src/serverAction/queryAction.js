@@ -1,7 +1,7 @@
 'use server';
 
 import { connectDB } from '@/src/lib/mongodb';
-import { queryModels } from '@/src/models/queries';
+import { queryModels } from '../models';
 
 export async function queryFormAction(formData) {
     try {

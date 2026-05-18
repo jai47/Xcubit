@@ -1,9 +1,24 @@
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const BookmarkDashboard = ({ bookmarkedEvents }) => {
+const BookmarkDashboard = () => {
+    const [bookmarkedEvents, setBookmarkedEvents] = useState([]);
+
+    useEffect(() => {
+        const cookies = document.cookie.split('; ');
+        const cookie = cookies.find((row) => row.startsWith(`bookmarks=`));
+        try {
+            const parsedCookie = JSON.parse(
+                decodeURIComponent(cookie.split('=')[1])
+            );
+            console.log(parsedCookie);
+            setBookmarkedEvents(parsedCookie);
+        } catch (error) {
+            console.log('Fail to parse event cookies');
+        }
+    }, []);
     return (
-        <div className="p-6   shadow-lg rounded-lg mx-auto">
+        <div className="p-6 text-white  shadow-lg rounded-lg mx-auto">
             <h2 className="text-2xl font-bold mb-6 border-b pb-2  ">
                 Bookmarks
             </h2>

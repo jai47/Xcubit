@@ -7,10 +7,12 @@ import logoImage from '../../../public/logo/logo.png';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { useSession } from 'next-auth/react';
+import { useNationalEvent } from '@/src/context/National/NationalEventContext';
 
 const Navbar = () => {
     const { data: session } = useSession();
     const user = session?.user;
+    const nationals = useNationalEvent();
     const [isOpen, setIsOpen] = useState(false);
     const tl = useRef(null);
 
@@ -102,14 +104,21 @@ const Navbar = () => {
                             >
                                 <div className="flex flex-col space-y-1">
                                     <Link
-                                        href="/guidelines/institute.pdf"
+                                        href={
+                                            nationals?.collegeGuideline || '#'
+                                        }
                                         className="px-3 py-2 text-xs text-white hover:bg-white/10 rounded-md"
+                                        target="_blank"
                                     >
                                         Institute Guidelines
                                     </Link>
                                     <Link
-                                        href="/guidelines/participants.pdf"
+                                        href={
+                                            nationals?.participantsGuideline ||
+                                            '#'
+                                        }
                                         className="px-3 py-2 text-xs text-white hover:bg-white/10 rounded-md"
+                                        target="_blank"
                                     >
                                         Participants Guidelines
                                     </Link>

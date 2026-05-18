@@ -16,7 +16,7 @@ const AdminDashboard = async () => {
         return redirect('login');
     }
     const user = await getUserFromDB(session?.user?.email);
-    if (user.role !== 'admin') {
+    if (user?.role !== 'admin') {
         redirect('/login');
     }
 

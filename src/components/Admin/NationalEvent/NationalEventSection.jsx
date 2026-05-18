@@ -12,17 +12,23 @@ const NationalEventSection = ({
         name: '',
         session: '',
         date: '',
+        submissionDate: '',
+        submissionDeadline: '',
         shortDescription: '',
         description: '',
         banner: '',
         venue: { name: '', address: '', locationURL: '' },
         timeline: [],
+        collegeGuideline: '',
+        participantsGuideline: '',
     });
 
     const [timelineItem, setTimelineItem] = useState({
         title: '',
         date: '',
         blocks: [],
+        newBlockValue: '',
+        newBlockType: 'text',
     });
 
     const [eventList, setEventList] = useState([]);
@@ -50,7 +56,33 @@ const NationalEventSection = ({
         });
     };
 
-    // ✅ Add block to timeline item
+    const handleFileUpload = async (file, field) => {
+        if (!file) return;
+        try {
+            const formDataObj = new FormData();
+            formDataObj.append('file', file);
+
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/upload`,
+                {
+                    method: 'POST',
+                    body: formDataObj,
+                }
+            );
+            if (!res.ok) throw new Error('Upload failed');
+            const data = await res.json();
+
+            setFormData({ ...formData, [field]: data.url });
+        } catch (err) {
+            console.error('Upload error:', err);
+        }
+    };
+
+    const handleDeleteFile = (field) => {
+        setFormData({ ...formData, [field]: '' });
+    };
+
+    // Timeline Block Helpers
     const addBlockToTimelineItem = async () => {
         if (!timelineItem.newBlockValue) return;
 
@@ -72,43 +104,51 @@ const NationalEventSection = ({
         });
     };
 
-    const handleDeleteLogo = async () => {
-        try {
-            const urlParts = formData.banner.split('/');
-            const filename = urlParts[urlParts.length - 1];
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/delete/${filename}`,
-                {
-                    method: 'DELETE',
-                }
-            );
-
-            if (!res.ok) throw new Error('Failed to delete file');
-
-            setFormData({ ...formData, banner: '' });
-        } catch (err) {
-            console.error('Delete logo error:', err);
-        }
+    const removeBlock = (index) => {
+        setTimelineItem({
+            ...timelineItem,
+            blocks: timelineItem.blocks.filter((_, i) => i !== index),
+        });
     };
 
-    const cleanFormDataForDB = (data) => {
-        return {
-            ...data,
-            timeline: data.timeline.map((item) => ({
-                title: item.title,
-                date: item.date,
-                blocks: item.blocks.map((block) => ({
-                    type: block.type,
-                    value: block.value,
-                })),
-            })),
-        };
+    const addTimelineItem = () => {
+        if (!timelineItem.title || !timelineItem.date) return;
+
+        setFormData({
+            ...formData,
+            timeline: [...formData.timeline, timelineItem],
+        });
+
+        setTimelineItem({
+            title: '',
+            date: '',
+            blocks: [],
+            newBlockValue: '',
+            newBlockType: 'text',
+        });
     };
+
+    const removeTimelineItem = (index) => {
+        setFormData({
+            ...formData,
+            timeline: formData.timeline.filter((_, i) => i !== index),
+        });
+    };
+
+    const cleanFormDataForDB = (data) => ({
+        ...data,
+        timeline: data.timeline.map((item) => ({
+            title: item.title,
+            date: item.date,
+            blocks: item.blocks.map((b) => ({ type: b.type, value: b.value })),
+        })),
+    });
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name || !formData.session) return;
 
-        const cleanedData = cleanFormDataForDB(formData); // ✅ clean timeline
+        const cleanedData = cleanFormDataForDB(formData);
 
         let response;
         if (editingEventId) {
@@ -123,8 +163,22 @@ const NationalEventSection = ({
                 name: '',
                 session: '',
                 date: '',
+                submissionDate: '',
+                submissionDeadline: '',
+                shortDescription: '',
+                description: '',
+                banner: '',
                 venue: { name: '', address: '', locationURL: '' },
                 timeline: [],
+                collegeGuideline: '',
+                participantsGuideline: '',
+            });
+            setTimelineItem({
+                title: '',
+                date: '',
+                blocks: [],
+                newBlockValue: '',
+                newBlockType: 'text',
             });
             setEditingEventId(null);
         }
@@ -141,131 +195,186 @@ const NationalEventSection = ({
                 Manage National Events
             </h2>
 
-            {/* Event Form */}
             <form
                 onSubmit={handleSubmit}
-                className="bg-white dark:bg-gray-900 shadow-lg rounded-xl p-6 grid gap-4 md:grid-cols-2 dark:text-white"
+                className="bg-white dark:bg-gray-900 shadow-lg rounded-xl p-6 grid gap-8 md:grid-cols-2 dark:text-white"
             >
-                {/* Event Fields */}
-                <input
+                {/* Event fields */}
+                <InputField
+                    id="name"
                     name="name"
                     type="text"
-                    placeholder="Event Name"
+                    lable="Event Name"
                     value={formData.name}
                     onChange={handleChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="enter the event name"
                     required
+                    className="md:col-span-1"
                 />
 
-                <input
+                <InputField
+                    id="session"
                     name="session"
                     type="text"
-                    placeholder="Session (e.g. 2026)"
+                    lable="Event Session"
                     value={formData.session}
                     onChange={handleChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="session (e.g. 2026)"
                     required
+                    className="md:col-span-1"
                 />
 
-                <input
+                <InputField
+                    id="date"
                     name="date"
                     type="date"
+                    lable="Event Date"
                     value={formData.date?.split('T')[0] || ''}
                     onChange={handleChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    required
+                    className="md:col-span-1"
                 />
 
-                <input
+                <InputField
+                    id="submissionDate"
+                    name="submissionDate"
+                    type="date"
+                    lable="Team Submission Start Date"
+                    value={formData.submissionDate?.split('T')[0] || ''}
+                    onChange={handleChange}
+                    required
+                    className="md:col-span-1"
+                />
+
+                <InputField
+                    id="submissionDeadline"
+                    name="submissionDeadline"
+                    type="date"
+                    lable="Team Submission End Date"
+                    value={formData.submissionDeadline?.split('T')[0] || ''}
+                    onChange={handleChange}
+                    required
+                    className="md:col-span-1"
+                />
+
+                <InputField
+                    id="shortDescription"
                     name="shortDescription"
                     type="text"
-                    value={formData?.shortDescription || ''}
+                    lable="Short description of event"
+                    value={formData.shortDescription || ''}
                     onChange={handleChange}
-                    placeholder="Short Description"
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="enter 10-20 words short description"
+                    required
+                    className="md:col-span-2"
                 />
 
-                <input
+                <InputField
+                    id="description"
                     name="description"
                     type="text"
-                    value={formData?.description || ''}
+                    lable="Detailed description"
+                    value={formData.description || ''}
                     onChange={handleChange}
-                    placeholder="Description"
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="enter 40-60 words description"
+                    required
+                    className="md:col-span-2"
                 />
 
-                <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <span className="text-sm text-gray-600 dark:text-gray-300">
+                {/* Banner Upload */}
+                <label className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 md:col-span-2">
+                    <span>
                         {formData.banner
                             ? '✅ Banner uploaded'
                             : '📤 Click to upload banner'}
                     </span>
                     <input
                         type="file"
-                        accept="image/*"
                         className="hidden"
-                        onChange={async (e) => {
-                            const file = e.target.files[0];
-                            if (!file) return;
-
-                            const formDataObj = new FormData();
-                            formDataObj.append('file', file);
-
-                            try {
-                                const res = await fetch(
-                                    `${process.env.NEXT_PUBLIC_IMAGE_SERVER}/upload`,
-                                    {
-                                        method: 'POST',
-                                        body: formDataObj,
-                                    }
-                                );
-                                if (!res.ok) throw new Error('Upload failed');
-                                const data = await res.json();
-                                setFormData({
-                                    ...formData,
-                                    banner: data.url,
-                                });
-                            } catch (err) {
-                                console.error('Upload error:', err);
-                            }
-                        }}
+                        accept="image/*"
+                        onChange={(e) =>
+                            handleFileUpload(e.target.files[0], 'banner')
+                        }
                     />
                 </label>
                 {formData.banner && (
-                    <div className="w-full h-full relative">
+                    <div className="relative md:col-span-2">
                         <div
-                            onClick={handleDeleteLogo}
+                            onClick={() => handleDeleteFile('banner')}
                             className="absolute -top-1 -right-1 p-1 rounded-full bg-gray-600 cursor-pointer"
                         >
                             <MdOutlineDelete className="text-red-400" />
                         </div>
-                        <img src={formData.banner} alt="" />
+                        <img src={formData.banner} className="max-h-40" />
                     </div>
                 )}
-
+                {/* Guidelines Upload */}
+                <div className="md:col-span-2 grid gap-2">
+                    {['collegeGuideline', 'participantsGuideline'].map(
+                        (field) => (
+                            <label key={field} className="flex flex-col gap-1">
+                                {field === 'collegeGuideline'
+                                    ? 'College Guideline PDF'
+                                    : 'Participants Guideline PDF'}
+                                <input
+                                    type="file"
+                                    accept="application/pdf"
+                                    onChange={(e) =>
+                                        handleFileUpload(
+                                            e.target.files[0],
+                                            field
+                                        )
+                                    }
+                                />
+                                {formData[field] && (
+                                    <a
+                                        href={formData[field]}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 text-sm"
+                                    >
+                                        View Uploaded
+                                    </a>
+                                )}
+                            </label>
+                        )
+                    )}
+                </div>
                 {/* Venue */}
-                <input
+                <InputField
+                    id="venue"
                     name="name"
                     type="text"
-                    placeholder="Venue Name"
+                    lable="Venue Name"
                     value={formData.venue.name}
                     onChange={handleVenueChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="what is venue name?"
+                    required
+                    className="md:col-span-1"
                 />
-                <input
+
+                <InputField
+                    id="address"
                     name="address"
                     type="text"
-                    placeholder="Venue Address"
+                    lable="Venue Address"
                     value={formData.venue.address}
                     onChange={handleVenueChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="what is venue address?"
+                    required
+                    className="md:col-span-1"
                 />
-                <input
+
+                <InputField
+                    id="locationURL"
                     name="locationURL"
                     type="text"
-                    placeholder="Venue Location URL"
+                    lable="Venue Location URL"
                     value={formData.venue.locationURL}
                     onChange={handleVenueChange}
-                    className="md:col-span-2 w-full p-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                    placeholder="enter the google maps URL"
+                    required
+                    className="md:col-span-1"
                 />
 
                 {/* Timeline Section */}
@@ -622,6 +731,41 @@ const NationalEventSection = ({
                     ))}
                 </div>
             </div>
+        </div>
+    );
+};
+
+const InputField = ({
+    id,
+    name,
+    lable,
+    type = 'text',
+    value,
+    onChange,
+    placeholder = '',
+    required = false,
+    className = '',
+}) => {
+    return (
+        <div className={`flex w-full flex-col relative ${className}`}>
+            {lable && (
+                <label
+                    htmlFor={id}
+                    className="absolute top-[-10px] left-3 px-1 text-sm bg-white dark:bg-gray-900 dark:text-white"
+                >
+                    {lable}
+                </label>
+            )}
+            <input
+                id={id}
+                name={name}
+                type={type}
+                value={value}
+                placeholder={placeholder}
+                onChange={onChange}
+                required={required}
+                className="w-full px-4 py-3 outline-none border border-gray-300 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white"
+            />
         </div>
     );
 };

@@ -7,8 +7,8 @@ import Link from 'next/link';
 import BookmarkButton from '@/src/components/Details/BookmarkButton';
 import Navbar from '@/src/components/layout/NavbarHome';
 import UpcomingEvents from '@/src/components/UpcomingEvents/UpcomingEvents';
-import Image from '@/src/components/Image';
 import NotFound from '@/src/app/not-found';
+import Image from 'next/image';
 
 const Event = async (props) => {
     const params = await props.params;
@@ -105,26 +105,51 @@ const Event = async (props) => {
                                 {data.shortDescription}
                             </p>
                         </div>
+                        {new Date(data.dateTime) > new Date() ? (
+                            <div className="mt-4">
+                                <Link
+                                    href={{
+                                        pathname: '/register',
+                                        query: { event: data.slug },
+                                    }}
+                                >
+                                    <div className="relative group inline-block">
+                                        <button className="relative px-8 py-3 font-bold text-black text-xs rounded-full overflow-hidden bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300 transition-all duration-300 group-hover:scale-105 group-hover:text-white animate-gradient-border">
+                                            {/* Animated Gradient Border */}
+                                            <span className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                                <span className="block h-full w-full rounded-full bg-neutral-950"></span>
+                                            </span>
 
-                        <div className="mt-4">
-                            <Link
-                                href={{
-                                    pathname: '/register',
-                                    query: { event: data.slug },
-                                }}
-                            >
-                                <button className="mt-4 px-6 py-3 font-bold rounded-full bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300 text-gray-800 hover:scale-105 transition-transform duration-300 shadow-lg">
-                                    Register Now
+                                            {/* Button Text Layer */}
+                                            <span className="relative">
+                                                Register Now
+                                            </span>
+                                        </button>
+                                    </div>
+                                </Link>
+                            </div>
+                        ) : (
+                            <div className="relative group inline-block mt-4">
+                                <button className="relative px-8 py-3 font-bold text-white text-xs rounded-full overflow-hidden cursor-not-allowed">
+                                    {/* Animated Gradient Border */}
+                                    <span className="absolute inset-0 rounded-full p-[2px] bg-gradient-to-r from-indigo-300 via-blue-300 to-purple-300 animate-gradient-border opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                        <span className="block h-full w-full rounded-full bg-neutral-950"></span>
+                                    </span>
+
+                                    {/* Button Text Layer */}
+                                    <span className="relative lowercase">
+                                        Registeration Ended
+                                    </span>
                                 </button>
-                            </Link>
-                        </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Extra Info */}
                     <div className="flex flex-col items-center justify-between">
                         <BookmarkButton
                             cookie={'bookmarks'}
-                            value={data.name}
+                            value={data.slug}
                         />
                         <div className="text-gray-400 text-sm mt-2">
                             Created:{' '}
@@ -150,7 +175,7 @@ const Event = async (props) => {
                     />
                 )}
 
-                <UpcomingEvents />
+                <UpcomingEvents currentEvent={data} />
             </div>
 
             <Footer />

@@ -5,7 +5,7 @@ import Button from '@/src/components/Button';
 import Link from 'next/link';
 
 export default async function Page({ params }) {
-    const { tokens } = params;
+    const { tokens } = await params;
     const session = await auth();
 
     if (!session) {

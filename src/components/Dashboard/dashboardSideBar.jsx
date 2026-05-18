@@ -105,7 +105,7 @@ const DashboardSideBar = ({ profile, session }) => {
 
                 {/* Navigation */}
                 <nav className="mt-4 flex flex-col">
-                    {navItems.map((item) => (
+                    {navItems?.map((item) => (
                         <Link
                             href={{
                                 pathname: '/dashboard',
@@ -126,6 +126,14 @@ const DashboardSideBar = ({ profile, session }) => {
                             </div>
                         </Link>
                     ))}
+                    <Link href={'/'}>
+                        <div
+                            className={`px-6 py-3 text-sm font-medium transition-all duration-200
+                                `}
+                        >
+                            Home
+                        </div>
+                    </Link>
 
                     {/* Logout */}
                     <button

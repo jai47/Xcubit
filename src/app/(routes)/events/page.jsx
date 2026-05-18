@@ -1,22 +1,20 @@
-import Button from '@/src/components/Button';
 import { eventGET } from '@/src/serverAction/eventAction';
 import React from 'react';
 import Navbar from '@/src/components/layout/NavbarHome';
 import Footer from '@/src/components/layout/Footer';
 import EventCard from '@/src/components/EventCard/EventCard'; // Import the EventCard component
 import { auth } from '@/src/auth';
-import Link from 'next/link';
 
 const Events = async () => {
     const session = await auth();
     const user = session?.user;
     const { data } = await eventGET();
     const currentDate = new Date();
-    const upcomingEvents = data.filter(
-        (event) => new Date(event.dateTime) > currentDate
+    const upcomingEvents = data?.filter(
+        (event) => new Date(event?.dateTime) > currentDate
     );
-    const pastEvents = data.filter(
-        (event) => new Date(event.dateTime) <= currentDate
+    const pastEvents = data?.filter(
+        (event) => new Date(event?.dateTime) <= currentDate
     );
 
     return (
@@ -33,13 +31,13 @@ const Events = async () => {
                 </div>
 
                 {/* Upcoming Events */}
-                {upcomingEvents.length > 0 && (
+                {upcomingEvents?.length > 0 && (
                     <section className="mb-24">
                         <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-8">
-                            Upcoming Events
+                            Upcoming Internal Events
                         </h2>
                         <div className="grid grid-cols-1 lg:gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
-                            {upcomingEvents.map((event, index) => (
+                            {upcomingEvents?.map((event, index) => (
                                 <div
                                     key={event._id}
                                     className="flex flex-wrap justify-center items-center rounded-lg hover:shadow-xl transition-shadow duration-300"
@@ -48,55 +46,38 @@ const Events = async () => {
                                         key={index}
                                         image={event.image}
                                         title={event.name}
-                                        date={event.start}
+                                        date={event.dateTime}
                                         description={event.shortDescription}
                                         price={event.price}
                                         category={event.category}
                                         slug={event?.slug}
                                     />
-                                    <div className="p-4">
-                                        {/* Buttons Side by Side */}
-                                        <div className="flex justify-between items-center  space-x-4">
-                                            <Link
-                                                href={`/events/${event.slug}`}
-                                            >
-                                                <Button text="Details" />
-                                            </Link>
-                                            <Link
-                                                href={{
-                                                    pathname: '/register',
-                                                    query: {
-                                                        event: `${event.slug}`,
-                                                    },
-                                                }}
-                                            >
-                                                <Button text="Register" />
-                                            </Link>
-                                        </div>
-                                    </div>
                                 </div>
                             ))}
                         </div>
                     </section>
                 )}
                 {/* Past Events */}
-                {pastEvents.length > 0 && (
+                {pastEvents?.length > 0 && (
                     <section>
                         <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-8">
                             Past Events
                         </h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
-                            {pastEvents.map((event) => (
+                            {pastEvents?.map((event, index) => (
                                 <div
-                                    key={event._id}
+                                    key={event?._id}
                                     className="rounded-lg hover:shadow-xl transition-shadow duration-300"
                                 >
                                     <EventCard
+                                        key={index}
                                         image={event.image}
-                                        date={event.start}
                                         title={event.name}
-                                        description={event.description[0]}
+                                        date={event.dateTime}
+                                        description={event.shortDescription}
+                                        price={event.price}
                                         category={event.category}
+                                        slug={event?.slug}
                                     />
                                 </div>
                             ))}
@@ -105,7 +86,7 @@ const Events = async () => {
                 )}
 
                 {/* No Events Available */}
-                {upcomingEvents.length === 0 && pastEvents.length === 0 && (
+                {upcomingEvents?.length === 0 && pastEvents?.length === 0 && (
                     <div className="text-center ">
                         <p>
                             No events available at the moment. Please check back

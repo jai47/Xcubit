@@ -1,7 +1,7 @@
 'use server';
 
 import { connectDB } from '../lib/mongodb';
-import { problemStatementModels } from '../models/problemStatements';
+import { problemStatementModels } from '../models';
 
 // Get all problem statements
 export async function problemStatementGET() {

@@ -88,7 +88,7 @@ const HeroSection = ({ sponsorGET }) => {
 
     return (
         <section
-            className="w-screen min-h-screen text-background overflow-hidden select-none bg-[#030303] relative flex flex-col justify-center items-center px-2 sm:px-6 lg:px-12"
+            className="w-full min-h-screen text-background overflow-hidden select-none bg-[#030303] relative flex flex-col justify-center items-center px-2 sm:px-6 lg:px-12"
             style={{
                 backgroundImage: "url('/grid.webp')",
                 backgroundPosition: '0 10%, 10% 10%',
@@ -143,10 +143,13 @@ const HeroSection = ({ sponsorGET }) => {
                     >
                         <CiLinkedin size={20} />
                     </Link>
-                    <Link href="http://x.com/xcubit_official">
+                    <Link href="http://x.com/xcubit_official" target="_blank">
                         <CiTwitter size={20} />
                     </Link>
-                    <Link href="https://www.instagram.com/xcubit_official/">
+                    <Link
+                        href="https://www.instagram.com/xcubit_official/"
+                        target="_blank"
+                    >
                         <CiInstagram size={20} />
                     </Link>
                 </div>
@@ -156,7 +159,7 @@ const HeroSection = ({ sponsorGET }) => {
             </div>
 
             {/* Main Hero Content */}
-            <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-10 lg:gap-16 w-full text-center lg:text-left mt-16 sm:mt-20 lg:mt-24">
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-6 sm:gap-10 lg:gap-16 w-full text-center lg:text-left">
                 {/* Left Section */}
                 <div className="flex flex-col items-center lg:items-start max-w-2xl px-2 sm:px-6">
                     <h1
@@ -214,11 +217,11 @@ const HeroSection = ({ sponsorGET }) => {
 
             {/* Sponsors */}
             {sponsors.length === 0 ? (
-                <div className="w-full py-12 sm:py-16 text-center text-gray-500 dark:text-gray-400 text-sm sm:text-base">
+                <div className="absolute bottom-0 w-full py-4 sm:py-16 text-center text-gray-500 dark:text-gray-400 text-sm sm:text-base">
                     🎉 Sponsors Coming Soon!
                 </div>
             ) : (
-                <div className="w-11/12 bg-slate-950/5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-center mt-6 gap-2 sm:gap-4 py-2 sm:py-4">
+                <div className="absolute bottom-0 w-11/12 bg-slate-950/5 backdrop-blur-sm flex flex-col sm:flex-row items-center justify-center mt-6 gap-2 sm:gap-4 py-2 sm:py-4">
                     <p className="text-base sm:text-lg font-thin text-white/70">
                         Supported By Leading Brands
                     </p>

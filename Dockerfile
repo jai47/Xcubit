@@ -41,7 +41,7 @@ CMD ["npm", "start"]
 # about
 # remove ticket
 
-#  docker build --platform linux/amd64 -t xcubit:2.6 .
-#  docker tag xcubit:2.7 jai4/xcubit:2.7
-# docker push jai4/xcubit:2.7
-# docker run -d --name xcubit -p 3000:3000 --env-file .env jai4/xcubit:2.7
+#  docker build --platform linux/amd64 -t xcubit:3.6 .
+#  docker tag xcubit:3.6 jai4/xcubit:3.6
+# docker push jai4/xcubit:3.6
+# docker run -d --name xcubit -p 3000:3000 --env-file .env -- network xcnw jai4/xcubit:3.1
