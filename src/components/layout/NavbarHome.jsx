@@ -223,7 +223,7 @@ const Navbar = () => {
 
                 <div>
                     <p className="mt-4 md:mt-0 text-xs md:text-sm text-white">
-                        © 2024 Xcubit. All rights reserved.
+                        © 2026 Xcubit. All rights reserved.
                     </p>
                 </div>
             </div>
